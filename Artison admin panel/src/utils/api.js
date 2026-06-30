@@ -3,7 +3,7 @@ import axios from 'axios';
 const api = axios.create({
   // baseURL: 'http://localhost:5000/api',
   baseURL: 'https://artison-fr5n.onrender.com/api',
-  //  baseURL2: 'https://artison-fr5n.onrender.com/api',
+ 
   headers: {
     'Content-Type': 'application/json',
   },
