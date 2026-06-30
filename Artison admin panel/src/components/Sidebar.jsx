@@ -1,5 +1,5 @@
-import React from 'react';
-import { NavLink } from 'react-router-dom';
+import React, { useState } from 'react';
+import { NavLink, useNavigate } from 'react-router-dom';
 import { 
   LayoutDashboard, 
   Layers, 
@@ -15,6 +15,8 @@ import {
   Award,
   LifeBuoy
 } from 'lucide-react';
+import { useConfirm } from '../context/ConfirmContext';
+import Alert from '../utils/Alert';
 
 const MENU_ITEMS = [
   { name: 'Dashboard', path: '/', icon: LayoutDashboard },
@@ -31,6 +33,26 @@ const MENU_ITEMS = [
 ];
 
 export default function Sidebar() {
+  const { confirm } = useConfirm();
+  const navigate = useNavigate();
+
+  const handleLogout = async () => {
+    const isConfirmed = await confirm({
+      title: 'Confirm Logout',
+      message: 'Are you sure you want to log out of the admin panel? You will need to sign in again.',
+      confirmText: 'Logout',
+      cancelText: 'Cancel',
+      type: 'danger'
+    });
+
+    if (isConfirmed) {
+      localStorage.removeItem('token');
+      localStorage.removeItem('user');
+      navigate('/login');
+      Alert.success('Logged Out', 'You have been successfully logged out.');
+    }
+  };
+
   return (
     <div className="h-full bg-[#fdfbf7] flex flex-col py-6">
       <div className="flex-1 px-4 space-y-1 overflow-y-auto">
@@ -67,7 +89,8 @@ export default function Sidebar() {
           <span className="truncate">Settings</span>
         </NavLink>
         <button
-          className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-red-600 hover:bg-red-50 transition-colors"
+          onClick={handleLogout}
+          className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-red-600 hover:bg-red-50 transition-colors cursor-pointer"
         >
           <LogOut className="w-5 h-5" />
           <span className="truncate">Logout</span>

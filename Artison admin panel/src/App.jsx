@@ -1,5 +1,7 @@
 import React from 'react';
-import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { Toaster } from 'react-hot-toast';
+import { ConfirmProvider } from './context/ConfirmContext';
 import Layout from './components/Layout';
 import Dashboard from './pages/Dashboard';
 import Categories from './pages/Categories';
@@ -8,6 +10,8 @@ import Products from './pages/Products';
 import Coupons from './pages/Coupons';
 import Settings from './pages/Settings';
 import Tickets from './pages/Tickets';
+import Login from './pages/Login';
+import ProtectedRoute from './components/ProtectedRoute';
 
 // Placeholder component for other routes
 const Placeholder = ({ title }) => (
@@ -21,24 +25,30 @@ const Placeholder = ({ title }) => (
 
 function App() {
   return (
-    <BrowserRouter>
-      <Routes>
-        <Route path="/" element={<Layout />}>
-          <Route index element={<Dashboard />} />
-          <Route path="categories" element={<Categories />} />
-          <Route path="brands" element={<Brands />} />
-          <Route path="products" element={<Products />} />
-          <Route path="coupons" element={<Coupons />} />
-          <Route path="orders" element={<Placeholder title="Orders" />} />
-          <Route path="customers" element={<Placeholder title="Customers" />} />
-          <Route path="tickets" element={<Tickets />} />
-          <Route path="marketing" element={<Placeholder title="Marketing" />} />
-          <Route path="feedback" element={<Placeholder title="Feedback" />} />
-          <Route path="analysis" element={<Placeholder title="Analysis" />} />
-          <Route path="settings" element={<Settings />} />
-        </Route>
-      </Routes>
-    </BrowserRouter>
+    <ConfirmProvider>
+      <Toaster position="top-right" />
+      <BrowserRouter>
+        <Routes>
+          <Route path="/login" element={<Login />} />
+          <Route path="/" element={<ProtectedRoute><Layout /></ProtectedRoute>}>
+            <Route index element={<Dashboard />} />
+            <Route path="categories" element={<Categories />} />
+            <Route path="brands" element={<Brands />} />
+            <Route path="products" element={<Products />} />
+            <Route path="coupons" element={<Coupons />} />
+            <Route path="orders" element={<Placeholder title="Orders" />} />
+            <Route path="customers" element={<Placeholder title="Customers" />} />
+            <Route path="tickets" element={<Tickets />} />
+            <Route path="marketing" element={<Placeholder title="Marketing" />} />
+            <Route path="feedback" element={<Placeholder title="Feedback" />} />
+            <Route path="analysis" element={<Placeholder title="Analysis" />} />
+            <Route path="settings" element={<Settings />} />
+          </Route>
+          {/* Fallback route */}
+          <Route path="*" element={<Navigate to="/" replace />} />
+        </Routes>
+      </BrowserRouter>
+    </ConfirmProvider>
   );
 }
 

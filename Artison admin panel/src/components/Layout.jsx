@@ -5,7 +5,7 @@ import Sidebar from './Sidebar';
 import Header from './Header';
 
 export default function Layout() {
-  const [isCollapsed, setIsCollapsed] = useState(true);
+  const [isCollapsed, setIsCollapsed] = useState(false);
 
   const toggleSidebar = () => {
     setIsCollapsed(!isCollapsed);
@@ -43,7 +43,7 @@ export default function Layout() {
         {/* Toggle button */}
         <button 
           onClick={toggleSidebar}
-          className="absolute top-1 z-100 hidden md:flex items-center justify-center w-8 h-8 bg-white border border-[#eae0d5] rounded-full shadow-sm text-[#5a4d4d] hover:text-[#c39a5c] hover:border-[#c39a5c] transition-all duration-300 ease-in-out"
+          className="absolute top-1 z-50 hidden md:flex items-center justify-center w-8 h-8 bg-white border border-[#eae0d5] rounded-full shadow-sm text-[#5a4d4d] hover:text-[#c39a5c] hover:border-[#c39a5c] transition-all duration-300 ease-in-out"
           style={{ 
             left: isCollapsed ? '0px' : '16rem', 
             transform: isCollapsed ? 'translateX(0.5rem)' : 'translateX(-50%)' 
