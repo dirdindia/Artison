@@ -12,7 +12,7 @@ const validate = require('../middlewares/validateMiddleware');
 const { categorySchema } = require('../validations/categoryValidation');
 
 router.post('/', protectAdmin, validate(categorySchema), createCategory);
-router.get('/', protectAdmin, paginate, getCategories);
+router.get('/', paginate, getCategories);
 router.put('/:id', protectAdmin, validate(categorySchema), updateCategory);
 router.delete('/:id', protectAdmin, deleteCategory);
 

@@ -1,8 +1,10 @@
+import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { ArrowRight, Sparkles, Palette, Truck, ShieldCheck, Star, Quote, Mail } from "lucide-react";
 import { AppShell } from "@/components/AppShell";
 import { ProductCard } from "@/components/ProductCard";
-import { products, categories, artists } from "@/data/products";
+import { products, artists } from "@/data/products";
+import api from "@/api";
 
 const stats = [
 { value: "2,400+", label: "Original artworks" },
@@ -24,6 +26,22 @@ const testimonials = [
 
 
 export default function Home() {
+  const [categoriesData, setCategoriesData] = useState([]);
+
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        const response = await api.get('/categories');
+        if (response.data && response.data.data) {
+          setCategoriesData(response.data.data);
+        }
+      } catch (error) {
+        console.error("Error fetching categories:", error);
+      }
+    };
+    fetchCategories();
+  }, []);
+
   const featured = products.slice(0, 4);
   const trending = products.slice(4);
   const spotlight = products[0];
@@ -129,16 +147,20 @@ export default function Home() {
             <h2 className="font-display text-xl font-bold md:text-3xl">Browse categories</h2>
             <p className="hidden text-sm text-muted-foreground md:block">Find the medium that speaks to you</p>
           </div>
-          <Link to="/explore" className="text-xs font-medium text-primary md:text-sm">See all</Link>
+          <Link to="/categories" className="text-xs font-medium text-primary md:text-sm">See all</Link>
         </div>
         <div className="grid grid-cols-4 gap-2 md:gap-5">
-          {categories.map((c) =>
+          {categoriesData.slice(0, 4).map((c) =>
           <Link
-            key={c.name}
-            to="/explore"
+            key={c._id || c.name}
+            to={`/explore?category=${c._id}&categoryName=${encodeURIComponent(c.name)}`}
             className="flex flex-col items-center gap-1.5 rounded-2xl bg-card p-3 text-center shadow-soft transition hover:bg-accent md:gap-3 md:p-8">
             
-              <span className="text-2xl md:text-5xl">{c.icon}</span>
+              {c.image ? (
+                <img src={c.image} alt={c.name} className="h-10 w-10 md:h-14 md:w-14 object-cover rounded-full" />
+              ) : (
+                <span className="text-2xl md:text-5xl">🎨</span>
+              )}
               <span className="truncate text-[10px] font-medium md:text-base">{c.name}</span>
             </Link>
           )}

@@ -8,12 +8,12 @@ export function ProductCard({ product }) {
       to={`/product/${product.id}`}
       className="group block overflow-hidden rounded-2xl bg-card shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-xl">
       
-      <div className="relative aspect-[4/5] overflow-hidden bg-canvas">
+      <div className="relative aspect-[4/5] overflow-hidden bg-canvas flex items-center justify-center p-2">
         <img
           src={product.image}
           alt={product.title}
           loading="lazy"
-          className="h-full w-full object-cover transition-transform duration-700 ease-out group-hover:scale-110" />
+          className="max-h-full max-w-full rounded-2xl object-cover shadow-sm transition-transform duration-700 ease-out group-hover:scale-110" />
         <div className="absolute inset-0 bg-gradient-to-t from-black/20 via-transparent to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
         
         <button

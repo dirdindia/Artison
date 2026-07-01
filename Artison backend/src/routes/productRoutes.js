@@ -12,7 +12,8 @@ const validate = require('../middlewares/validateMiddleware');
 const { productSchema } = require('../validations/productValidation');
 
 router.post('/', protectAdmin, validate(productSchema), createProduct);
-router.get('/', protectAdmin, paginate, getProducts);
+router.get('/', paginate, getProducts);
+router.get('/:id', require('../controllers/productController').getProductById);
 router.put('/:id', protectAdmin, validate(productSchema), updateProduct);
 router.delete('/:id', protectAdmin, deleteProduct);
 

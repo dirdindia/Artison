@@ -8,6 +8,7 @@ import Product from "./pages/Product";
 import Profile from "./pages/Profile";
 import Login from "./pages/Login";
 import Signup from "./pages/Signup";
+import Categories from "./pages/Categories";
 
 // Simple route guard for protected routes
 function ProtectedRoute({ children }) {
@@ -26,6 +27,7 @@ function App() {
           <Routes>
             <Route path="/" element={<Home />} />
             <Route path="/explore" element={<Explore />} />
+            <Route path="/categories" element={<Categories />} />
             <Route path="/cart" element={<Cart />} />
             <Route path="/product/:id" element={<Product />} />
             <Route path="/login" element={<Login />} />
