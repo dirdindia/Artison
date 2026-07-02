@@ -57,16 +57,16 @@ export default function CartPage() {
           <Row label="Shipping" value={formatPrice(shipping)} />
           <div className="my-1 border-t border-border" />
           <Row label="Total" value={formatPrice(subtotal + shipping)} bold />
-          <button className="mt-3 hidden w-full rounded-2xl bg-gradient-warm py-3.5 text-sm font-semibold text-primary-foreground shadow-soft md:block">
+          <Link to="/checkout" className="mt-3 hidden w-full rounded-2xl bg-gradient-warm py-3.5 text-sm font-semibold text-primary-foreground shadow-soft md:block text-center">
             Checkout · {formatPrice(subtotal + shipping)}
-          </button>
+          </Link>
         </div>
       </div>
 
       <div className="fixed inset-x-0 bottom-20 z-30 mx-auto w-full max-w-md px-5 md:hidden">
-        <button className="w-full rounded-2xl bg-gradient-warm py-3.5 text-sm font-semibold text-primary-foreground shadow-card">
+        <Link to="/checkout" className="w-full rounded-2xl bg-gradient-warm py-3.5 text-sm font-semibold text-primary-foreground shadow-card text-center block">
           Checkout · {formatPrice(subtotal + shipping)}
-        </button>
+        </Link>
       </div>
     </AppShell>);
 

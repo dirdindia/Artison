@@ -1,13 +1,13 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import { ArrowLeft, Mail, Lock, User, Palette, Loader2 } from "lucide-react";
+import { ArrowLeft, Mail, Lock, User, Phone, Loader2 } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
 
 export default function Signup() {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
+  const [phone, setPhone] = useState("");
   const [password, setPassword] = useState("");
-  const [role, setRole] = useState("collector");
   const [loading, setLoading] = useState(false);
   const { signup } = useAuth();
 
@@ -15,7 +15,7 @@ export default function Signup() {
     e.preventDefault();
     setLoading(true);
     try {
-      await signup(name, email, password, role);
+      await signup(name, email, password, phone, "user");
     } catch (error) {
       console.error(error);
     } finally {
@@ -53,33 +53,7 @@ export default function Signup() {
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-5">
-            {/* Role Selection */}
-            <div className="grid grid-cols-2 gap-4">
-              <button
-                type="button"
-                onClick={() => setRole("collector")}
-                className={`flex flex-col items-center justify-center gap-2 rounded-xl border p-4 transition-all ${
-                  role === "collector" 
-                    ? "border-primary bg-primary/5 text-primary shadow-sm" 
-                    : "border-border bg-transparent text-muted-foreground hover:bg-secondary"
-                }`}
-              >
-                <User className="h-6 w-6" />
-                <span className="text-sm font-semibold">Collector</span>
-              </button>
-              <button
-                type="button"
-                onClick={() => setRole("artist")}
-                className={`flex flex-col items-center justify-center gap-2 rounded-xl border p-4 transition-all ${
-                  role === "artist" 
-                    ? "border-primary bg-primary/5 text-primary shadow-sm" 
-                    : "border-border bg-transparent text-muted-foreground hover:bg-secondary"
-                }`}
-              >
-                <Palette className="h-6 w-6" />
-                <span className="text-sm font-semibold">Artist</span>
-              </button>
-            </div>
+
 
             <div className="space-y-4">
               <div className="space-y-1.5">
@@ -113,6 +87,21 @@ export default function Signup() {
               </div>
 
               <div className="space-y-1.5">
+                <label className="text-sm font-medium leading-none">Mobile Number</label>
+                <div className="relative">
+                  <Phone className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                  <input 
+                    type="tel" 
+                    required
+                    value={phone}
+                    onChange={(e) => setPhone(e.target.value)}
+                    className="flex h-10 w-full rounded-xl border border-input bg-transparent px-10 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 transition-shadow"
+                    placeholder="+1 (555) 000-0000" 
+                  />
+                </div>
+              </div>
+
+              <div className="space-y-1.5">
                 <label className="text-sm font-medium leading-none">Password</label>
                 <div className="relative">
                   <Lock className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
@@ -131,7 +120,7 @@ export default function Signup() {
             <button 
               type="submit" 
               disabled={loading}
-              className="inline-flex w-full items-center justify-center rounded-xl bg-foreground px-4 py-2.5 text-sm font-semibold text-background shadow-soft transition-colors hover:bg-foreground/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 active:scale-[0.98]"
+              className="inline-flex w-full items-center justify-center rounded-xl bg-foreground px-4 py-2.5 text-sm font-semibold text-background shadow-soft transition-colors hover:bg-foreground/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 active:scale-[0.98] cursor-pointer"
             >
               {loading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : "Create Account"}
             </button>

@@ -9,6 +9,8 @@ const categoryRoutes = require('./src/routes/categoryRoutes');
 const brandRoutes = require('./src/routes/brandRoutes');
 const productRoutes = require('./src/routes/productRoutes');
 const couponRoutes = require('./src/routes/couponRoutes');
+const userRoutes = require('./src/routes/userRoutes');
+const orderRoutes = require('./src/routes/orderRoutes');
 
 // Load env vars
 dotenv.config();
@@ -37,6 +39,8 @@ app.use('/api/categories', categoryRoutes);
 app.use('/api/brands', brandRoutes);
 app.use('/api/products', productRoutes);
 app.use('/api/coupons', couponRoutes);
+app.use('/api/users', userRoutes);
+app.use('/api/orders', orderRoutes);
 
 app.get('/', (req, res) => {
   res.send('API is running...');

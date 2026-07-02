@@ -95,6 +95,7 @@
     -webkit-font-smoothing: antialiased;
   }
   h1, h2, h3, h4 { font-family: var(--font-display); letter-spacing: -0.02em; }
+  button, a { cursor: pointer; }
 }
 
 @utility bg-gradient-warm { background-image: var(--gradient-warm); }

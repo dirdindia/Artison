@@ -114,14 +114,6 @@ export function AppShell({ children, title }) {
                       <span>Profile Dashboard</span>
                     </Link>
                   </DropdownMenuItem>
-                  <DropdownMenuItem className="cursor-pointer">
-                    <Package className="mr-2 h-4 w-4" />
-                    <span>My Orders</span>
-                  </DropdownMenuItem>
-                  <DropdownMenuItem className="cursor-pointer">
-                    <Settings className="mr-2 h-4 w-4" />
-                    <span>Settings</span>
-                  </DropdownMenuItem>
                   <DropdownMenuSeparator />
                   <DropdownMenuItem className="cursor-pointer text-destructive focus:text-destructive" onClick={logout}>
                     <LogOut className="mr-2 h-4 w-4" />

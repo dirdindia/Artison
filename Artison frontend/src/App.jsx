@@ -1,4 +1,5 @@
 import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
+import { Toaster } from "sonner";
 import { AuthProvider, useAuth } from "./context/AuthContext";
 import { CartProvider } from "./context/CartContext";
 import Home from "./pages/Home";
@@ -9,6 +10,7 @@ import Profile from "./pages/Profile";
 import Login from "./pages/Login";
 import Signup from "./pages/Signup";
 import Categories from "./pages/Categories";
+import Checkout from "./pages/Checkout";
 
 // Simple route guard for protected routes
 function ProtectedRoute({ children }) {
@@ -42,7 +44,16 @@ function App() {
                 </ProtectedRoute>
               } 
             />
+            <Route 
+              path="/checkout" 
+              element={
+                <ProtectedRoute>
+                  <Checkout />
+                </ProtectedRoute>
+              } 
+            />
           </Routes>
+          <Toaster richColors position="top-right" />
         </CartProvider>
       </AuthProvider>
     </Router>

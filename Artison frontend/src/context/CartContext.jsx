@@ -23,7 +23,7 @@ export function CartProvider({ children }) {
       }
       return [...prev, { product, qty: 1 }];
     });
-    toast.success(`${product.title} added to cart`);
+    toast.success(`${product.name || product.title || 'Item'} added to cart`);
   };
 
   const removeFromCart = (id) => {

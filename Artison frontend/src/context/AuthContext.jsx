@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useState, useEffect } from "react";
 import { toast } from "sonner";
 import { useNavigate, useLocation } from "react-router-dom";
+import api from "../api";
 
 const AuthContext = createContext(null);
 
@@ -22,44 +23,38 @@ export function AuthProvider({ children }) {
   }, [user]);
 
   const login = async (email, password) => {
-    // Simulated API call
-    return new Promise((resolve) => {
-      setTimeout(() => {
-        const dummyUser = {
-          id: "usr_123",
-          name: email.split("@")[0],
-          email,
-          avatar: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=200&q=70",
-          role: "collector",
-        };
-        setUser(dummyUser);
-        toast.success("Welcome back!");
-        resolve(dummyUser);
-        
-        // Redirect logic
+    try {
+      const { data } = await api.post('/auth/login-user', { email, password });
+      if (data.success) {
+        localStorage.setItem('token', data.data.token);
+        setUser(data.data.user);
+        toast.success(data.message || "Welcome back!");
         const from = location.state?.from?.pathname || "/";
         navigate(from, { replace: true });
-      }, 800);
-    });
+        return data.data.user;
+      }
+    } catch (error) {
+      const msg = error.response?.data?.message || "Login failed";
+      toast.error(msg);
+      throw error;
+    }
   };
 
-  const signup = async (name, email, password, role) => {
-    // Simulated API call
-    return new Promise((resolve) => {
-      setTimeout(() => {
-        const newUser = {
-          id: "usr_" + Math.random().toString(36).substr(2, 9),
-          name,
-          email,
-          avatar: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=200&q=70",
-          role,
-        };
-        setUser(newUser);
-        toast.success("Account created successfully!");
-        resolve(newUser);
+  const signup = async (name, email, password, phone, role) => {
+    try {
+      const { data } = await api.post('/auth/signup', { name, email, password, phone, role });
+      if (data.success) {
+        localStorage.setItem('token', data.data.token);
+        setUser(data.data.user);
+        toast.success(data.message || "Account created successfully!");
         navigate("/");
-      }, 800);
-    });
+        return data.data.user;
+      }
+    } catch (error) {
+      const msg = error.response?.data?.message || "Signup failed";
+      toast.error(msg);
+      throw error;
+    }
   };
 
   const logout = () => {
@@ -69,7 +64,7 @@ export function AuthProvider({ children }) {
   };
 
   return (
-    <AuthContext.Provider value={{ user, isAuthenticated: !!user, login, signup, logout }}>
+    <AuthContext.Provider value={{ user, setUser, isAuthenticated: !!user, login, signup, logout }}>
       {children}
     </AuthContext.Provider>
   );
