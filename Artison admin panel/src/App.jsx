@@ -12,6 +12,8 @@ import Settings from './pages/Settings';
 import Tickets from './pages/Tickets';
 import Login from './pages/Login';
 import ProtectedRoute from './components/ProtectedRoute';
+import Orders from './pages/Orders';
+import Customers from './pages/Customers';
 
 // Placeholder component for other routes
 const Placeholder = ({ title }) => (
@@ -36,8 +38,8 @@ function App() {
             <Route path="brands" element={<Brands />} />
             <Route path="products" element={<Products />} />
             <Route path="coupons" element={<Coupons />} />
-            <Route path="orders" element={<Placeholder title="Orders" />} />
-            <Route path="customers" element={<Placeholder title="Customers" />} />
+            <Route path="orders" element={<Orders />} />
+            <Route path="customers" element={<Customers />} />
             <Route path="tickets" element={<Tickets />} />
             <Route path="marketing" element={<Placeholder title="Marketing" />} />
             <Route path="feedback" element={<Placeholder title="Feedback" />} />

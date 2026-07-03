@@ -37,6 +37,12 @@ const orderSchema = new mongoose.Schema(
       required: true,
       default: 0.0,
     },
+    paymentId: {
+      type: String,
+    },
+    razorpayOrderId: {
+      type: String,
+    },
     isPaid: {
       type: Boolean,
       required: true,
@@ -52,6 +58,16 @@ const orderSchema = new mongoose.Schema(
     },
     deliveredAt: {
       type: Date,
+    },
+    isViewedByAdmin: {
+      type: Boolean,
+      default: false,
+    },
+    orderStatus: {
+      type: String,
+      required: true,
+      default: 'Processing',
+      enum: ['Processing', 'Shipped', 'Out for Delivery', 'Delivered', 'Cancelled', 'Refunded'],
     },
   },
   {

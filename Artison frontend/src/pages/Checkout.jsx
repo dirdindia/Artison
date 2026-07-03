@@ -6,6 +6,8 @@ import { formatPrice } from "@/data/products";
 import { useState } from "react";
 import { useAuth } from "@/context/AuthContext";
 import { Country, State, City as CityData } from "country-state-city";
+import api from "@/api";
+import { toast } from "sonner";
 
 export default function Checkout() {
   const { cart, clearCart } = useCart();
@@ -26,13 +28,87 @@ export default function Checkout() {
   const shipping = cart.length ? 499 : 0;
   const total = subtotal + shipping;
 
+  const loadRazorpayScript = () => {
+    return new Promise((resolve) => {
+      const script = document.createElement("script");
+      script.src = "https://checkout.razorpay.com/v1/checkout.js";
+      script.onload = () => resolve(true);
+      script.onerror = () => resolve(false);
+      document.body.appendChild(script);
+    });
+  };
+
+  const getFormattedCartItems = () => cart.map(item => ({
+    name: item.product.name,
+    qty: item.qty,
+    image: item.product.image || (item.product.images && item.product.images[0]) || "",
+    price: item.product.price,
+    product: item.product._id,
+  }));
+
+  const verifyPayment = async (response) => {
+    try {
+      const verifyRes = await api.post("/orders/verify", {
+        paymentId: response.razorpay_payment_id,
+        razorpayOrderId: response.razorpay_order_id,
+        razorpaySignature: response.razorpay_signature,
+      });
+
+      if (verifyRes.data.success) {
+        setSuccess(true);
+        if (clearCart) clearCart();
+        toast.success("Payment successful!");
+      }
+    } catch (err) {
+      console.error(err);
+      toast.error("Failed to verify payment");
+    }
+  };
+
+  const startPayment = async () => {
+    const isScriptLoaded = await loadRazorpayScript();
+    if (!isScriptLoaded) {
+      return toast.error("Razorpay SDK failed to load. Are you online?");
+    }
+
+    try {
+      // 1. Create order on backend
+      const { data } = await api.post("/orders/razorpay", {
+        amount: total,
+        orderItems: getFormattedCartItems(),
+        shippingAddress: { street, city, state: stateCode, country, postalCode },
+        paymentMethod: "Razorpay"
+      });
+
+      const { data: orderData, key_id } = data;
+
+      // 2. Open Razorpay Popup
+      const options = {
+        key: key_id,
+        amount: orderData.amount,
+        currency: orderData.currency,
+        name: "Artisna",
+        description: "Order Payment",
+        order_id: orderData.id,
+        handler: verifyPayment, 
+        prefill: { name, contact: phone },
+        theme: { color: "#6366f1" },
+      };
+
+      const paymentObject = new window.Razorpay(options);
+      paymentObject.open();
+    } catch (err) {
+      console.error(err);
+      toast.error("Failed to initialize payment");
+    }
+  };
+
   const handleCheckout = (e) => {
     e.preventDefault();
     if (step === 1) {
       setStep(2);
     } else {
-      setSuccess(true);
-      if (clearCart) clearCart();
+      startPayment();
     }
   };
 
@@ -109,19 +185,12 @@ export default function Checkout() {
 
           {step === 2 && (
             <div className="animate-in fade-in slide-in-from-right-4 space-y-4">
-              <div className="rounded-2xl bg-card p-5 shadow-soft">
-                <div className="mb-4 flex items-center gap-2 text-lg font-semibold">
+              <div className="rounded-2xl bg-card p-5 shadow-soft text-center">
+                <div className="mb-4 flex items-center justify-center gap-2 text-lg font-semibold">
                   <CreditCard className="h-5 w-5 text-primary" />
-                  Payment Method
+                  Secure Checkout
                 </div>
-                <div className="space-y-4">
-                  <input required type="text" placeholder="Card Number" className="w-full rounded-xl border-none bg-secondary/50 px-4 py-3 text-sm focus:ring-2 focus:ring-primary/20" />
-                  <div className="flex gap-4">
-                    <input required type="text" placeholder="MM/YY" className="w-full rounded-xl border-none bg-secondary/50 px-4 py-3 text-sm focus:ring-2 focus:ring-primary/20" />
-                    <input required type="text" placeholder="CVC" className="w-full rounded-xl border-none bg-secondary/50 px-4 py-3 text-sm focus:ring-2 focus:ring-primary/20" />
-                  </div>
-                  <input required type="text" placeholder="Cardholder Name" className="w-full rounded-xl border-none bg-secondary/50 px-4 py-3 text-sm focus:ring-2 focus:ring-primary/20" />
-                </div>
+                <p className="text-sm text-muted-foreground">You will be redirected to Razorpay to complete your payment securely.</p>
               </div>
 
               {/* Order Summary */}

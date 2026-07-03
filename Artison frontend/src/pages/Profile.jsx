@@ -1,11 +1,24 @@
 import { useState, useEffect } from "react";
-import { Settings, User, Package, LogOut, ChevronRight, MapPin, Camera, Lock, Loader2 } from "lucide-react";
+import { Settings, User, Package, LogOut, ChevronRight, MapPin, Camera, Lock, Loader2, FileText, Download } from "lucide-react";
 import { AppShell } from "@/components/AppShell";
 import { useAuth } from "@/context/AuthContext";
 import api from "@/api";
 import { toast } from "sonner";
-import { formatPrice } from "@/data/products"; // Using this to format order total
+import { formatPrice } from "@/data/products"; 
 import { Country, State, City as CityData } from "country-state-city";
+import { generateInvoice, downloadInvoice } from "@/utils/invoice";
+
+const getStatusBadge = (status) => {
+  const styles = {
+    'Processing': 'bg-amber-100 text-amber-700',
+    'Shipped': 'bg-blue-100 text-blue-700',
+    'Out for Delivery': 'bg-purple-100 text-purple-700',
+    'Delivered': 'bg-green-100 text-green-700',
+    'Cancelled': 'bg-red-100 text-red-700',
+    'Refunded': 'bg-gray-100 text-gray-700',
+  };
+  return styles[status] || 'bg-gray-100 text-gray-700';
+};
 
 export default function Profile() {
   const { user, logout, setUser } = useAuth();
@@ -31,19 +44,24 @@ export default function Profile() {
   // Orders State
   const [orders, setOrders] = useState([]);
   const [loadingOrders, setLoadingOrders] = useState(false);
+  const [page, setPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
 
   useEffect(() => {
     if (activeTab === "orders") {
       fetchOrders();
     }
-  }, [activeTab]);
+  }, [activeTab, page]);
 
   const fetchOrders = async () => {
     setLoadingOrders(true);
     try {
-      const { data } = await api.get('/orders/myorders');
+      const { data } = await api.get(`/orders/myorders?page=${page}&limit=5`);
       if (data.success) {
         setOrders(data.data);
+        if (data.pagination) {
+          setTotalPages(data.pagination.pages);
+        }
       }
     } catch (error) {
       console.error("Failed to fetch orders", error);
@@ -88,7 +106,6 @@ export default function Profile() {
       });
       if (data.success) {
         setUser(data.data);
-        // Also update local storage if AuthContext requires it, but AuthContext usually uses `user` effect.
         toast.success("Profile updated successfully!");
       }
     } catch (error) {
@@ -299,39 +316,124 @@ export default function Profile() {
                 <p className="text-sm text-muted-foreground mt-1">When you buy artwork, it will appear here.</p>
               </div>
             ) : (
-              orders.map((order) => (
-                <div key={order._id} className="rounded-2xl bg-card p-5 shadow-soft space-y-4">
-                  <div className="flex items-center justify-between border-b border-border pb-3">
-                    <div>
-                      <div className="text-xs text-muted-foreground">Order #{order._id.substring(18)}</div>
-                      <div className="text-sm font-medium mt-0.5">{new Date(order.createdAt).toLocaleDateString()}</div>
-                    </div>
-                    <div className={`px-2.5 py-1 rounded-full text-xs font-bold ${order.isDelivered ? 'bg-green-100 text-green-700' : 'bg-amber-100 text-amber-700'}`}>
-                      {order.isDelivered ? 'Delivered' : 'Processing'}
-                    </div>
-                  </div>
-                  
-                  <div className="space-y-3">
-                    {order.orderItems.map((item, idx) => (
-                      <div key={idx} className="flex gap-3 items-center">
-                        <img src={item.image} className="w-12 h-12 rounded-lg object-cover bg-secondary" alt={item.name} />
-                        <div className="flex-1 min-w-0">
-                          <div className="text-sm font-medium truncate">{item.name}</div>
-                          <div className="text-xs text-muted-foreground">Qty: {item.qty}</div>
+              <>
+                {orders.map((order) => (
+                  <div key={order._id} className="rounded-2xl bg-card p-5 shadow-soft space-y-4">
+                    <div className="flex items-start justify-between border-b border-border pb-3">
+                      <div>
+                        <div className="text-xs text-muted-foreground">Order #{order._id.substring(18)}</div>
+                        <div className="text-sm font-medium mt-0.5">{new Date(order.createdAt).toLocaleString()}</div>
+                      </div>
+                      <div className="flex flex-col items-end gap-1.5">
+                        <div className={`px-2.5 py-1 rounded-full text-[10px] uppercase tracking-wider font-bold ${getStatusBadge(order.orderStatus || 'Processing')}`}>
+                          {order.orderStatus || 'Processing'}
                         </div>
-                        <div className="text-sm font-bold text-foreground">
-                          {formatPrice(item.price)}
+                        <div className={`px-2.5 py-1 rounded-full text-[10px] uppercase tracking-wider font-bold ${order.isPaid ? 'bg-emerald-100 text-emerald-700' : 'bg-rose-100 text-rose-700'}`}>
+                          {order.isPaid ? 'Paid' : 'Payment Pending'}
+                        </div>
+                        <div className="flex gap-2 mt-2">
+                          <button 
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              generateInvoice(order);
+                            }}
+                            className="text-xs font-semibold text-[#3b2f2f] hover:text-[#5a4d4d] flex items-center gap-1 bg-gray-100 hover:bg-gray-200 px-3 py-1.5 rounded-lg transition-colors cursor-pointer"
+                          >
+                            <FileText className="w-3 h-3" />
+                            Print
+                          </button>
+                          <button 
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              downloadInvoice(order);
+                            }}
+                            className="text-xs font-semibold text-white flex items-center gap-1 bg-[#3b2f2f] hover:bg-[#5a4d4d] px-3 py-1.5 rounded-lg transition-colors cursor-pointer"
+                          >
+                            <Download className="w-3 h-3" />
+                            Download
+                          </button>
                         </div>
                       </div>
-                    ))}
-                  </div>
+                    </div>
+                    
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs text-muted-foreground bg-secondary/20 p-3 rounded-lg border border-border/50">
+                      <div>
+                        <div className="font-semibold text-foreground mb-1">Shipping Address:</div>
+                        <div>{order.shippingAddress?.street}</div>
+                        <div>{order.shippingAddress?.city}, {order.shippingAddress?.state} {order.shippingAddress?.postalCode}</div>
+                        <div>{order.shippingAddress?.country}</div>
+                      </div>
+                      <div className="space-y-1">
+                        <div><span className="font-semibold text-foreground">Payment Method:</span> {order.paymentMethod}</div>
+                        {order.razorpayOrderId && <div className="truncate"><span className="font-semibold text-foreground">Razorpay Order ID:</span> {order.razorpayOrderId}</div>}
+                        {order.paymentId && <div className="truncate"><span className="font-semibold text-foreground">Payment ID:</span> {order.paymentId}</div>}
+                        {order.isPaid && order.paidAt && <div><span className="font-semibold text-foreground">Paid At:</span> {new Date(order.paidAt).toLocaleString()}</div>}
+                        {order.isDelivered && order.deliveredAt && <div><span className="font-semibold text-foreground">Delivered At:</span> {new Date(order.deliveredAt).toLocaleString()}</div>}
+                      </div>
+                    </div>
+                    
+                    <div className="space-y-3 pt-2">
+                      {order.orderItems.map((item, idx) => (
+                        <div key={idx} className="flex gap-3 items-center">
+                          <img src={item.image} className="w-12 h-12 rounded-lg object-cover bg-secondary" alt={item.name} />
+                          <div className="flex-1 min-w-0">
+                            <div className="text-sm font-medium truncate">{item.name}</div>
+                            <div className="text-xs text-muted-foreground">Qty: {item.qty}</div>
+                          </div>
+                          <div className="text-sm font-bold text-foreground">
+                            {formatPrice(item.price)}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
 
-                  <div className="flex justify-between items-center pt-3 border-t border-border">
-                    <span className="text-sm text-muted-foreground">Total</span>
-                    <span className="font-display font-bold text-lg">{formatPrice(order.totalPrice)}</span>
+                    {(() => {
+                      const subtotal = order.orderItems.reduce((sum, item) => sum + (item.price * item.qty), 0);
+                      const additionalCharges = order.totalPrice - subtotal;
+                      return (
+                        <div className="pt-3 border-t border-border space-y-2">
+                          <div className="flex justify-between items-center text-sm text-muted-foreground">
+                            <span>Subtotal</span>
+                            <span>{formatPrice(subtotal)}</span>
+                          </div>
+                          {additionalCharges > 0 && (
+                            <div className="flex justify-between items-center text-sm text-muted-foreground">
+                              <span>Shipping & Tax</span>
+                              <span>{formatPrice(additionalCharges)}</span>
+                            </div>
+                          )}
+                          <div className="flex justify-between items-center pt-2 mt-2 border-t border-dashed border-border/50">
+                            <span className="font-semibold text-foreground">Total Amount</span>
+                            <span className="font-display font-bold text-lg text-primary">{formatPrice(order.totalPrice)}</span>
+                          </div>
+                        </div>
+                      );
+                    })()}
                   </div>
-                </div>
-              ))
+                ))}
+
+                {totalPages > 1 && (
+                  <div className="flex items-center justify-between border-t border-border pt-6 mt-6">
+                    <button
+                      onClick={() => setPage((p) => Math.max(1, p - 1))}
+                      disabled={page === 1}
+                      className="px-4 py-2 bg-white border border-border rounded-xl text-sm font-medium text-foreground hover:bg-secondary disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                    >
+                      Previous
+                    </button>
+                    <span className="text-sm text-muted-foreground">
+                      Page {page} of {totalPages}
+                    </span>
+                    <button
+                      onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+                      disabled={page === totalPages}
+                      className="px-4 py-2 bg-white border border-border rounded-xl text-sm font-medium text-foreground hover:bg-secondary disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                    >
+                      Next
+                    </button>
+                  </div>
+                )}
+              </>
             )}
           </div>
         )}
