@@ -4,25 +4,41 @@ import Alert from '../utils/Alert';
 import api from '../utils/api';
 import ImageViewer from './ImageViewer';
 
-export default function BrandModal({ isOpen, onClose, brand, onSuccess, isViewMode = false }) {
-  const [formData, setFormData] = useState({ name: '', description: '', url: '', image: '', isActive: true });
+export default function SubCategoryModal({ isOpen, onClose, SubCategory, onSuccess, isViewMode = false }) {
+  const [formData, setFormData] = useState({ name: '', description: '', url: '', image: '', category: '', isActive: true });
+  const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [viewingImage, setViewingImage] = useState(null);
 
   useEffect(() => {
-    if (brand) {
+    const fetchCategories = async () => {
+      try {
+        const response = await api.get('/categories?limit=100');
+        if (response.data.success) {
+          setCategories(response.data.data);
+        }
+      } catch (error) {
+        console.error('Failed to fetch categories', error);
+      }
+    };
+    fetchCategories();
+  }, []);
+
+  useEffect(() => {
+    if (SubCategory) {
       setFormData({
-        name: brand.name || '',
-        description: brand.description || '',
-        url: brand.url || '',
-        image: brand.image || '',
-        isActive: brand.isActive !== false,
+        name: SubCategory.name || '',
+        description: SubCategory.description || '',
+        url: SubCategory.url || '',
+        image: SubCategory.image || '',
+        category: SubCategory.category?._id || SubCategory.category || '',
+        isActive: SubCategory.isActive !== false,
       });
     } else {
-      setFormData({ name: '', description: '', url: '', image: '', isActive: true });
+      setFormData({ name: '', description: '', url: '', image: '', category: '', isActive: true });
     }
-  }, [brand, isOpen]);
+  }, [SubCategory, isOpen]);
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
@@ -62,17 +78,17 @@ export default function BrandModal({ isOpen, onClose, brand, onSuccess, isViewMo
     setLoading(true);
 
     try {
-      if (brand) {
-        await api.put(`/brands/${brand._id}`, formData);
-        Alert.success('Updated', 'Brand updated successfully');
+      if (SubCategory) {
+        await api.put(`/subcategories/${SubCategory._id}`, formData);
+        Alert.success('Updated', 'Sub-Category updated successfully');
       } else {
-        await api.post('/brands', formData);
-        Alert.success('Created', 'Brand created successfully');
+        await api.post('/subcategories', formData);
+        Alert.success('Created', 'Sub-Category created successfully');
       }
       onSuccess();
       onClose();
     } catch (error) {
-      Alert.error('Error', error.response?.data?.message || 'Failed to save brand');
+      Alert.error('Error', error.response?.data?.message || 'Failed to save sub-category');
     } finally {
       setLoading(false);
     }
@@ -87,7 +103,7 @@ export default function BrandModal({ isOpen, onClose, brand, onSuccess, isViewMo
         
         <div className="p-6 border-b border-gray-100 flex justify-between items-center shrink-0">
           <h2 className="text-xl font-bold text-[#3b2f2f]">
-            {isViewMode ? 'View Brand' : brand ? 'Edit Brand' : 'Add New Brand'}
+            {isViewMode ? 'View Sub-Category' : SubCategory ? 'Edit Sub-Category' : 'Add New Sub-Category'}
           </h2>
           <button type="button" onClick={onClose} disabled={loading} className="text-gray-400 hover:text-gray-600 cursor-pointer">
             <X className="w-5 h-5" />
@@ -109,6 +125,23 @@ export default function BrandModal({ isOpen, onClose, brand, onSuccess, isViewMo
               disabled={isViewMode}
             />
           </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Parent Category *</label>
+            <select
+              required
+              name="category"
+              value={formData.category}
+              onChange={handleChange}
+              className="w-full px-3 py-2 border border-gray-200 rounded-xl focus:ring-2 focus:ring-[#5a4d4d] focus:border-[#5a4d4d] disabled:bg-gray-50 disabled:text-gray-500"
+              disabled={isViewMode}
+            >
+              <option value="">Select Category</option>
+              {categories.map(c => (
+                <option key={c._id} value={c._id}>{c.name}</option>
+              ))}
+            </select>
+          </div>
           
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">Description</label>
@@ -118,7 +151,7 @@ export default function BrandModal({ isOpen, onClose, brand, onSuccess, isViewMo
               onChange={handleChange}
               rows="3"
               className="w-full px-3 py-2 border border-gray-200 rounded-xl focus:ring-2 focus:ring-[#5a4d4d] focus:border-[#5a4d4d] disabled:bg-gray-50 disabled:text-gray-500"
-              placeholder="Brief description about this brand..."
+              placeholder="Brief description about this sub-category..."
               disabled={isViewMode}
             ></textarea>
           </div>
@@ -171,7 +204,7 @@ export default function BrandModal({ isOpen, onClose, brand, onSuccess, isViewMo
               disabled={isViewMode}
               className="w-4 h-4 text-[#5a4d4d] border-gray-300 rounded focus:ring-[#5a4d4d] disabled:opacity-50"
             />
-            <label htmlFor="isActive" className="ml-2 text-sm text-gray-700">Active Brand</label>
+            <label htmlFor="isActive" className="ml-2 text-sm text-gray-700">Active Sub-Category</label>
           </div>
 
           <div className="flex gap-3 pt-4">
@@ -189,7 +222,7 @@ export default function BrandModal({ isOpen, onClose, brand, onSuccess, isViewMo
                 disabled={loading || uploading}
                 className="flex-1 px-4 py-2.5 bg-[#5a4d4d] text-white font-medium rounded-xl hover:bg-[#3b2f2f] transition-colors flex justify-center items-center cursor-pointer"
               >
-                {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : 'Save Brand'}
+                {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : 'Save Sub-Category'}
               </button>
             )}
             </div>

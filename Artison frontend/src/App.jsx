@@ -10,6 +10,7 @@ import Profile from "./pages/Profile";
 import Login from "./pages/Login";
 import Signup from "./pages/Signup";
 import Categories from "./pages/Categories";
+import SubCategories from "./pages/SubCategories";
 import Checkout from "./pages/Checkout";
 
 // Simple route guard for protected routes
@@ -30,6 +31,7 @@ function App() {
             <Route path="/" element={<Home />} />
             <Route path="/explore" element={<Explore />} />
             <Route path="/categories" element={<Categories />} />
+            <Route path="/subcategories" element={<SubCategories />} />
             <Route path="/cart" element={<Cart />} />
             <Route path="/product/:id" element={<Product />} />
             <Route path="/login" element={<Login />} />

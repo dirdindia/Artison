@@ -1,9 +1,9 @@
 const mongoose = require('mongoose');
 
-const brandSchema = new mongoose.Schema({
+const subCategorySchema = new mongoose.Schema({
   name: {
     type: String,
-    required: [true, 'Brand name is required'],
+    required: [true, 'SubCategory name is required'],
     unique: true,
     trim: true,
   },
@@ -13,6 +13,11 @@ const brandSchema = new mongoose.Schema({
   },
   image: {
     type: String, // Will store the Cloudinary URL
+  },
+  category: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Category',
+    required: [true, 'Category is required for Sub-Category'],
   },
   url: {
     type: String,
@@ -26,4 +31,4 @@ const brandSchema = new mongoose.Schema({
   timestamps: true,
 });
 
-module.exports = mongoose.model('Brand', brandSchema);
+module.exports = mongoose.model('SubCategory', subCategorySchema);

@@ -37,7 +37,7 @@ export default function ProductPage() {
                 .map(p => ({
                   id: p._id,
                   title: p.name,
-                  artist: p.brand ? p.brand.name : "Unknown Artist",
+                  artist: p.subCategory ? p.subCategory.name : "Unknown Artist",
                   price: p.price,
                   image: p.image || "https://placehold.co/400x500",
                   category: p.category ? p.category.name : "Art"
@@ -69,7 +69,7 @@ export default function ProductPage() {
     </AppShell>
   );
 
-  const artistName = product.brand ? product.brand.name : "Unknown Artist";
+  const artistName = product.subCategory ? product.subCategory.name : "Unknown Artist";
   const categoryName = product.category ? product.category.name : "Art";
 
   return (
@@ -130,7 +130,7 @@ export default function ProductPage() {
               </button>
             </div>
 
-            {product.brand && (
+            {product.subCategory && (
               <Link to="#" className="mt-8 flex items-center gap-4 rounded-2xl bg-card p-4 shadow-soft hover:bg-accent transition-colors md:max-w-md border border-border/40">
                 <div className="grid h-12 w-12 shrink-0 place-items-center rounded-full bg-muted text-xl font-bold">
                   {artistName.charAt(0)}

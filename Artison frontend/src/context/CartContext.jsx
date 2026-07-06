@@ -15,10 +15,11 @@ export function CartProvider({ children }) {
 
   const addToCart = (product) => {
     setCart((prev) => {
-      const existing = prev.find((c) => c.product.id === product.id);
+      const productId = product.id || product._id;
+      const existing = prev.find((c) => (c.product.id || c.product._id) === productId);
       if (existing) {
         return prev.map((c) =>
-          c.product.id === product.id ? { ...c, qty: c.qty + 1 } : c
+          (c.product.id || c.product._id) === productId ? { ...c, qty: c.qty + 1 } : c
         );
       }
       return [...prev, { product, qty: 1 }];
@@ -27,13 +28,13 @@ export function CartProvider({ children }) {
   };
 
   const removeFromCart = (id) => {
-    setCart((prev) => prev.filter((c) => c.product.id !== id));
+    setCart((prev) => prev.filter((c) => (c.product.id || c.product._id) !== id));
   };
 
   const updateQuantity = (id, delta) => {
     setCart((prev) =>
       prev.map((c) => {
-        if (c.product.id === id) {
+        if ((c.product.id || c.product._id) === id) {
           const newQty = Math.max(1, c.qty + delta);
           return { ...c, qty: newQty };
         }

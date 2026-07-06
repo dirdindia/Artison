@@ -21,7 +21,7 @@ import Alert from '../utils/Alert';
 const MENU_ITEMS = [
   { name: 'Dashboard', path: '/', icon: LayoutDashboard },
   { name: 'Category', path: '/categories', icon: Layers },
-  { name: 'Brands', path: '/brands', icon: Award },
+  { name: 'Sub-Category', path: '/subcategories', icon: Award },
   { name: 'Products', path: '/products', icon: Package },
   { name: 'Coupons', path: '/coupons', icon: Tag },
   { name: 'Orders', path: '/orders', icon: ShoppingCart },

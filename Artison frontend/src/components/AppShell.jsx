@@ -31,9 +31,9 @@ export function AppShell({ children, title }) {
       <header className="sticky top-0 z-30 bg-background/85 px-5 pt-5 pb-3 backdrop-blur-xl md:hidden">
         <div className="flex items-center justify-between gap-3">
           <Link to="/" className="flex min-w-0 items-center gap-2">
-            <div className="grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-gradient-warm font-display text-lg font-bold text-primary-foreground">A</div>
+            <img src="/logo.png" alt="logo" className="h-10 w-10 shrink-0 object-contain mix-blend-multiply" />
             <div className="min-w-0">
-              <div className="font-display text-lg font-bold leading-none">Artisana</div>
+              <div className="font-display text-lg font-bold leading-none">कलाkosh</div>
               <div className="truncate text-[10px] uppercase tracking-widest text-muted-foreground">{title ?? "Curated Art"}</div>
             </div>
           </Link>
@@ -51,9 +51,9 @@ export function AppShell({ children, title }) {
       <header className="sticky top-0 z-30 hidden border-b border-border/60 bg-background/85 backdrop-blur-xl md:block">
         <div className="mx-auto flex w-full max-w-7xl items-center justify-between gap-6 px-8 py-4">
           <Link to="/" className="flex items-center gap-2.5">
-            <div className="grid h-10 w-10 place-items-center rounded-xl bg-gradient-warm font-display text-xl font-bold text-primary-foreground transition-transform hover:scale-105">A</div>
+            <img src="/logo.png" alt="logo" className="h-12 w-12 object-contain transition-transform hover:scale-110 mix-blend-multiply" />
             <div>
-              <div className="font-display text-xl font-bold leading-none">Artisana</div>
+              <div className="font-display text-xl font-bold leading-none">कलाkosh</div>
               <div className="text-[10px] uppercase tracking-widest text-muted-foreground">Original Art Marketplace</div>
             </div>
           </Link>
@@ -127,7 +127,7 @@ export function AppShell({ children, title }) {
                   Sign In
                 </Link>
                 <Link to="/signup" className="hidden lg:inline-flex items-center gap-1.5 rounded-full bg-foreground px-4 py-2 text-sm font-semibold text-background shadow-soft transition hover:scale-[1.02] hover:shadow-md">
-                  Join Artisana
+                  Join कलाkosh
                 </Link>
               </div>
             )}
@@ -181,11 +181,11 @@ export function AppShell({ children, title }) {
       <footer className="mt-auto border-t border-border/60 bg-card hidden md:block">
         <div className="mx-auto w-full max-w-7xl px-8 py-16">
           <div className="grid grid-cols-1 md:grid-cols-4 gap-12">
-            {/* Brand & Newsletter */}
+            {/* SubCategory & Newsletter */}
             <div className="col-span-1 md:col-span-1 lg:col-span-1 space-y-4">
               <Link to="/" className="flex items-center gap-2.5">
-                <div className="grid h-8 w-8 place-items-center rounded-lg bg-gradient-warm font-display text-lg font-bold text-primary-foreground">A</div>
-                <span className="font-display text-xl font-bold">Artisana</span>
+                <img src="/logo.png" alt="logo" className="h-14 w-14 object-contain mix-blend-multiply" />
+                <span className="font-display text-xl font-bold">कलाkosh</span>
               </Link>
               <p className="text-sm text-muted-foreground leading-relaxed">
                 The premier destination for discovering, collecting, and selling extraordinary original artwork.
@@ -234,7 +234,7 @@ export function AppShell({ children, title }) {
           </div>
           
           <div className="mt-16 pt-8 border-t border-border flex flex-col md:flex-row items-center justify-between gap-4 text-xs text-muted-foreground">
-            <span>© {new Date().getFullYear()} Artisana Inc. All rights reserved.</span>
+            <span>© {new Date().getFullYear()} कलाkosh Inc. All rights reserved.</span>
             <div className="flex gap-6">
               <a href="#" className="hover:text-foreground transition-colors">Privacy Policy</a>
               <a href="#" className="hover:text-foreground transition-colors">Terms of Service</a>

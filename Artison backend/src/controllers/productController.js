@@ -19,12 +19,26 @@ const getProducts = async (req, res) => {
     if (req.query.search) {
       query.name = { $regex: req.query.search, $options: 'i' };
     }
-    if (req.query.category) query.category = req.query.category;
-    if (req.query.brand) query.brand = req.query.brand;
+    
+    if (req.query.category) {
+      const categories = req.query.category.split(',');
+      query.category = { $in: categories };
+    }
+    
+    if (req.query.subCategory) {
+      const subCategories = req.query.subCategory.split(',');
+      query.subCategory = { $in: subCategories };
+    }
+
+    if (req.query.minPrice || req.query.maxPrice) {
+      query.price = {};
+      if (req.query.minPrice) query.price.$gte = Number(req.query.minPrice);
+      if (req.query.maxPrice) query.price.$lte = Number(req.query.maxPrice);
+    }
 
     const products = await Product.find(query)
       .populate('category', 'name')
-      .populate('brand', 'name')
+      .populate('subCategory', 'name')
       .sort({ createdAt: -1 })
       .skip(skip)
       .limit(limit);
@@ -51,7 +65,7 @@ const getProductById = async (req, res) => {
   try {
     const product = await Product.findById(req.params.id)
       .populate('category', 'name')
-      .populate('brand', 'name');
+      .populate('subCategory', 'name');
       
     if (!product) {
       return res.status(404).json({ success: false, message: 'Product not found' });

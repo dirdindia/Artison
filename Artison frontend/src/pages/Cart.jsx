@@ -31,7 +31,7 @@ export default function CartPage() {
       <div className="px-5">
         <div className="space-y-3">
           {cart.map(({ product, qty }) =>
-          <div key={product.id} className="flex gap-3 rounded-2xl bg-card p-3 shadow-soft">
+          <div key={product.id || product._id} className="flex gap-3 rounded-2xl bg-card p-3 shadow-soft">
               <img src={product.image} alt={product.title} className="h-20 w-20 shrink-0 rounded-xl object-cover" />
               <div className="flex min-w-0 flex-1 flex-col">
                 <div className="truncate text-sm font-semibold">{product.title}</div>
@@ -39,11 +39,11 @@ export default function CartPage() {
                 <div className="mt-1 font-display text-sm font-bold text-primary">{formatPrice(product.price * qty)}</div>
                 <div className="mt-auto flex items-center justify-between pt-2">
                   <div className="flex items-center gap-2 rounded-full bg-secondary px-1 py-1">
-                    <button onClick={() => updateQuantity(product.id, -1)} className="grid h-6 w-6 place-items-center rounded-full bg-background"><Minus className="h-3 w-3" /></button>
+                    <button onClick={() => updateQuantity(product.id || product._id, -1)} className="grid h-6 w-6 place-items-center rounded-full bg-background"><Minus className="h-3 w-3" /></button>
                     <span className="w-5 text-center text-xs font-semibold">{qty}</span>
-                    <button onClick={() => updateQuantity(product.id, 1)} className="grid h-6 w-6 place-items-center rounded-full bg-background"><Plus className="h-3 w-3" /></button>
+                    <button onClick={() => updateQuantity(product.id || product._id, 1)} className="grid h-6 w-6 place-items-center rounded-full bg-background"><Plus className="h-3 w-3" /></button>
                   </div>
-                  <button onClick={() => removeFromCart(product.id)} className="text-muted-foreground hover:text-destructive">
+                  <button onClick={() => removeFromCart(product.id || product._id)} className="text-muted-foreground hover:text-destructive">
                     <Trash2 className="h-4 w-4" />
                   </button>
                 </div>

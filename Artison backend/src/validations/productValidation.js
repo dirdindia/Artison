@@ -13,7 +13,7 @@ const productSchema = Joi.object({
   shippingClass: Joi.string().allow('').optional(),
   packaging: Joi.string().allow('').optional(),
   category: Joi.string().required(),
-  brand: Joi.string().required(),
+  subCategory: Joi.string().required(),
   image: Joi.string().allow('').optional(),
   gallery: Joi.array().items(Joi.string()).optional(),
   isActive: Joi.boolean().optional()

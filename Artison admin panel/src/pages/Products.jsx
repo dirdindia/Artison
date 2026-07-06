@@ -120,7 +120,7 @@ const Products = () => {
               <tr>
                 <th className="px-6 py-4">Product Info</th>
                 <th className="px-6 py-4">Category</th>
-                <th className="px-6 py-4">Brand</th>
+                <th className="px-6 py-4">SubCategory</th>
                 <th className="px-6 py-4">Price</th>
                 <th className="px-6 py-4">Stock</th>
                 <th className="px-6 py-4">Status</th>
@@ -156,7 +156,7 @@ const Products = () => {
                       <span className="max-w-[150px] truncate">{product.name}</span>
                     </td>
                     <td className="px-6 py-4">{product.category?.name || '-'}</td>
-                    <td className="px-6 py-4">{product.brand?.name || '-'}</td>
+                    <td className="px-6 py-4">{product.subCategory?.name || '-'}</td>
                     <td className="px-6 py-4 font-medium">₹{product.price}</td>
                     <td className="px-6 py-4">{product.stock}</td>
                     <td className="px-6 py-4">

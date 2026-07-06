@@ -5,7 +5,7 @@ import { ConfirmProvider } from './context/ConfirmContext';
 import Layout from './components/Layout';
 import Dashboard from './pages/Dashboard';
 import Categories from './pages/Categories';
-import Brands from './pages/Brands';
+import SubCategories from './pages/subcategories';
 import Products from './pages/Products';
 import Coupons from './pages/Coupons';
 import Settings from './pages/Settings';
@@ -35,7 +35,7 @@ function App() {
           <Route path="/" element={<ProtectedRoute><Layout /></ProtectedRoute>}>
             <Route index element={<Dashboard />} />
             <Route path="categories" element={<Categories />} />
-            <Route path="brands" element={<Brands />} />
+            <Route path="SubCategories" element={<SubCategories />} />
             <Route path="products" element={<Products />} />
             <Route path="coupons" element={<Coupons />} />
             <Route path="orders" element={<Orders />} />

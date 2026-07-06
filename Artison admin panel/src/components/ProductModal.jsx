@@ -21,7 +21,7 @@ export default function ProductModal({ isOpen, onClose, product, onSuccess, isVi
     stock: '',
     sku: '',
     category: '',
-    brand: '',
+    subCategory: '',
     image: '',
     gallery: [],
     dimensions: '',
@@ -33,7 +33,7 @@ export default function ProductModal({ isOpen, onClose, product, onSuccess, isVi
   });
   
   const [categories, setCategories] = useState([]);
-  const [brands, setBrands] = useState([]);
+  const [subCategories, setSubCategorys] = useState([]);
   const [loading, setLoading] = useState(false);
   const [uploadingSingle, setUploadingSingle] = useState(false);
   const [uploadingGallery, setUploadingGallery] = useState(false);
@@ -42,7 +42,7 @@ export default function ProductModal({ isOpen, onClose, product, onSuccess, isVi
   useEffect(() => {
     if (isOpen) {
       setActiveTab('basic');
-      fetchCategoriesAndBrands();
+      fetchCategoriesAndSubCategorys();
     }
   }, [isOpen]);
 
@@ -56,7 +56,7 @@ export default function ProductModal({ isOpen, onClose, product, onSuccess, isVi
         stock: product.stock || '',
         sku: product.sku || '',
         category: product.category?._id || product.category || '',
-        brand: product.brand?._id || product.brand || '',
+        subCategory: product.subCategory?._id || product.subCategory || '',
         image: product.image || '',
         gallery: product.gallery || [],
         dimensions: product.dimensions || '',
@@ -69,22 +69,22 @@ export default function ProductModal({ isOpen, onClose, product, onSuccess, isVi
     } else {
       setFormData({
         name: '', description: '', price: '', salePrice: '', stock: '', sku: '',
-        category: '', brand: '', image: '', gallery: [], dimensions: '', creationYear: '',
+        category: '', subCategory: '', image: '', gallery: [], dimensions: '', creationYear: '',
         weight: '', shippingClass: 'standard', packaging: '', isActive: true
       });
     }
   }, [product, isOpen]);
 
-  const fetchCategoriesAndBrands = async () => {
+  const fetchCategoriesAndSubCategorys = async () => {
     try {
-      const [catRes, brandRes] = await Promise.all([
+      const [catRes, SubCategoryRes] = await Promise.all([
         api.get('/categories?limit=100'),
-        api.get('/brands?limit=100')
+        api.get('/subcategories?limit=100')
       ]);
       if (catRes.data.success) setCategories(catRes.data.data);
-      if (brandRes.data.success) setBrands(brandRes.data.data);
+      if (SubCategoryRes.data.success) setSubCategorys(SubCategoryRes.data.data);
     } catch (error) {
-      Alert.error('Error', 'Failed to fetch categories or brands');
+      Alert.error('Error', 'Failed to fetch categories or subCategories');
     }
   };
 
@@ -158,8 +158,8 @@ export default function ProductModal({ isOpen, onClose, product, onSuccess, isVi
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!formData.name || !formData.price || !formData.category || !formData.brand) {
-      return Alert.error('Validation Error', 'Name, Price, Category and Brand are required');
+    if (!formData.name || !formData.price || !formData.category || !formData.subCategory) {
+      return Alert.error('Validation Error', 'Name, Price, Category and subCategory are required');
     }
     
     setLoading(true);
@@ -249,11 +249,11 @@ export default function ProductModal({ isOpen, onClose, product, onSuccess, isVi
                   </div>
 
                   <div className="space-y-1.5">
-                    <label htmlFor="brand" className="block text-sm font-medium text-[#5a4d4d]">Brand *</label>
-                    <select name="brand" value={formData.brand} onChange={handleChange} required id="brand" disabled={isViewMode} className="w-full bg-[#fdfbf7] border border-[#eae0d5] rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#c39a5c]/20 focus:border-[#c39a5c] transition-colors appearance-none cursor-pointer disabled:bg-gray-50 disabled:text-gray-500">
-                      <option value="">Select a brand</option>
-                      {brands.map(brand => (
-                        <option key={brand._id} value={brand._id}>{brand.name}</option>
+                    <label htmlFor="subCategory" className="block text-sm font-medium text-[#5a4d4d]">subCategory *</label>
+                    <select name="subCategory" value={formData.subCategory} onChange={handleChange} required id="subCategory" disabled={isViewMode} className="w-full bg-[#fdfbf7] border border-[#eae0d5] rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#c39a5c]/20 focus:border-[#c39a5c] transition-colors appearance-none cursor-pointer disabled:bg-gray-50 disabled:text-gray-500">
+                      <option value="">Select a subCategory</option>
+                      {subCategories.map(subCategory => (
+                        <option key={subCategory._id} value={subCategory._id}>{subCategory.name}</option>
                       ))}
                     </select>
                   </div>

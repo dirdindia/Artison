@@ -52,10 +52,10 @@ const productSchema = new mongoose.Schema({
     ref: 'Category',
     required: [true, 'Category is required']
   },
-  brand: {
+  subCategory: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: 'Brand',
-    required: [true, 'Brand is required']
+    ref: 'SubCategory',
+    required: [true, 'SubCategory is required']
   },
   image: {
     type: String, // Single display image
