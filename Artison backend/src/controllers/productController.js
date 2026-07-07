@@ -17,7 +17,10 @@ const getProducts = async (req, res) => {
 
     const query = {};
     if (req.query.search) {
-      query.name = { $regex: req.query.search, $options: 'i' };
+      query.$or = [
+        { name: { $regex: req.query.search, $options: 'i' } },
+        { sku: { $regex: req.query.search, $options: 'i' } }
+      ];
     }
     
     if (req.query.category) {
@@ -28,6 +31,11 @@ const getProducts = async (req, res) => {
     if (req.query.subCategory) {
       const subCategories = req.query.subCategory.split(',');
       query.subCategory = { $in: subCategories };
+    }
+
+    if (req.query.tags) {
+      const tagsArray = req.query.tags.split(',');
+      query.tags = { $in: tagsArray };
     }
 
     if (req.query.minPrice || req.query.maxPrice) {

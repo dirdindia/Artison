@@ -16,6 +16,7 @@ const productSchema = Joi.object({
   subCategory: Joi.string().required(),
   image: Joi.string().allow('').optional(),
   gallery: Joi.array().items(Joi.string()).optional(),
+  tags: Joi.array().items(Joi.string().valid('Featured', 'Hand-picked', 'Trending')).optional(),
   isActive: Joi.boolean().optional()
 });
 

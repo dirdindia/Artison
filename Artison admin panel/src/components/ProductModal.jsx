@@ -24,6 +24,7 @@ export default function ProductModal({ isOpen, onClose, product, onSuccess, isVi
     subCategory: '',
     image: '',
     gallery: [],
+    tags: [],
     dimensions: '',
     creationYear: '',
     weight: '',
@@ -59,6 +60,7 @@ export default function ProductModal({ isOpen, onClose, product, onSuccess, isVi
         subCategory: product.subCategory?._id || product.subCategory || '',
         image: product.image || '',
         gallery: product.gallery || [],
+        tags: product.tags || [],
         dimensions: product.dimensions || '',
         creationYear: product.creationYear || '',
         weight: product.weight || '',
@@ -69,7 +71,7 @@ export default function ProductModal({ isOpen, onClose, product, onSuccess, isVi
     } else {
       setFormData({
         name: '', description: '', price: '', salePrice: '', stock: '', sku: '',
-        category: '', subCategory: '', image: '', gallery: [], dimensions: '', creationYear: '',
+        category: '', subCategory: '', image: '', gallery: [], tags: [], dimensions: '', creationYear: '',
         weight: '', shippingClass: 'standard', packaging: '', isActive: true
       });
     }
@@ -271,6 +273,30 @@ export default function ProductModal({ isOpen, onClose, product, onSuccess, isVi
                   <div className="space-y-1.5 flex items-center pt-8">
                     <input type="checkbox" name="isActive" id="isActive" checked={formData.isActive} onChange={handleChange} disabled={isViewMode} className="w-4 h-4 text-[#c39a5c] border-[#eae0d5] rounded focus:ring-[#c39a5c] disabled:opacity-50" />
                     <label htmlFor="isActive" className="ml-2 text-sm text-[#5a4d4d]">Active Product</label>
+                  </div>
+
+                  <div className="space-y-1.5 md:col-span-2">
+                    <label className="block text-sm font-medium text-[#5a4d4d]">Product Tags</label>
+                    <div className="flex flex-wrap gap-4 pt-2">
+                      {['Featured', 'Hand-picked', 'Trending'].map(tag => (
+                        <label key={tag} className="flex items-center gap-2 cursor-pointer">
+                          <input 
+                            type="checkbox" 
+                            checked={formData.tags.includes(tag)}
+                            onChange={(e) => {
+                              if (e.target.checked) {
+                                setFormData(prev => ({ ...prev, tags: [...prev.tags, tag] }));
+                              } else {
+                                setFormData(prev => ({ ...prev, tags: prev.tags.filter(t => t !== tag) }));
+                              }
+                            }}
+                            disabled={isViewMode}
+                            className="w-4 h-4 text-[#c39a5c] border-[#eae0d5] rounded focus:ring-[#c39a5c] disabled:opacity-50"
+                          />
+                          <span className="text-sm text-[#5a4d4d]">{tag}</span>
+                        </label>
+                      ))}
+                    </div>
                   </div>
                 </div>
 

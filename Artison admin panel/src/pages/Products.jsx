@@ -9,6 +9,7 @@ import ImageViewer from '../components/ImageViewer';
 const Products = () => {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [searchQuery, setSearchQuery] = useState('');
   
   // Pagination State
   const [page, setPage] = useState(1);
@@ -23,10 +24,10 @@ const Products = () => {
 
   const { confirm } = useConfirm();
 
-  const fetchProducts = async (currentPage = 1) => {
+  const fetchProducts = async (currentPage = 1, search = '') => {
     setLoading(true);
     try {
-      const response = await api.get(`/products?page=${currentPage}&limit=10`);
+      const response = await api.get(`/products?page=${currentPage}&limit=10&search=${search}`);
       if (response.data.success) {
         setProducts(response.data.data);
         setTotalPages(response.data.pagination.totalPages);
@@ -41,8 +42,19 @@ const Products = () => {
   };
 
   useEffect(() => {
-    fetchProducts(page);
+    fetchProducts(page, searchQuery);
   }, [page]);
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      if (page !== 1) {
+        setPage(1);
+      } else {
+        fetchProducts(1, searchQuery);
+      }
+    }, 500);
+    return () => clearTimeout(timer);
+  }, [searchQuery]);
 
   const handleDelete = async (id) => {
     const isConfirmed = await confirm({
@@ -108,6 +120,8 @@ const Products = () => {
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
             <input 
               type="text" 
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="Search artworks..." 
               className="w-full bg-white border border-[#eae0d5] rounded-lg pl-10 pr-4 py-2 text-sm focus:outline-none focus:border-[#c39a5c] transition-colors"
             />

@@ -20,6 +20,8 @@ connectDB().then(() => {
   // Seed default admin if not exists
   const seedAdmin = require('./src/utils/seedAdmin');
   seedAdmin();
+  const seedData = require('./src/utils/seedData');
+  seedData();
 });
 
 // Connect to Cloudinary

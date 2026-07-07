@@ -89,17 +89,22 @@ export default function Categories() {
         
         {/* Left Side: Typography List (Categories + Inline Subcategories) - STICKY */}
         <div className="w-full md:w-1/2 md:sticky md:top-0 md:h-[calc(100vh-80px)] relative flex flex-col bg-background border-r border-border/50 z-20">
+          
+          {/* Header outside scroll area */}
+          <div className="px-8 md:px-16 lg:px-24 pt-10 pb-4 shrink-0 bg-background z-20">
+            <h1 className="text-xs lg:text-sm uppercase tracking-widest text-muted-foreground">Collections</h1>
+          </div>
+
           <div 
             ref={scrollRef}
             onScroll={checkScroll}
-            className="flex-1 flex flex-col px-8 md:px-16 lg:px-24 py-10 overflow-y-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none] z-10"
+            className="flex-1 flex flex-col px-8 md:px-16 lg:px-24 pb-10 overflow-y-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none] z-10"
           >
-            <h1 className="text-xs lg:text-sm uppercase tracking-widest text-muted-foreground mb-8 md:mb-12 sticky top-0 bg-background/90 py-2 backdrop-blur-sm z-20">Collections</h1>
           
             {loading ? (
                <div className="h-10 w-10 animate-spin rounded-full border-4 border-primary border-t-transparent mx-auto mt-20"></div>
             ) : (
-              <div className="flex flex-col gap-6 md:gap-8 pb-8 md:pb-20 justify-center min-h-[50%]">
+              <div className="flex flex-col gap-6 md:gap-8 pb-8 md:pb-20">
                 {categories.map((c) => (
                   <div key={c._id || c.name} className="flex flex-col">
                     <Link
@@ -200,7 +205,7 @@ export default function Categories() {
                   <img 
                     src={activeItem.image} 
                     alt={activeItem.name}
-                    className="max-w-full max-h-full object-contain drop-shadow-xl"
+                    className="w-full h-full object-cover rounded-3xl shadow-2xl"
                   />
                 </motion.div>
               ) : (

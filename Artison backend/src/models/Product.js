@@ -63,6 +63,10 @@ const productSchema = new mongoose.Schema({
   gallery: [{
     type: String, // Multiple gallery images
   }],
+  tags: [{
+    type: String,
+    enum: ['Featured', 'Hand-picked', 'Trending']
+  }],
   isActive: {
     type: Boolean,
     default: true,

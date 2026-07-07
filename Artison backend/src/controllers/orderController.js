@@ -1,4 +1,5 @@
 const Order = require('../models/Order');
+const Product = require('../models/Product');
 const Razorpay = require('razorpay');
 const crypto = require('crypto');
 
@@ -104,6 +105,13 @@ const verifyOrderPayment = async (req, res) => {
     order.paidAt = Date.now();
     order.paymentId = paymentId;
 
+    // Decrement product stock
+    for (const item of order.orderItems) {
+      await Product.findByIdAndUpdate(item.product, {
+        $inc: { stock: -item.qty }
+      });
+    }
+
     const updatedOrder = await order.save();
     res.json({ success: true, data: updatedOrder });
   } catch (error) {
@@ -142,6 +150,14 @@ const razorpayWebhook = async (req, res) => {
         order.isPaid = true;
         order.paidAt = Date.now();
         order.paymentId = paymentId;
+
+        // Decrement product stock
+        for (const item of order.orderItems) {
+          await Product.findByIdAndUpdate(item.product, {
+            $inc: { stock: -item.qty }
+          });
+        }
+
         await order.save();
         console.log(`Webhook: Order ${razorpayOrderId} marked as paid.`);
       }

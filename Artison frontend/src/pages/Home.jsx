@@ -44,11 +44,28 @@ export default function Home() {
     fetchCategories();
   }, []);
 
-  const featured = products.slice(0, 4);
-  const trending = products.slice(4);
-  
-  // Hero Animation State
-  const heroItems = products.slice(0, 10); // Use top 5 products
+  const [featuredProducts, setFeaturedProducts] = useState(products.slice(0, 4));
+  const [trendingProducts, setTrendingProducts] = useState(products.slice(4));
+  const [heroItems, setHeroItems] = useState(products.slice(0, 10));
+
+  useEffect(() => {
+    const fetchHomeProducts = async () => {
+      try {
+        const [featuredRes, trendingRes, heroRes] = await Promise.all([
+          api.get('/products?tags=Featured&limit=4'),
+          api.get('/products?tags=Trending&limit=10'),
+          api.get('/products?limit=5')
+        ]);
+        
+        if (featuredRes.data?.success && featuredRes.data.data.length > 0) setFeaturedProducts(featuredRes.data.data);
+        if (trendingRes.data?.success && trendingRes.data.data.length > 0) setTrendingProducts(trendingRes.data.data);
+        if (heroRes.data?.success && heroRes.data.data.length > 0) setHeroItems(heroRes.data.data);
+      } catch (error) {
+        console.error("Error fetching home products:", error);
+      }
+    };
+    fetchHomeProducts();
+  }, []);
   const [currentIndex, setCurrentIndex] = useState(1);
   const [isAnimating, setIsAnimating] = useState(false);
 
@@ -97,7 +114,7 @@ export default function Home() {
                 alt=""
               />
               {/* <div className={`absolute bottom-[10%] left-0 right-0 text-center z-30 transition-opacity duration-400 ${isAnimating ? 'opacity-0' : 'opacity-100'}`}>
-                <Link to={`/product/${currentItem.id}`} className="bg-black/60 text-white px-5 py-2.5 rounded-full backdrop-blur-md font-semibold text-sm hover:bg-black/80 pointer-events-auto transition-colors inline-block border border-white/20 shadow-xl">
+                <Link to={`/product/${currentItem._id || currentItem.id}`} className="bg-black/60 text-white px-5 py-2.5 rounded-full backdrop-blur-md font-semibold text-sm hover:bg-black/80 pointer-events-auto transition-colors inline-block border border-white/20 shadow-xl">
                   {currentIndex + 1} / {heroItems.length} — {currentItem.title}
                 </Link>
               </div> */}
@@ -310,8 +327,8 @@ export default function Home() {
           <Link to="/explore" className="hidden text-sm font-medium text-primary md:inline">View all featured →</Link>
         </div>
         <div className="flex gap-3 overflow-x-auto px-5 pb-2 md:grid md:grid-cols-4 md:gap-5 md:overflow-visible md:px-0 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-          {featured.map((p) =>
-          <div key={p.id} className="w-44 shrink-0 md:w-auto">
+          {featuredProducts.map((p) =>
+          <div key={p._id || p.id} className="w-44 shrink-0 md:w-auto">
               <ProductCard product={p} />
             </div>
           )}
@@ -357,7 +374,7 @@ export default function Home() {
       <motion.section initial={{ opacity: 0, y: 40 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, margin: "-100px" }} transition={{ duration: 0.6, ease: "easeOut" }} className="mt-7 px-5 md:mt-14 md:px-0">
         <h2 className="mb-3 font-display text-xl font-bold md:mb-5 md:text-3xl">Trending now</h2>
         <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4 md:gap-5 lg:grid-cols-5">
-          {trending.map((p) => <ProductCard key={p.id} product={p} />)}
+          {trendingProducts.map((p) => <ProductCard key={p._id || p.id} product={p} />)}
         </div>
       </motion.section>
 
