@@ -1,7 +1,9 @@
 const Order = require('../models/Order');
 const Product = require('../models/Product');
+const User = require('../models/User');
 const Razorpay = require('razorpay');
 const crypto = require('crypto');
+const bcrypt = require('bcryptjs');
 
 // @desc    Get logged in user orders
 // @route   GET /api/orders/myorders
@@ -62,15 +64,40 @@ const createRazorpayOrder = async (req, res) => {
     }
 
     // Immediately create order in our database as Pending
-    const order = new Order({
+    const orderData = {
       orderItems,
-      user: req.user.id,
       shippingAddress,
       paymentMethod,
       totalPrice: amount,
       isPaid: false,
       razorpayOrderId: razorpayOrder.id,
-    });
+    };
+
+    if (req.user && req.user.id) {
+      orderData.user = req.user.id;
+    } else {
+      const { guestEmail, guestName, guestPhone } = req.body;
+      
+      let user = await User.findOne({ email: guestEmail });
+      
+      if (!user) {
+        const randomPassword = crypto.randomBytes(8).toString('hex');
+        const salt = await bcrypt.genSalt(10);
+        const hashedPassword = await bcrypt.hash(randomPassword, salt);
+        
+        user = await User.create({
+          name: guestName,
+          email: guestEmail,
+          phone: guestPhone || "0000000000",
+          password: hashedPassword,
+          address: shippingAddress
+        });
+      }
+      
+      orderData.user = user._id;
+    }
+
+    const order = new Order(orderData);
 
     await order.save();
 

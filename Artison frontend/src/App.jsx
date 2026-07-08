@@ -12,6 +12,7 @@ import Signup from "./pages/Signup";
 import Categories from "./pages/Categories";
 import SubCategories from "./pages/SubCategories";
 import Checkout from "./pages/Checkout";
+import ForgotPassword from "./pages/ForgotPassword";
 
 // Simple route guard for protected routes
 function ProtectedRoute({ children }) {
@@ -36,6 +37,7 @@ function App() {
             <Route path="/product/:id" element={<Product />} />
             <Route path="/login" element={<Login />} />
             <Route path="/signup" element={<Signup />} />
+            <Route path="/forgot-password" element={<ForgotPassword />} />
             
             {/* Protected Routes */}
             <Route 
@@ -46,14 +48,7 @@ function App() {
                 </ProtectedRoute>
               } 
             />
-            <Route 
-              path="/checkout" 
-              element={
-                <ProtectedRoute>
-                  <Checkout />
-                </ProtectedRoute>
-              } 
-            />
+            <Route path="/checkout" element={<Checkout />} />
           </Routes>
           <Toaster richColors position="top-right" />
         </CartProvider>

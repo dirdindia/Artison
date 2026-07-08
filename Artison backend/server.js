@@ -1,6 +1,10 @@
 const express = require('express');
 const cors = require('cors');
 const dotenv = require('dotenv');
+
+// Load env vars
+dotenv.config();
+
 const connectDB = require('./src/config/db');
 const { connectCloudinary } = require('./src/config/cloudinary');
 const uploadRoutes = require('./src/routes/uploadRoutes');
@@ -11,9 +15,7 @@ const productRoutes = require('./src/routes/productRoutes');
 const couponRoutes = require('./src/routes/couponRoutes');
 const userRoutes = require('./src/routes/userRoutes');
 const orderRoutes = require('./src/routes/orderRoutes');
-
-// Load env vars
-dotenv.config();
+const twilioRoutes = require('./src/routes/twilioRoutes');
 
 // Connect to database
 connectDB().then(() => {
@@ -43,6 +45,7 @@ app.use('/api/products', productRoutes);
 app.use('/api/coupons', couponRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/orders', orderRoutes);
+app.use('/api/twilio', twilioRoutes);
 
 app.get('/', (req, res) => {
   res.send('API is running...');

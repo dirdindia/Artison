@@ -1,5 +1,5 @@
 const express = require('express');
-const { protect, protectAdmin } = require('../middlewares/authMiddleware');
+const { protect, protectAdmin, optionalProtect } = require('../middlewares/authMiddleware');
 const { 
   getMyOrders, 
   createRazorpayOrder, 
@@ -15,8 +15,8 @@ const router = express.Router();
 
 router.route('/').get(protect, protectAdmin, getAllOrders);
 router.route('/myorders').get(protect, getMyOrders);
-router.route('/razorpay').post(protect, createRazorpayOrder);
-router.route('/verify').post(protect, verifyOrderPayment);
+router.route('/razorpay').post(optionalProtect, createRazorpayOrder);
+router.route('/verify').post(optionalProtect, verifyOrderPayment);
 router.route('/:id/status').put(protect, protectAdmin, updateOrderStatus);
 router.route('/:id/mark-viewed').put(protect, protectAdmin, markOrderAsViewed);
 router.route('/user/:userId').get(protect, protectAdmin, getOrdersByUser);
