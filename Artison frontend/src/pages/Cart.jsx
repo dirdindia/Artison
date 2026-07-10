@@ -34,8 +34,7 @@ export default function CartPage() {
           <div key={product.id || product._id} className="flex gap-3 rounded-2xl bg-card p-3 shadow-soft">
               <img src={product.image} alt={product.title} className="h-20 w-20 shrink-0 rounded-xl object-cover" />
               <div className="flex min-w-0 flex-1 flex-col">
-                <div className="truncate text-sm font-semibold">{product.title}</div>
-                <div className="truncate text-xs text-muted-foreground">{product.artist}</div>
+                <div className="truncate text-sm font-semibold">{product.name || product.title}</div>                <div className="truncate text-xs text-muted-foreground">{product.artist}</div>
                 <div className="mt-1 font-display text-sm font-bold text-primary">{formatPrice(product.price * qty)}</div>
                 <div className="mt-auto flex items-center justify-between pt-2">
                   <div className="flex items-center gap-2 rounded-full bg-secondary px-1 py-1">

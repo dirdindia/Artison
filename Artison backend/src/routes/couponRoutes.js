@@ -8,9 +8,11 @@ const {
   createCoupon,
   getCoupons,
   updateCoupon,
-  deleteCoupon
+  deleteCoupon,
+  validateCoupon
 } = require('../controllers/couponController');
 
+router.post('/validate', validateCoupon);
 router.post('/', protectAdmin, validate(couponSchema), createCoupon);
 router.get('/', protectAdmin, paginate, getCoupons);
 router.put('/:id', protectAdmin, validate(couponSchema), updateCoupon);

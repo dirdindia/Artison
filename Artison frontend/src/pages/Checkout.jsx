@@ -18,6 +18,12 @@ export default function Checkout() {
   const [success, setSuccess] = useState(false);
   const [isProcessingPayment, setIsProcessingPayment] = useState(false);
 
+  // Coupon state
+  const [couponCode, setCouponCode] = useState("");
+  const [appliedCoupon, setAppliedCoupon] = useState(null);
+  const [applyingCoupon, setApplyingCoupon] = useState(false);
+  const [couponError, setCouponError] = useState("");
+
   // Identity fields
   const [email, setEmail] = useState(user?.email || "");
   const [otpSent, setOtpSent] = useState(false);
@@ -41,7 +47,38 @@ export default function Checkout() {
 
   const subtotal = cart.reduce((s, c) => s + c.product.price * c.qty, 0);
   const shipping = cart.length ? 499 : 0;
-  const total = subtotal + shipping;
+  const initialTotal = subtotal + shipping;
+  const discountAmount = appliedCoupon ? appliedCoupon.discountAmount : 0;
+  const total = initialTotal - discountAmount;
+
+  const handleApplyCoupon = async () => {
+    if (!couponCode) return;
+    setApplyingCoupon(true);
+    setCouponError("");
+    try {
+      const { data } = await api.post("/coupons/validate", {
+        code: couponCode,
+        cartTotal: initialTotal,
+        cartItems: getFormattedCartItems()
+      });
+      if (data.success) {
+        setAppliedCoupon(data.data);
+        toast.success("Coupon applied successfully!");
+      }
+    } catch (error) {
+      setCouponError(error.response?.data?.message || "Invalid coupon");
+      setAppliedCoupon(null);
+    } finally {
+      setApplyingCoupon(false);
+    }
+  };
+
+  const handleRemoveCoupon = () => {
+    setCouponCode("");
+    setAppliedCoupon(null);
+    setCouponError("");
+    toast.success("Coupon removed");
+  };
 
   const loadRazorpayScript = () => {
     return new Promise((resolve) => {
@@ -90,10 +127,11 @@ export default function Checkout() {
 
     try {
       const orderPayload = {
-        amount: total,
+        amount: initialTotal, // Send initial total, backend calculates final price
         orderItems: getFormattedCartItems(),
         shippingAddress: { street, city, state: stateCode, country, postalCode },
-        paymentMethod: "Razorpay"
+        paymentMethod: "Razorpay",
+        couponCode: appliedCoupon ? appliedCoupon.code : null
       };
 
       if (!user) {
@@ -311,12 +349,50 @@ export default function Checkout() {
                   <p className="text-sm text-muted-foreground">You will be redirected to Razorpay to complete your payment securely.</p>
                 </div>
 
+                {/* Coupon Section */}
+                <div className="rounded-2xl bg-card p-5 shadow-soft">
+                  <h3 className="mb-3 font-semibold">Have a Coupon?</h3>
+                  <div className="flex gap-2">
+                    <input 
+                      type="text" 
+                      placeholder="Enter coupon code" 
+                      value={couponCode} 
+                      onChange={(e) => setCouponCode(e.target.value.toUpperCase())}
+                      disabled={appliedCoupon || applyingCoupon}
+                      className="w-full rounded-xl border-none bg-secondary/50 px-4 py-3 text-sm focus:ring-2 focus:ring-primary/20 disabled:opacity-50 uppercase" 
+                    />
+                    {!appliedCoupon ? (
+                      <button 
+                        type="button" 
+                        onClick={handleApplyCoupon}
+                        disabled={!couponCode || applyingCoupon}
+                        className="rounded-xl bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground disabled:opacity-50"
+                      >
+                        {applyingCoupon ? <Loader2 className="h-4 w-4 animate-spin" /> : "Apply"}
+                      </button>
+                    ) : (
+                      <button 
+                        type="button" 
+                        onClick={handleRemoveCoupon}
+                        className="rounded-xl bg-destructive px-4 py-2 text-sm font-semibold text-destructive-foreground"
+                      >
+                        Remove
+                      </button>
+                    )}
+                  </div>
+                  {couponError && <p className="mt-2 text-xs text-destructive">{couponError}</p>}
+                  {appliedCoupon && <p className="mt-2 text-xs text-green-600 font-semibold">Coupon applied! ₹{appliedCoupon.discountAmount} off</p>}
+                </div>
+
                 {/* Order Summary */}
                 <div className="rounded-2xl bg-card p-5 shadow-soft">
                   <h3 className="mb-3 font-semibold">Order Summary</h3>
                   <div className="space-y-2 text-sm">
                     <div className="flex justify-between text-muted-foreground"><span>Subtotal</span><span>{formatPrice(subtotal)}</span></div>
                     <div className="flex justify-between text-muted-foreground"><span>Shipping</span><span>{formatPrice(shipping)}</span></div>
+                    {appliedCoupon && (
+                      <div className="flex justify-between text-green-600 font-medium"><span>Discount ({appliedCoupon.code})</span><span>-{formatPrice(appliedCoupon.discountAmount)}</span></div>
+                    )}
                     <div className="my-2 border-t border-border" />
                     <div className="flex justify-between font-display text-base font-bold text-foreground"><span>Total</span><span>{formatPrice(total)}</span></div>
                   </div>

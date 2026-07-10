@@ -324,13 +324,11 @@ export default function Home() {
             <h2 className="font-display text-xl font-bold md:text-3xl">Featured works</h2>
             <p className="text-xs text-muted-foreground md:text-sm">Hand-picked this week</p>
           </div>
-          <Link to="/explore" className="hidden text-sm font-medium text-primary md:inline">View all featured →</Link>
+          <Link to="/featured" className="hidden text-sm font-medium text-primary md:inline">View all featured →</Link>
         </div>
-        <div className="flex gap-3 overflow-x-auto px-5 pb-2 md:grid md:grid-cols-4 md:gap-5 md:overflow-visible md:px-0 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-          {featuredProducts.map((p) =>
-          <div key={p._id || p.id} className="w-44 shrink-0 md:w-auto">
-              <ProductCard product={p} />
-            </div>
+        <div className="grid grid-cols-2 gap-3 sm:grid-cols-2 md:grid-cols-4 md:gap-5 px-5 md:px-0">
+          {featuredProducts.slice(0, 4).map((p) =>
+            <ProductCard key={p._id || p.id} product={p} />
           )}
         </div>
       </motion.section>
@@ -372,9 +370,12 @@ export default function Home() {
 
       {/* Trending grid */}
       <motion.section initial={{ opacity: 0, y: 40 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, margin: "-100px" }} transition={{ duration: 0.6, ease: "easeOut" }} className="mt-7 px-5 md:mt-14 md:px-0">
-        <h2 className="mb-3 font-display text-xl font-bold md:mb-5 md:text-3xl">Trending now</h2>
-        <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4 md:gap-5 lg:grid-cols-5">
-          {trendingProducts.map((p) => <ProductCard key={p._id || p.id} product={p} />)}
+        <div className="mb-3 flex items-end justify-between md:mb-5">
+          <h2 className="font-display text-xl font-bold md:text-3xl">Trending now</h2>
+          <Link to="/trending" className="hidden text-sm font-medium text-primary md:inline">View all trending →</Link>
+        </div>
+        <div className="grid grid-cols-2 gap-3 sm:grid-cols-2 md:grid-cols-4 md:gap-5 px-5 md:px-0">
+          {trendingProducts.slice(0, 4).map((p) => <ProductCard key={p._id || p.id} product={p} />)}
         </div>
       </motion.section>
 

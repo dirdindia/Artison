@@ -40,11 +40,59 @@ const getMyOrders = async (req, res) => {
 // @access  Private
 const createRazorpayOrder = async (req, res) => {
   try {
-    const { amount, orderItems, shippingAddress, paymentMethod } = req.body;
+    const { amount, orderItems, shippingAddress, paymentMethod, couponCode } = req.body;
 
     if (!orderItems || orderItems.length === 0) {
       return res.status(400).json({ success: false, message: 'No order items' });
     }
+
+    // Coupon validation and discount application
+    let discountAmount = 0;
+    const Coupon = require('../models/Coupon');
+    if (couponCode) {
+      const coupon = await Coupon.findOne({ code: couponCode.toUpperCase(), isActive: true });
+      if (coupon && new Date() <= new Date(coupon.expiryDate)) {
+        
+        // Calculate applicable total
+        let applicableTotal = 0;
+        if (coupon.applicability === 'all') {
+          applicableTotal = amount;
+        } else if (coupon.applicability === 'products') {
+          const selectedProductIds = coupon.selectedProducts.map(p => p.toString());
+          orderItems.forEach(item => {
+            const productId = typeof item.product === 'object' ? item.product._id || item.product.id : item.product;
+            if (selectedProductIds.includes(productId)) {
+              applicableTotal += (item.price * item.qty);
+            }
+          });
+        } else if (coupon.applicability === 'categories') {
+          const selectedCategoryIds = coupon.selectedCategories.map(c => c.toString());
+          const productIds = orderItems.map(item => typeof item.product === 'object' ? item.product._id || item.product.id : item.product);
+          const products = await Product.find({ _id: { $in: productIds } });
+          
+          orderItems.forEach(item => {
+            const productId = typeof item.product === 'object' ? item.product._id || item.product.id : item.product;
+            const product = products.find(p => p._id.toString() === productId);
+            if (product && product.category && selectedCategoryIds.includes(product.category.toString())) {
+              applicableTotal += (item.price * item.qty);
+            }
+          });
+        }
+
+        if (applicableTotal >= coupon.minSpend) {
+          if (coupon.discountType === 'percentage') {
+            discountAmount = (applicableTotal * coupon.discountValue) / 100;
+          } else if (coupon.discountType === 'fixed') {
+            discountAmount = coupon.discountValue;
+          } else if (coupon.discountType === 'freeship') {
+            discountAmount = 499;
+          }
+          if (discountAmount > applicableTotal) discountAmount = applicableTotal;
+        }
+      }
+    }
+
+    const finalAmount = amount - discountAmount;
 
     const instance = new Razorpay({
       key_id: process.env.RAZORPAY_KEY_ID,
@@ -52,7 +100,7 @@ const createRazorpayOrder = async (req, res) => {
     });
 
     const options = {
-      amount: amount * 100, // amount in smallest currency unit (paise)
+      amount: finalAmount * 100, // amount in smallest currency unit (paise)
       currency: "INR",
       receipt: `receipt_order_${Date.now()}`,
     };
@@ -68,7 +116,9 @@ const createRazorpayOrder = async (req, res) => {
       orderItems,
       shippingAddress,
       paymentMethod,
-      totalPrice: amount,
+      totalPrice: finalAmount, // Updated total price
+      couponCode: couponCode ? couponCode.toUpperCase() : null,
+      discountAmount,
       isPaid: false,
       razorpayOrderId: razorpayOrder.id,
     };
