@@ -5,7 +5,7 @@ import { ConfirmProvider } from './context/ConfirmContext';
 import Layout from './components/Layout';
 import Dashboard from './pages/Dashboard';
 import Categories from './pages/Categories';
-import SubCategories from './pages/subcategories';
+import SubCategories from './pages/SubCategories';
 import Products from './pages/Products';
 import Coupons from './pages/Coupons';
 import Settings from './pages/Settings';
