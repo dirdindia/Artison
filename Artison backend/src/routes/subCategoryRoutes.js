@@ -5,7 +5,7 @@ const {
   getSubCategories,
   updateSubCategory,
   deleteSubCategory
-} = require('../controllers/SubCategoryController');
+} = require('../controllers/subCategoryController');
 const { protectAdmin } = require('../middlewares/authMiddleware');
 const { paginate } = require('../middlewares/pagination');
 const validate = require('../middlewares/validateMiddleware');
