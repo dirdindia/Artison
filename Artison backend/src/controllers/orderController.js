@@ -4,6 +4,7 @@ const User = require('../models/User');
 const Razorpay = require('razorpay');
 const crypto = require('crypto');
 const bcrypt = require('bcryptjs');
+const Notification = require('../models/Notification');
 
 // @desc    Get logged in user orders
 // @route   GET /api/orders/myorders
@@ -190,6 +191,14 @@ const verifyOrderPayment = async (req, res) => {
     }
 
     const updatedOrder = await order.save();
+
+    await Notification.create({
+      recipientType: 'Admin',
+      message: `New paid order received! Order ID: #${order._id.toString().substring(18)}`,
+      type: 'ORDER_NEW',
+      relatedId: order._id
+    });
+
     res.json({ success: true, data: updatedOrder });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
@@ -236,6 +245,14 @@ const razorpayWebhook = async (req, res) => {
         }
 
         await order.save();
+
+        await Notification.create({
+          recipientType: 'Admin',
+          message: `New paid order received! Order ID: #${order._id.toString().substring(18)}`,
+          type: 'ORDER_NEW',
+          relatedId: order._id
+        });
+
         console.log(`Webhook: Order ${razorpayOrderId} marked as paid.`);
       }
     }

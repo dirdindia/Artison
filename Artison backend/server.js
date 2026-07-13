@@ -16,6 +16,8 @@ const couponRoutes = require('./src/routes/couponRoutes');
 const userRoutes = require('./src/routes/userRoutes');
 const orderRoutes = require('./src/routes/orderRoutes');
 const twilioRoutes = require('./src/routes/twilioRoutes');
+const ticketRoutes = require('./src/routes/ticketRoutes');
+const notificationRoutes = require('./src/routes/notificationRoutes');
 
 // Connect to database
 connectDB().then(() => {
@@ -46,6 +48,8 @@ app.use('/api/coupons', couponRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/orders', orderRoutes);
 app.use('/api/twilio', twilioRoutes);
+app.use('/api/tickets', ticketRoutes);
+app.use('/api/notifications', notificationRoutes);
 
 app.get('/', (req, res) => {
   res.send('API is running...');

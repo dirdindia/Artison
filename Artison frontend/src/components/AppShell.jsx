@@ -1,7 +1,9 @@
+import { useState, useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { Home, Compass, ShoppingBag, User, Search, Bell, Settings, LogOut, Package, Instagram, Twitter, Facebook, Mail } from "lucide-react";
 import { useCart } from "@/context/CartContext";
 import { useAuth } from "@/context/AuthContext";
+import api from "@/api";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -25,6 +27,33 @@ export function AppShell({ children, title }) {
     { to: isAuthenticated ? "/profile" : "/login", icon: User, label: isAuthenticated ? "Profile" : "Sign In" }
   ];
 
+  const [notifications, setNotifications] = useState([]);
+
+  useEffect(() => {
+    if (isAuthenticated) {
+      fetchNotifications();
+    }
+  }, [isAuthenticated]);
+
+  const fetchNotifications = async () => {
+    try {
+      const { data } = await api.get('/notifications');
+      setNotifications(data);
+    } catch (e) {
+      console.error(e);
+    }
+  };
+
+  const markAsRead = async (id) => {
+    try {
+      await api.put(`/notifications/${id}/read`);
+      setNotifications(notifications.map(n => n._id === id ? { ...n, read: true } : n));
+    } catch (e) {}
+  };
+
+  const unreadNotifications = notifications.filter(n => !n.read);
+  const unreadCount = unreadNotifications.length;
+
   return (
     <div className="mx-auto flex min-h-screen w-full max-w-md flex-col bg-background shadow-card md:max-w-none md:shadow-none">
       {/* Mobile header */}
@@ -39,10 +68,30 @@ export function AppShell({ children, title }) {
           </Link>
           <div className="flex shrink-0 items-center gap-2">
             <button className="grid h-9 w-9 place-items-center rounded-full bg-secondary text-foreground/70"><Search className="h-4 w-4" /></button>
-            <button className="relative grid h-9 w-9 place-items-center rounded-full bg-secondary text-foreground/70">
-              <Bell className="h-4 w-4" />
-              <span className="absolute right-1.5 top-1.5 h-1.5 w-1.5 rounded-full bg-primary" />
-            </button>
+            {isAuthenticated && (
+              <DropdownMenu>
+                <DropdownMenuTrigger className="relative grid h-9 w-9 place-items-center rounded-full bg-secondary text-foreground/70 outline-none">
+                  <Bell className="h-4 w-4" />
+                  {unreadCount > 0 && <span className="absolute right-1.5 top-1.5 h-2 w-2 rounded-full bg-primary" />}
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="w-64 mt-2 max-h-80 overflow-y-auto">
+                  <DropdownMenuLabel>Notifications</DropdownMenuLabel>
+                  <DropdownMenuSeparator />
+                  {unreadNotifications.length === 0 ? (
+                    <div className="p-3 text-xs text-muted-foreground text-center">No notifications</div>
+                  ) : (
+                    unreadNotifications.map(n => (
+                      <DropdownMenuItem key={n._id} onClick={() => markAsRead(n._id)} asChild>
+                        <Link to="/profile" className={`flex flex-col items-start p-3 cursor-pointer ${n.read ? 'opacity-60' : 'bg-primary/5'}`}>
+                          <div className="text-sm font-medium">{n.message}</div>
+                          <div className="text-xs text-muted-foreground mt-1">{new Date(n.createdAt).toLocaleDateString()}</div>
+                        </Link>
+                      </DropdownMenuItem>
+                    ))
+                  )}
+                </DropdownMenuContent>
+              </DropdownMenu>
+            )}
           </div>
         </div>
       </header>
@@ -87,6 +136,31 @@ export function AppShell({ children, title }) {
                 </span>
               }
             </Link>
+
+            {isAuthenticated && (
+              <DropdownMenu>
+                <DropdownMenuTrigger className="relative grid h-10 w-10 place-items-center rounded-full bg-secondary hover:bg-secondary/80 transition-colors outline-none">
+                  <Bell className="h-4 w-4" />
+                  {unreadCount > 0 && <span className="absolute right-2 top-2 h-2.5 w-2.5 rounded-full bg-primary border-2 border-background" />}
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="w-80 mt-2 max-h-96 overflow-y-auto">
+                  <DropdownMenuLabel>Notifications</DropdownMenuLabel>
+                  <DropdownMenuSeparator />
+                  {unreadNotifications.length === 0 ? (
+                    <div className="p-4 text-sm text-muted-foreground text-center">No notifications</div>
+                  ) : (
+                    unreadNotifications.map(n => (
+                      <DropdownMenuItem key={n._id} onClick={() => markAsRead(n._id)} asChild>
+                        <Link to="/profile" className={`flex flex-col items-start p-3 cursor-pointer ${n.read ? 'opacity-60' : 'bg-primary/5'}`}>
+                          <div className="text-sm font-medium">{n.message}</div>
+                          <div className="text-xs text-muted-foreground mt-1">{new Date(n.createdAt).toLocaleString()}</div>
+                        </Link>
+                      </DropdownMenuItem>
+                    ))
+                  )}
+                </DropdownMenuContent>
+              </DropdownMenu>
+            )}
 
             <div className="h-6 w-px bg-border mx-1" />
 

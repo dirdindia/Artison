@@ -7,6 +7,7 @@ import { toast } from "sonner";
 import { formatPrice } from "@/data/products"; 
 import { Country, State, City as CityData } from "country-state-city";
 import { generateInvoice, downloadInvoice } from "@/utils/invoice";
+import { SupportTickets } from "@/components/SupportTickets";
 
 const getStatusBadge = (status) => {
   const styles = {
@@ -46,14 +47,6 @@ export default function Profile() {
   const [loadingOrders, setLoadingOrders] = useState(false);
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
-
-  // Tickets State (UI Only for now)
-  const [ticketSubject, setTicketSubject] = useState("");
-  const [ticketDescription, setTicketDescription] = useState("");
-  const [tickets, setTickets] = useState([
-    { _id: "t1", subject: "Order not received", description: "My order #123 hasn't arrived yet.", status: "Open", createdAt: new Date().toISOString() },
-    { _id: "t2", subject: "Payment failed", description: "Money was deducted but order failed.", status: "Resolved", createdAt: new Date(Date.now() - 86400000).toISOString() }
-  ]);
 
   useEffect(() => {
     if (activeTab === "orders") {
@@ -454,67 +447,7 @@ export default function Profile() {
 
         {/* Tab Content: Support Tickets */}
         {activeTab === "tickets" && (
-          <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4">
-            {/* Raise New Ticket Form */}
-            <form onSubmit={(e) => {
-              e.preventDefault();
-              const newTicket = {
-                _id: Math.random().toString(36).substr(2, 9),
-                subject: ticketSubject,
-                description: ticketDescription,
-                status: "Open",
-                createdAt: new Date().toISOString()
-              };
-              setTickets([newTicket, ...tickets]);
-              setTicketSubject("");
-              setTicketDescription("");
-              toast.success("Ticket raised successfully!");
-            }} className="rounded-2xl bg-card p-5 shadow-soft space-y-4">
-              <h3 className="font-semibold flex items-center gap-2"><Ticket className="w-4 h-4 text-primary" /> Raise a New Ticket</h3>
-              <div className="space-y-3">
-                <div>
-                  <label className="text-xs font-medium text-muted-foreground ml-1">Subject</label>
-                  <input type="text" required value={ticketSubject} onChange={(e) => setTicketSubject(e.target.value)} className="w-full rounded-xl border-none bg-secondary/50 px-4 py-2.5 text-sm focus:ring-2 focus:ring-primary/20" placeholder="Briefly describe your issue" />
-                </div>
-                <div>
-                  <label className="text-xs font-medium text-muted-foreground ml-1">Description</label>
-                  <textarea required value={ticketDescription} onChange={(e) => setTicketDescription(e.target.value)} rows="4" className="w-full rounded-xl border-none bg-secondary/50 px-4 py-2.5 text-sm focus:ring-2 focus:ring-primary/20" placeholder="Provide more details..." />
-                </div>
-              </div>
-              <button type="submit" className="w-full rounded-xl bg-foreground py-3.5 text-sm font-semibold text-background shadow-soft transition-transform active:scale-[0.98]">
-                Submit Ticket
-              </button>
-            </form>
-
-            {/* List of Tickets */}
-            <div className="space-y-4">
-              <h3 className="font-semibold px-1">My Tickets</h3>
-              {tickets.length === 0 ? (
-                <div className="rounded-2xl bg-card p-8 text-center shadow-soft">
-                  <Ticket className="w-8 h-8 text-muted-foreground mx-auto mb-3 opacity-50" />
-                  <p className="font-medium text-foreground">No tickets raised</p>
-                  <p className="text-sm text-muted-foreground mt-1">If you have any issues, feel free to raise a ticket.</p>
-                </div>
-              ) : (
-                tickets.map((ticket) => (
-                  <div key={ticket._id} className="rounded-2xl bg-card p-5 shadow-soft space-y-3">
-                    <div className="flex items-start justify-between">
-                      <div>
-                        <div className="font-medium text-foreground">{ticket.subject}</div>
-                        <div className="text-xs text-muted-foreground mt-1">{new Date(ticket.createdAt).toLocaleString()}</div>
-                      </div>
-                      <div className={`px-2.5 py-1 rounded-full text-[10px] uppercase tracking-wider font-bold ${ticket.status === 'Open' ? 'bg-amber-100 text-amber-700' : 'bg-green-100 text-green-700'}`}>
-                        {ticket.status}
-                      </div>
-                    </div>
-                    <div className="text-sm text-muted-foreground bg-secondary/30 p-3 rounded-xl border border-border/50">
-                      {ticket.description}
-                    </div>
-                  </div>
-                ))
-              )}
-            </div>
-          </div>
+          <SupportTickets />
         )}
 
         <div className="mt-8 border-t border-border pt-6">
