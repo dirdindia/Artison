@@ -14,7 +14,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
-export function AppShell({ children, title }) {
+export function AppShell({ children, title, transparentHeader = false }) {
   const { cart } = useCart();
   const { user, isAuthenticated, logout } = useAuth();
   const { pathname } = useLocation();
@@ -55,24 +55,24 @@ export function AppShell({ children, title }) {
   const unreadCount = unreadNotifications.length;
 
   return (
-    <div className="mx-auto flex min-h-screen w-full max-w-md flex-col bg-background shadow-card md:max-w-none md:shadow-none">
+    <div className="mx-auto flex min-h-screen w-full max-w-md flex-col bg-background shadow-card md:max-w-none md:shadow-none overflow-x-hidden">
       {/* Mobile header */}
-      <header className="sticky top-0 z-30 bg-background/85 px-5 pt-5 pb-3 backdrop-blur-xl md:hidden">
+      <header className={`z-50 px-5 pt-5 pb-3 md:hidden ${transparentHeader ? 'fixed top-0 left-0 right-0 bg-transparent text-white' : 'sticky top-0 bg-background/85 backdrop-blur-xl'}`}>
         <div className="flex items-center justify-between gap-3">
-          <Link to="/" className="flex min-w-0 items-center gap-2">
-            <img src="/logo.png" alt="logo" className="h-10 w-10 shrink-0 object-contain mix-blend-multiply" />
+          <Link to="/" className={`flex min-w-0 items-center gap-2 ${transparentHeader ? 'text-white' : ''}`}>
+            <img src="/logo.png" alt="logo" className={`h-10 w-10 shrink-0 object-contain ${transparentHeader ? '' : 'mix-blend-multiply'}`} />
             <div className="min-w-0">
               <div className="font-display text-lg font-bold leading-none">कलाkosh</div>
-              <div className="truncate text-[10px] uppercase tracking-widest text-muted-foreground">{title ?? "Curated Art"}</div>
+              <div className={`truncate text-[10px] uppercase tracking-widest ${transparentHeader ? 'text-white/80' : 'text-muted-foreground'}`}>{title ?? "Curated Art"}</div>
             </div>
           </Link>
           <div className="flex shrink-0 items-center gap-2">
-            <button className="grid h-9 w-9 place-items-center rounded-full bg-secondary text-foreground/70"><Search className="h-4 w-4" /></button>
+            <button className={`grid h-9 w-9 place-items-center rounded-full ${transparentHeader ? 'bg-transparent text-white' : 'bg-secondary text-foreground/70'}`}><Search className="h-4 w-4" /></button>
             {isAuthenticated && (
               <DropdownMenu>
-                <DropdownMenuTrigger className="relative grid h-9 w-9 place-items-center rounded-full bg-secondary text-foreground/70 outline-none">
+                <DropdownMenuTrigger className={`relative grid h-9 w-9 place-items-center rounded-full outline-none ${transparentHeader ? 'bg-transparent text-white' : 'bg-secondary text-foreground/70'}`}>
                   <Bell className="h-4 w-4" />
-                  {unreadCount > 0 && <span className="absolute right-1.5 top-1.5 h-2 w-2 rounded-full bg-primary" />}
+                  {unreadCount > 0 && <span className={`absolute right-1.5 top-1.5 h-2 w-2 rounded-full ${transparentHeader ? 'bg-white' : 'bg-primary'}`} />}
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end" className="w-64 mt-2 max-h-80 overflow-y-auto">
                   <DropdownMenuLabel>Notifications</DropdownMenuLabel>
@@ -97,13 +97,13 @@ export function AppShell({ children, title }) {
       </header>
 
       {/* Desktop header */}
-      <header className="sticky top-0 z-30 hidden border-b border-border/60 bg-background/85 backdrop-blur-xl md:block">
+      <header className={`z-50 hidden md:block ${transparentHeader ? 'fixed top-0 left-0 right-0 bg-transparent text-white' : 'sticky top-0 border-b border-border/60 bg-background/85 backdrop-blur-xl'}`}>
         <div className="mx-auto flex w-full max-w-7xl items-center justify-between gap-6 px-8 py-4">
-          <Link to="/" className="flex items-center gap-2.5">
-            <img src="/logo.png" alt="logo" className="h-12 w-12 object-contain transition-transform hover:scale-110 mix-blend-multiply" />
+          <Link to="/" className={`flex items-center gap-2.5 ${transparentHeader ? 'text-white' : ''}`}>
+            <img src="/logo.png" alt="logo" className={`h-12 w-12 object-contain transition-transform hover:scale-110 ${transparentHeader ? '' : 'mix-blend-multiply'}`} />
             <div>
               <div className="font-display text-xl font-bold leading-none">कलाkosh</div>
-              <div className="text-[10px] uppercase tracking-widest text-muted-foreground">Original Art Marketplace</div>
+              <div className={`text-[10px] uppercase tracking-widest ${transparentHeader ? 'text-white/80' : 'text-muted-foreground'}`}>Original Art Marketplace</div>
             </div>
           </Link>
           <nav className="flex items-center gap-1">
@@ -114,8 +114,8 @@ export function AppShell({ children, title }) {
                 <Link
                   key={t.to}
                   to={t.to}
-                  className={`rounded-full px-4 py-2 text-sm font-medium transition-colors ${
-                  active ? "bg-foreground text-background" : "text-foreground/70 hover:bg-secondary"}`
+                  className={`rounded-full px-4 py-2 text-sm transition-colors ${
+                  active ? (transparentHeader ? "text-white font-semibold" : "bg-foreground text-background font-medium") : (transparentHeader ? "text-white/80 hover:text-white font-medium" : "text-foreground/70 hover:bg-secondary font-medium")}`
                   }>
                   {t.label}
                 </Link>
@@ -123,15 +123,15 @@ export function AppShell({ children, title }) {
             })}
           </nav>
           <div className="flex items-center gap-4">
-            <div className="flex w-56 items-center gap-2 rounded-full bg-secondary px-4 py-2 lg:w-72 transition-shadow focus-within:ring-2 focus-within:ring-ring">
-              <Search className="h-4 w-4 text-muted-foreground" />
-              <input placeholder="Search art, artists…" className="w-full bg-transparent text-sm outline-none placeholder:text-muted-foreground" />
+            <div className={`flex items-center gap-2 transition-shadow ${transparentHeader ? 'w-48 lg:w-64 border-b border-white/30 pb-1 text-white' : 'w-56 lg:w-72 rounded-full bg-secondary px-4 py-2 focus-within:ring-2 focus-within:ring-ring'}`}>
+              <Search className={`h-4 w-4 ${transparentHeader ? 'text-white' : 'text-muted-foreground'}`} />
+              <input placeholder="Search art, artists…" className={`w-full bg-transparent text-sm outline-none ${transparentHeader ? 'placeholder:text-white/70' : 'placeholder:text-muted-foreground'}`} />
             </div>
             
-            <Link to="/cart" className="relative grid h-10 w-10 place-items-center rounded-full bg-secondary hover:bg-secondary/80 transition-colors">
+            <Link to="/cart" className={`relative grid h-10 w-10 place-items-center rounded-full transition-colors ${transparentHeader ? 'bg-transparent text-white hover:text-white/70' : 'bg-secondary hover:bg-secondary/80'}`}>
               <ShoppingBag className="h-4 w-4" />
               {cartCount > 0 &&
-                <span className="absolute -right-1 -top-1 grid h-5 min-w-5 place-items-center rounded-full bg-primary px-1 text-[10px] font-bold text-primary-foreground shadow-sm">
+                <span className={`absolute -right-1 -top-1 grid h-5 min-w-5 place-items-center rounded-full px-1 text-[10px] font-bold shadow-sm ${transparentHeader ? 'bg-white text-black' : 'bg-primary text-primary-foreground'}`}>
                   {cartCount}
                 </span>
               }
@@ -139,9 +139,9 @@ export function AppShell({ children, title }) {
 
             {isAuthenticated && (
               <DropdownMenu>
-                <DropdownMenuTrigger className="relative grid h-10 w-10 place-items-center rounded-full bg-secondary hover:bg-secondary/80 transition-colors outline-none">
+                <DropdownMenuTrigger className={`relative grid h-10 w-10 place-items-center rounded-full transition-colors outline-none ${transparentHeader ? 'bg-transparent text-white hover:text-white/70' : 'bg-secondary hover:bg-secondary/80'}`}>
                   <Bell className="h-4 w-4" />
-                  {unreadCount > 0 && <span className="absolute right-2 top-2 h-2.5 w-2.5 rounded-full bg-primary border-2 border-background" />}
+                  {unreadCount > 0 && <span className={`absolute right-2 top-2 h-2.5 w-2.5 rounded-full border-2 ${transparentHeader ? 'bg-white border-transparent' : 'bg-primary border-background'}`} />}
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end" className="w-80 mt-2 max-h-96 overflow-y-auto">
                   <DropdownMenuLabel>Notifications</DropdownMenuLabel>
@@ -167,7 +167,7 @@ export function AppShell({ children, title }) {
             {isAuthenticated ? (
               <DropdownMenu>
                 <DropdownMenuTrigger className="focus-visible:outline-none rounded-full ring-offset-background focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2">
-                  <Avatar className="h-10 w-10 border border-border shadow-sm transition-transform hover:scale-105">
+                  <Avatar className={`h-10 w-10 border shadow-sm transition-transform hover:scale-105 ${transparentHeader ? 'border-white/30' : 'border-border'}`}>
                     <AvatarImage src={user?.avatar} alt={user?.name} />
                     <AvatarFallback className="bg-gradient-warm text-primary-foreground font-semibold">
                       {user?.name?.charAt(0).toUpperCase()}
@@ -197,10 +197,10 @@ export function AppShell({ children, title }) {
               </DropdownMenu>
             ) : (
               <div className="flex items-center gap-2">
-                <Link to="/login" className="px-4 py-2 text-sm font-medium text-foreground hover:text-foreground/80 transition-colors">
+                <Link to="/login" className={`px-4 py-2 text-sm font-medium transition-colors ${transparentHeader ? 'text-white hover:text-white/80' : 'text-foreground hover:text-foreground/80'}`}>
                   Sign In
                 </Link>
-                <Link to="/signup" className="hidden lg:inline-flex items-center gap-1.5 rounded-full bg-foreground px-4 py-2 text-sm font-semibold text-background shadow-soft transition hover:scale-[1.02] hover:shadow-md">
+                <Link to="/signup" className={`hidden lg:inline-flex items-center gap-1.5 rounded-full px-4 py-2 text-sm font-semibold transition hover:scale-[1.02] ${transparentHeader ? 'border border-white text-white hover:bg-white hover:text-black' : 'bg-foreground text-background shadow-soft hover:shadow-md'}`}>
                   Join कलाkosh
                 </Link>
               </div>

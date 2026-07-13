@@ -53,8 +53,8 @@ export default function Home() {
       try {
         const [featuredRes, trendingRes, heroRes] = await Promise.all([
           api.get('/products?tags=Featured&limit=4'),
-          api.get('/products?tags=Trending&limit=10'),
-          api.get('/products?limit=5')
+          api.get('/products?tags=Trending&limit=4'),
+          api.get('/products?limit=4')
         ]);
         
         if (featuredRes.data?.success && featuredRes.data.data.length > 0) setFeaturedProducts(featuredRes.data.data);
@@ -85,100 +85,57 @@ export default function Home() {
   const upcomingBgItem = heroItems[upcomingBgIndex];
 
   return (
-    <AppShell title="Discover">
+    <AppShell title="Discover" transparentHeader={true}>
       {/* Animated Hero - Responsive */}
-      <motion.section initial={{ opacity: 0, y: 40 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, margin: "-100px" }} transition={{ duration: 0.6, ease: "easeOut" }} className="px-5 pt-2 md:px-0 md:pt-0">
-        <div className="flex flex-col md:grid md:grid-cols-12 gap-6 md:h-[700px]">
-          
-          {/* Left Side (Top on mobile): Interactive Gallery */}
-          <div className="md:col-span-12 lg:col-span-7 h-[450px] md:h-full relative overflow-hidden rounded-[2rem] md:rounded-[2.5rem] bg-zinc-900 shadow-2xl cursor-pointer group" onClick={handleHeroClick}>
-            {/* Layer 1: Upcoming Background */}
-            <img src={upcomingBgItem.image} className="absolute inset-0 h-full w-full object-cover z-0" alt="" />
-            <div className="absolute inset-0 bg-black/40 z-[1]" />
+      <motion.section 
+        initial={{ opacity: 0 }} 
+        whileInView={{ opacity: 1 }} 
+        viewport={{ once: true }} 
+        transition={{ duration: 0.6 }} 
+        className="w-screen relative left-1/2 -translate-x-1/2 -mt-5 md:-mt-6"
+      >
+        <div className="w-full h-[75vh] md:h-[95vh] relative overflow-hidden bg-zinc-950 cursor-pointer group" onClick={handleHeroClick}>
+          {/* Layer 1: Upcoming Background */}
+          <img src={upcomingBgItem.image} className="absolute inset-0 h-full w-full object-cover z-0" alt="" />
+          <div className="absolute inset-0 bg-black/40 z-[1]" />
 
-            {/* Layer 2: Transitioning Background */}
-            <div className={`absolute inset-0 z-10 flex items-center justify-center transition-all duration-700 ease-[cubic-bezier(0.65,0,0.35,1)] ${isAnimating ? 'p-[20%]' : 'p-0'}`}>
-              <img 
-                src={nextItem.image} 
-                className={`h-full w-full object-cover transition-all duration-700 ease-[cubic-bezier(0.65,0,0.35,1)] ${isAnimating ? 'rounded-3xl shadow-2xl' : 'rounded-none shadow-none'}`}
-                alt=""
-              />
-              <div className={`absolute inset-0 bg-black/40 transition-opacity duration-700 ${isAnimating ? 'opacity-0' : 'opacity-100'}`} />
-            </div>
+          {/* Layer 2: Transitioning Background */}
+          <div className={`absolute inset-0 z-10 flex items-center justify-center transition-all duration-700 ease-[cubic-bezier(0.65,0,0.35,1)] ${isAnimating ? 'p-[5%] md:p-[8%]' : 'p-0'}`}>
+            <img 
+              src={nextItem.image} 
+              className={`h-full w-full transition-all duration-700 ease-[cubic-bezier(0.65,0,0.35,1)] ${isAnimating ? 'rounded-3xl shadow-2xl object-contain' : 'rounded-none shadow-none object-cover'}`}
+              alt=""
+            />
+            <div className={`absolute inset-0 bg-black/40 transition-opacity duration-700 ${isAnimating ? 'opacity-0' : 'opacity-100'}`} />
+          </div>
 
-            {/* Layer 3: Transitioning Foreground */}
-            <div className={`absolute inset-0 z-20 flex items-center justify-center p-[20%] transition-all duration-700 ease-[cubic-bezier(0.65,0,0.35,1)] ${isAnimating ? 'scale-75 opacity-0' : 'scale-100 opacity-100 pointer-events-none'}`}>
-              <img 
-                src={currentItem.image} 
-                className="h-full w-full object-cover rounded-3xl shadow-2xl"
-                alt=""
-              />
-              {/* <div className={`absolute bottom-[10%] left-0 right-0 text-center z-30 transition-opacity duration-400 ${isAnimating ? 'opacity-0' : 'opacity-100'}`}>
-                <Link to={`/product/${currentItem._id || currentItem.id}`} className="bg-black/60 text-white px-5 py-2.5 rounded-full backdrop-blur-md font-semibold text-sm hover:bg-black/80 pointer-events-auto transition-colors inline-block border border-white/20 shadow-xl">
-                  {currentIndex + 1} / {heroItems.length} — {currentItem.title}
-                </Link>
-              </div> */}
-            </div>
-            
-            {/* Click Hint */}
-            <div className={`absolute top-8 right-8 z-30 bg-black/50 text-white px-4 py-1.5 rounded-full backdrop-blur-md font-medium text-xs transition-opacity duration-300 ${isAnimating ? 'opacity-0' : 'opacity-100 group-hover:scale-105'}`}>
-              Click to cycle
-            </div>
+          {/* Layer 3: Transitioning Foreground */}
+          <div className={`absolute inset-0 z-20 flex items-center justify-center p-[5%] md:p-[8%] transition-all duration-700 ease-[cubic-bezier(0.65,0,0.35,1)] ${isAnimating ? 'scale-75 opacity-0' : 'scale-100 opacity-100 pointer-events-none'}`}>
+            <img 
+              src={currentItem.image} 
+              className="h-full w-full object-contain rounded-3xl "
+              alt=""
+            />
           </div>
           
-          {/* Right Side (Bottom on mobile): Static Content */}
-          <div className="md:col-span-12 lg:col-span-5 relative flex flex-col justify-center rounded-[2rem] md:rounded-[2.5rem] bg-gradient-to-br from-foreground to-zinc-900 p-8 md:p-12 text-background shadow-2xl overflow-hidden">
-            <div className="absolute -right-20 -top-20 h-96 w-96 rounded-full bg-primary/30 blur-[100px]" />
-            <div className="absolute -left-16 -bottom-16 h-72 w-72 rounded-full bg-gold/20 blur-[80px]" />
-            <div className="relative z-10">
-              <div className="inline-flex items-center gap-2 rounded-full border border-background/20 bg-background/10 px-4 py-1.5 text-xs font-semibold uppercase tracking-widest backdrop-blur-md text-white">
-                <Sparkles className="h-3.5 w-3.5 text-gold" /> Exclusive Collection
-              </div>
-              <motion.h1 
-                initial={{ opacity: 0, y: 20 }} 
-                animate={{ opacity: 1, y: 0 }} 
-                transition={{ duration: 1.2, delay: 0.2, ease: "easeOut" }}
-                className="mt-6 md:mt-8 font-display text-4xl md:text-5xl lg:text-6xl leading-[1.1] font-bold tracking-tight text-white"
-              >
-                Discover <br/><span className="text-transparent bg-clip-text bg-gradient-to-r from-gold to-primary">masterpieces</span><br/> for modern spaces.
-              </motion.h1>
-              <motion.p 
-                initial={{ opacity: 0, y: 20 }} 
-                animate={{ opacity: 1, y: 0 }} 
-                transition={{ duration: 1.2, delay: 0.6, ease: "easeOut" }}
-                className="mt-6 text-lg leading-relaxed text-background/70 font-medium"
-              >
-                Elevate your environment with authentic original artworks — sourced directly from independent studios globally.
-              </motion.p>
-              
-              <div className="mt-10 flex flex-col gap-4">
-                <Link to="/explore" className="inline-flex items-center justify-center gap-2 rounded-2xl bg-white px-7 py-4 text-sm font-bold text-black shadow-xl transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl hover:bg-zinc-100 w-full sm:w-auto">
-                  Browse full gallery <ArrowRight className="h-4 w-4" />
-                </Link>
-                <Link to="/profile" className="inline-flex items-center justify-center gap-2 rounded-2xl border border-background/30 px-7 py-4 text-sm font-bold text-white transition-colors hover:bg-background/10 backdrop-blur-sm w-full sm:w-auto">
-                  Apply as artist
-                </Link>
-              </div>
-
-              <div className="mt-12 flex items-center gap-6 border-t border-white/10 pt-6">
-                <div className="flex -space-x-3">
-                  {artists.slice(0, 4).map((a) =>
-                  <img key={a.id} src={a.avatar} alt={a.name} className="h-11 w-11 rounded-full border-2 border-zinc-900 object-cover shadow-sm transition-transform hover:scale-110 hover:z-10" />
-                  )}
-                </div>
-                <div className="text-sm text-background/70 font-medium">
-                  <div className="flex items-center gap-1.5 font-bold text-white">
-                    <Star className="h-4 w-4 fill-gold text-gold" /> 4.9/5 from 5,000+ collectors
-                  </div>
-                  Trusted globally in 45+ countries
-                </div>
-              </div>
-            </div>
+          {/* Click Hint */}
+          <div className={`absolute bottom-8 right-8 md:bottom-12 md:right-12 z-30 bg-black/50 text-white px-5 py-2 rounded-full backdrop-blur-md font-medium text-sm transition-opacity duration-300 ${isAnimating ? 'opacity-0' : 'opacity-100 group-hover:scale-105'}`}>
+            Click to cycle
           </div>
+          
+          {/* Optional Overlay Text */}
+          {/* <div className={`absolute bottom-8 left-8 md:bottom-12 md:left-12 z-30 transition-opacity duration-300 pointer-events-none ${isAnimating ? 'opacity-0' : 'opacity-100'}`}>
+             <h1 className="text-white font-display text-4xl md:text-6xl font-bold max-w-2xl leading-tight drop-shadow-xl">
+               Discover masterpieces<br/>for modern spaces.
+             </h1>
+             <p className="mt-4 text-white/90 text-lg md:text-xl max-w-xl font-medium drop-shadow-md">
+               Elevate your environment with authentic original artworks.
+             </p>
+          </div> */}
         </div>
 
         {/* Stats strip */}
-        <motion.div 
+        {/* <motion.div 
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
@@ -198,7 +155,7 @@ export default function Home() {
               <div className="mt-1 text-[11px] font-semibold uppercase tracking-widest text-muted-foreground">{s.label}</div>
             </motion.div>
           )}
-        </motion.div>
+        </motion.div> */}
       </motion.section>
 
       {/* Categories - Interactive List */}
