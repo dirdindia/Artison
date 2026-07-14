@@ -1,6 +1,6 @@
 const jwt = require('jsonwebtoken');
 
-const protectAdmin = (req, res, next) => {
+const protectAdmin = async (req, res, next) => {
   let token;
 
   if (req.headers.authorization && req.headers.authorization.startsWith('Bearer')) {
@@ -13,8 +13,11 @@ const protectAdmin = (req, res, next) => {
 
   try {
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
-
-    if (decoded.role !== 'admin') {
+    
+    const User = require('../models/User');
+    const user = await User.findById(decoded.id);
+    
+    if (!user || user.role !== 'admin') {
       return res.status(403).json({ success: false, message: 'Access forbidden: Admins only' });
     }
 
@@ -35,6 +38,14 @@ const protect = async (req, res, next) => {
   }
   try {
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    
+    const User = require('../models/User');
+    const user = await User.findById(decoded.id);
+    
+    if (!user) {
+      return res.status(401).json({ success: false, message: 'Not authorized, user no longer exists' });
+    }
+    
     req.user = decoded;
     next();
   } catch (error) {
@@ -50,7 +61,11 @@ const optionalProtect = async (req, res, next) => {
   if (token) {
     try {
       const decoded = jwt.verify(token, process.env.JWT_SECRET);
-      req.user = decoded;
+      const User = require('../models/User');
+      const user = await User.findById(decoded.id);
+      if (user) {
+        req.user = decoded;
+      }
     } catch (error) {
       // Ignored for optional
     }

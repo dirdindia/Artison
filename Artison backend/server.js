@@ -18,6 +18,7 @@ const orderRoutes = require('./src/routes/orderRoutes');
 const twilioRoutes = require('./src/routes/twilioRoutes');
 const ticketRoutes = require('./src/routes/ticketRoutes');
 const notificationRoutes = require('./src/routes/notificationRoutes');
+const subscriberRoutes = require('./src/routes/subscriberRoutes');
 
 // Connect to database
 connectDB().then(() => {
@@ -50,6 +51,7 @@ app.use('/api/orders', orderRoutes);
 app.use('/api/twilio', twilioRoutes);
 app.use('/api/tickets', ticketRoutes);
 app.use('/api/notifications', notificationRoutes);
+app.use('/api/subscribers', subscriberRoutes);
 
 app.get('/', (req, res) => {
   res.send('API is running...');

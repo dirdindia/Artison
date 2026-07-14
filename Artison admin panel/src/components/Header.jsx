@@ -15,8 +15,14 @@ export default function Header({ toggleSidebar }) {
   const fetchNotifications = async () => {
     try {
       const { data } = await api.get('/notifications');
-      setNotifications(data);
-    } catch (e) {}
+      if (Array.isArray(data)) {
+        setNotifications(data);
+      } else {
+        setNotifications([]);
+      }
+    } catch (e) {
+      setNotifications([]);
+    }
   };
 
   const handleNotificationClick = async (id) => {

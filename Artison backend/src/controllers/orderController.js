@@ -129,6 +129,10 @@ const createRazorpayOrder = async (req, res) => {
     } else {
       const { guestEmail, guestName, guestPhone } = req.body;
       
+      if (!guestEmail || !guestName) {
+        return res.status(401).json({ success: false, message: 'Session expired or user deleted. Please log in again.' });
+      }
+
       let user = await User.findOne({ email: guestEmail });
       
       if (!user) {
@@ -141,7 +145,8 @@ const createRazorpayOrder = async (req, res) => {
           email: guestEmail,
           phone: guestPhone || "0000000000",
           password: hashedPassword,
-          address: shippingAddress
+          address: shippingAddress,
+          hasSetPassword: false
         });
       }
       

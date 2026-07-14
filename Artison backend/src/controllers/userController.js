@@ -58,6 +58,7 @@ const updateUserProfile = async (req, res) => {
           address: updatedUser.address,
           avatar: updatedUser.avatar,
           role: updatedUser.role,
+          hasSetPassword: updatedUser.hasSetPassword,
         },
       });
     } else {
@@ -78,17 +79,23 @@ const changePassword = async (req, res) => {
     if (user) {
       const { oldPassword, newPassword } = req.body;
 
-      if (!oldPassword || !newPassword) {
-         return res.status(400).json({ success: false, message: 'Please provide old and new passwords' });
+      if (!newPassword) {
+         return res.status(400).json({ success: false, message: 'Please provide a new password' });
       }
 
-      const isMatch = await bcrypt.compare(oldPassword, user.password);
-      if (!isMatch) {
-        return res.status(400).json({ success: false, message: 'Invalid old password' });
+      if (user.hasSetPassword) {
+        if (!oldPassword) {
+          return res.status(400).json({ success: false, message: 'Please provide old password' });
+        }
+        const isMatch = await bcrypt.compare(oldPassword, user.password);
+        if (!isMatch) {
+          return res.status(400).json({ success: false, message: 'Invalid old password' });
+        }
       }
 
       const salt = await bcrypt.genSalt(10);
       user.password = await bcrypt.hash(newPassword, salt);
+      user.hasSetPassword = true;
       
       await user.save();
 

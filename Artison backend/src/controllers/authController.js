@@ -57,6 +57,7 @@ const signupUser = async (req, res) => {
             role: user.role,
             avatar: user.avatar,
             address: user.address,
+            hasSetPassword: user.hasSetPassword,
           },
         },
       });
@@ -134,6 +135,7 @@ const loginUser = async (req, res) => {
             role: user.role,
             avatar: user.avatar,
             address: user.address,
+            hasSetPassword: user.hasSetPassword,
           }
         }
       });
@@ -222,6 +224,7 @@ const verifyOtp = async (req, res) => {
           role: user.role,
           avatar: user.avatar,
           address: user.address,
+          hasSetPassword: user.hasSetPassword,
         }
       }
     });

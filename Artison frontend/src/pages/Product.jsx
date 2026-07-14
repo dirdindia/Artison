@@ -1,16 +1,18 @@
 import { useState, useEffect } from "react";
 import { Link, useParams, useNavigate } from "react-router-dom";
-import { ArrowLeft, Heart, Share2, Shield, Truck } from "lucide-react";
+import { ArrowLeft, Heart, Share2, Shield, Truck, Star } from "lucide-react";
 import { AppShell } from "@/components/AppShell";
 import { ProductCard } from "@/components/ProductCard";
 import { formatPrice } from "@/data/products"; // keeping formatPrice utility if it exists
 import { useCart } from "@/context/CartContext";
+import { useAuth } from "@/context/AuthContext";
 import api from "@/api";
 
 export default function ProductPage() {
   const { id } = useParams();
   const navigate = useNavigate();
   const { addToCart } = useCart();
+  const { isAuthenticated, user } = useAuth();
   
   const [product, setProduct] = useState(null);
   const [activeImage, setActiveImage] = useState("");
@@ -18,11 +20,17 @@ export default function ProductPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
-  useEffect(() => {
-    const fetchProductDetails = async () => {
-      setLoading(true);
-      setError("");
-      try {
+  // Review states
+  const [rating, setRating] = useState(5);
+  const [comment, setComment] = useState("");
+  const [submittingReview, setSubmittingReview] = useState(false);
+  const [reviewError, setReviewError] = useState("");
+  const [reviewSuccess, setReviewSuccess] = useState("");
+
+  const fetchProductDetails = async (showLoader = true) => {
+    if (showLoader) setLoading(true);
+    setError("");
+    try {
         const res = await api.get(`/products/${id}`);
         if (res.data && res.data.data) {
           setProduct(res.data.data);
@@ -50,12 +58,35 @@ export default function ProductPage() {
         console.error("Error fetching product details", err);
         setError("Product not found or error loading data.");
       } finally {
-        setLoading(false);
+        if (showLoader) setLoading(false);
       }
     };
     
+  useEffect(() => {
     fetchProductDetails();
   }, [id]);
+
+  const submitReview = async (e) => {
+    e.preventDefault();
+    if (!rating || !comment.trim()) return;
+
+    setSubmittingReview(true);
+    setReviewError("");
+    setReviewSuccess("");
+
+    try {
+      await api.post(`/products/${id}/reviews`, { rating, comment });
+      setReviewSuccess("Review submitted successfully! It will appear once verified by an admin.");
+      setComment("");
+      setRating(5);
+      // Refresh product details without showing the full page loader
+      fetchProductDetails(false);
+    } catch (err) {
+      setReviewError(err.response?.data?.message || "Failed to submit review. You may have already reviewed this product.");
+    } finally {
+      setSubmittingReview(false);
+    }
+  };
 
   if (loading) return (
     <AppShell title="Loading">
@@ -120,6 +151,23 @@ export default function ProductPage() {
               <span className="rounded-full bg-accent px-3 py-1.5 text-xs font-semibold uppercase tracking-wider text-accent-foreground inline-block">
                 {categoryName}
               </span>
+              <div className="mt-2 flex items-center gap-2">
+                <div className="flex">
+                  {[1, 2, 3, 4, 5].map((star) => (
+                    <Star
+                      key={star}
+                      className={`h-4 w-4 ${
+                        product.rating >= star
+                          ? "fill-primary text-primary"
+                          : "fill-muted text-muted"
+                      }`}
+                    />
+                  ))}
+                </div>
+                <span className="text-sm text-muted-foreground">
+                  ({product.numReviews || 0} reviews)
+                </span>
+              </div>
               <h1 className="mt-4 font-display text-3xl font-bold leading-tight md:text-5xl">{product.name}</h1>
               <div className="mt-3 font-display text-3xl font-bold text-primary md:text-4xl">₹{product.price?.toLocaleString()}</div>
               
@@ -160,6 +208,98 @@ export default function ProductPage() {
               <Perk icon={Shield} title="Authenticity guarantee" sub="Verified original artwork" />
             </div>
           </div>
+          </div>
+        </div>
+
+        {/* Reviews Section */}
+        <div className="mt-16 border-t border-border/40 pt-10">
+          <h3 className="mb-6 font-display text-2xl font-bold">Reviews & Feedback</h3>
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
+            {/* Reviews List */}
+            <div className="space-y-6">
+              {product.reviews && product.reviews.filter(r => r.isVerified).length > 0 ? (
+                product.reviews.filter(r => r.isVerified).map((review, i) => (
+                  <div key={i} className="rounded-2xl bg-card p-5 shadow-soft border border-border/40">
+                    <div className="flex justify-between items-center mb-3">
+                      <div className="font-bold text-foreground">{review.user?.name || 'Anonymous'}</div>
+                      <div className="text-xs text-muted-foreground">{new Date(review.createdAt).toLocaleDateString()}</div>
+                    </div>
+                    <div className="flex mb-3">
+                      {[1, 2, 3, 4, 5].map((star) => (
+                        <Star
+                          key={star}
+                          className={`h-4 w-4 ${
+                            review.rating >= star
+                              ? "fill-primary text-primary"
+                              : "fill-muted text-muted"
+                          }`}
+                        />
+                      ))}
+                    </div>
+                    <p className="text-sm text-foreground/80">{review.comment}</p>
+                  </div>
+                ))
+              ) : (
+                <div className="rounded-2xl bg-muted p-8 text-center text-muted-foreground">
+                  No reviews yet. Be the first to review this artwork!
+                </div>
+              )}
+            </div>
+
+            {/* Write Review Form */}
+            <div>
+              <div className="rounded-2xl bg-card p-6 shadow-soft border border-border/40">
+                <h4 className="font-bold text-lg mb-4">Write a Review</h4>
+                {isAuthenticated ? (
+                  <form onSubmit={submitReview} className="space-y-4">
+                    <div>
+                      <label className="block text-sm font-medium mb-2">Rating</label>
+                      <div className="flex gap-1">
+                        {[1, 2, 3, 4, 5].map((star) => (
+                          <Star
+                            key={star}
+                            onClick={() => setRating(star)}
+                            className={`h-6 w-6 cursor-pointer transition-colors ${
+                              rating >= star
+                                ? "fill-primary text-primary"
+                                : "fill-muted text-muted hover:text-primary/50"
+                            }`}
+                          />
+                        ))}
+                      </div>
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium mb-2">Your Feedback</label>
+                      <textarea
+                        value={comment}
+                        onChange={(e) => setComment(e.target.value)}
+                        required
+                        rows={4}
+                        className="w-full rounded-xl border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                        placeholder="What do you think about this artwork?"
+                      ></textarea>
+                    </div>
+                    {reviewError && <div className="text-sm text-destructive font-medium">{reviewError}</div>}
+                    {reviewSuccess && <div className="text-sm text-green-600 font-medium">{reviewSuccess}</div>}
+                    <button
+                      type="submit"
+                      disabled={submittingReview}
+                      className="w-full rounded-xl bg-foreground py-3 text-sm font-bold text-background hover:bg-foreground/90 disabled:opacity-50"
+                    >
+                      {submittingReview ? "Submitting..." : "Submit Review"}
+                    </button>
+                  </form>
+                ) : (
+                  <div className="rounded-xl bg-muted p-6 text-center">
+                    <p className="text-sm text-muted-foreground mb-4">Please log in to share your thoughts.</p>
+                    <Link to="/login" className="inline-block rounded-xl bg-primary px-6 py-2 text-sm font-bold text-primary-foreground">
+                      Log In
+                    </Link>
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
         </div>
 
         {related.length > 0 && (
@@ -170,7 +310,8 @@ export default function ProductPage() {
             </div>
           </div>
         )}
-      </div>
+    
+ 
 
       <div className="fixed inset-x-0 bottom-20 z-30 mx-auto w-full max-w-md px-5 md:hidden">
         <button

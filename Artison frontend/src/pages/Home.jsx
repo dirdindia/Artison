@@ -1,17 +1,18 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Link } from "react-router-dom";
-import { motion } from "framer-motion";
+import { motion, useScroll, useTransform } from "framer-motion";
 import { ArrowRight, Sparkles, Palette, Truck, ShieldCheck, Star, Quote, Mail } from "lucide-react";
+import { toast } from "sonner";
 import { AppShell } from "@/components/AppShell";
 import { ProductCard } from "@/components/ProductCard";
 import { products, artists } from "@/data/products";
 import api from "@/api";
 
-const stats = [
-{ value: "2,400+", label: "Original artworks" },
-{ value: "180+", label: "Independent artists" },
-{ value: "45+", label: "Countries shipped" },
-{ value: "4.9★", label: "Collector rating" }];
+// const stats = [
+// { value: "2,400+", label: "Original artworks" },
+// { value: "180+", label: "Independent artists" },
+// { value: "45+", label: "Countries shipped" },
+// { value: "4.9★", label: "Collector rating" }];
 
 
 const perks = [
@@ -29,6 +30,13 @@ const testimonials = [
 export default function Home() {
   const [categoriesData, setCategoriesData] = useState([]);
   const [activeCategoryIndex, setActiveCategoryIndex] = useState(0);
+
+  const sohraiRef = useRef(null);
+  const { scrollYProgress } = useScroll({
+    target: sohraiRef,
+    offset: ["start end", "end start"]
+  });
+  const backgroundY = useTransform(scrollYProgress, [0, 1], ["-20%", "20%"]);
 
   useEffect(() => {
     const fetchCategories = async () => {
@@ -158,6 +166,70 @@ export default function Home() {
         </motion.div> */}
       </motion.section>
 
+
+            {/* Sohrai Art Spotlight */}
+      <motion.section 
+        ref={sohraiRef}
+        initial={{ opacity: 0, y: 40 }} 
+        whileInView={{ opacity: 1, y: 0 }} 
+        viewport={{ once: true, margin: "-100px" }} 
+        transition={{ duration: 0.8, ease: "easeOut" }} 
+        className="w-screen relative left-1/2 -translate-x-1/2 mt-0 md:mt-0"
+      >
+        <div className="relative overflow-hidden bg-[#f8f1de] p-10 md:p-24 shadow-xl border-y border-[#e2d5b8]">
+          {/* Floral Vintage Image Background */}
+          <motion.img 
+            src="https://png.pngtree.com/background/20210709/original/pngtree-gold-pattern-poster-background-picture-image_424792.jpg" 
+            alt="Vintage Floral Pattern" 
+            style={{ y: backgroundY }}
+            className="absolute -top-[20%] -left-[10%] w-[120%] h-[140%] object-cover opacity-15 pointer-events-none mix-blend-multiply" 
+          />
+          <div className="absolute inset-0 bg-gradient-to-tr from-[#dcb98a]/10 via-transparent to-[#ffffff]/40" />
+          
+          <div className="relative z-10 max-w-4xl mx-auto text-center">
+            <motion.div
+              initial={{ opacity: 0, scale: 0.9 }}
+              whileInView={{ opacity: 1, scale: 1 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.8, delay: 0.2 }}
+              className="inline-flex items-center gap-2 rounded-full border border-amber-700/20 bg-amber-700/5 px-4 py-1.5 text-xs font-semibold uppercase tracking-widest text-amber-900 mb-6"
+            >
+              <Sparkles className="h-3.5 w-3.5" /> Cultural Heritage
+            </motion.div>
+            
+            <motion.h2 
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.8, delay: 0.4 }}
+              className="font-display text-5xl md:text-7xl font-bold text-amber-950 mb-8"
+              style={{ fontFamily: "'Dancing Script', cursive" }}
+            >
+              Sohrai Art
+            </motion.h2>
+            
+            <motion.p 
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 1.0, delay: 0.6 }}
+              className="text-2xl md:text-3xl leading-relaxed text-amber-900/80 font-medium"
+              style={{ fontFamily: "'Sacramento', cursive",fontWeight:"bold" }}
+            >
+              More than just an art form, Sohrai art is the heartbeat of Jharkhand's villages. 
+              Created by tribal women, these beautiful wall paintings celebrate nature, 
+              harvest, animals, and the deep bond between people and the earth. Made with natural 
+              colors drawn from soil and stone, every line and pattern carries generations of stories, 
+              traditions, and love. In a world that is constantly changing, Sohrai art stands as a quiet
+               reminder that true beauty is found in our roots. Every piece is not just handmade—it is a 
+               living memory of a culture that continues to inspire with its simplicity, warmth, and timeless grace.
+            </motion.p>
+          </div>
+        </div>
+      </motion.section>
+
+      
+
       {/* Categories - Interactive List */}
       <motion.section initial={{ opacity: 0, y: 40 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, margin: "-100px" }} transition={{ duration: 0.6, ease: "easeOut" }} className="mt-8 px-5 md:mt-16 md:px-0">
         <div className="flex items-center justify-between mb-8">
@@ -223,56 +295,7 @@ export default function Home() {
         )}
       </motion.section>
 
-      {/* Sohrai Art Spotlight */}
-      <motion.section 
-        initial={{ opacity: 0, y: 40 }} 
-        whileInView={{ opacity: 1, y: 0 }} 
-        viewport={{ once: true, margin: "-100px" }} 
-        transition={{ duration: 0.8, ease: "easeOut" }} 
-        className="mt-10 px-5 md:mt-20 md:px-0"
-      >
-        <div className="relative overflow-hidden rounded-[2.5rem] bg-[#f8f1de] p-10 md:p-20 shadow-xl border border-[#e2d5b8]">
-          {/* Floral Vintage Image Background */}
-          <img 
-            src="https://png.pngtree.com/background/20210709/original/pngtree-gold-pattern-poster-background-picture-image_424792.jpg" 
-            alt="Vintage Floral Pattern" 
-            className="absolute inset-0 w-full h-full object-cover opacity-15 pointer-events-none mix-blend-multiply" 
-          />
-          <div className="absolute inset-0 bg-gradient-to-tr from-[#dcb98a]/10 via-transparent to-[#ffffff]/40" />
-          
-          <div className="relative z-10 max-w-4xl mx-auto text-center">
-            <motion.div
-              initial={{ opacity: 0, scale: 0.9 }}
-              whileInView={{ opacity: 1, scale: 1 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.8, delay: 0.2 }}
-              className="inline-flex items-center gap-2 rounded-full border border-amber-700/20 bg-amber-700/5 px-4 py-1.5 text-xs font-semibold uppercase tracking-widest text-amber-900 mb-6"
-            >
-              <Sparkles className="h-3.5 w-3.5" /> Cultural Heritage
-            </motion.div>
-            
-            <motion.h2 
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.8, delay: 0.4 }}
-              className="font-display text-4xl md:text-6xl font-bold text-amber-950 mb-8"
-            >
-              Sohrai Art
-            </motion.h2>
-            
-            <motion.p 
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 1.0, delay: 0.6 }}
-              className="text-lg md:text-xl leading-relaxed text-amber-900/80 font-medium"
-            >
-              More than just an art form, Sohrai art is the heartbeat of Jharkhand's villages. Created by tribal women, these beautiful wall paintings celebrate nature, harvest, animals, and the deep bond between people and the earth. Made with natural colors drawn from soil and stone, every line and pattern carries generations of stories, traditions, and love. In a world that is constantly changing, Sohrai art stands as a quiet reminder that true beauty is found in our roots. Every piece is not just handmade—it is a living memory of a culture that continues to inspire with its simplicity, warmth, and timeless grace.
-            </motion.p>
-          </div>
-        </div>
-      </motion.section>
+
 
       {/* Featured */}
       <motion.section initial={{ opacity: 0, y: 40 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, margin: "-100px" }} transition={{ duration: 0.6, ease: "easeOut" }} className="mt-7 md:mt-14">
@@ -281,7 +304,7 @@ export default function Home() {
             <h2 className="font-display text-xl font-bold md:text-3xl">Featured works</h2>
             <p className="text-xs text-muted-foreground md:text-sm">Hand-picked this week</p>
           </div>
-          <Link to="/featured" className="hidden text-sm font-medium text-primary md:inline">View all featured →</Link>
+          <Link to="/featured" className="text-sm font-medium text-primary hover:underline">View all featured →</Link>
         </div>
         <div className="grid grid-cols-2 gap-3 sm:grid-cols-2 md:grid-cols-4 md:gap-5 px-5 md:px-0">
           {featuredProducts.slice(0, 4).map((p) =>
@@ -329,7 +352,7 @@ export default function Home() {
       <motion.section initial={{ opacity: 0, y: 40 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, margin: "-100px" }} transition={{ duration: 0.6, ease: "easeOut" }} className="mt-7 px-5 md:mt-14 md:px-0">
         <div className="mb-3 flex items-end justify-between md:mb-5">
           <h2 className="font-display text-xl font-bold md:text-3xl">Trending now</h2>
-          <Link to="/trending" className="hidden text-sm font-medium text-primary md:inline">View all trending →</Link>
+          <Link to="/trending" className="text-sm font-medium text-primary hover:underline">View all trending →</Link>
         </div>
         <div className="grid grid-cols-2 gap-3 sm:grid-cols-2 md:grid-cols-4 md:gap-5 px-5 md:px-0">
           {trendingProducts.slice(0, 4).map((p) => <ProductCard key={p._id || p.id} product={p} />)}
@@ -374,14 +397,37 @@ export default function Home() {
                 Be first to see curated drops every Friday. No spam — just art.
               </p>
             </div>
-            <form className="flex flex-col gap-2 sm:flex-row" onSubmit={(e) => e.preventDefault()}>
+            <form className="flex flex-col gap-2 sm:flex-row" onSubmit={async (e) => {
+              e.preventDefault();
+              const formData = new FormData(e.target);
+              const email = formData.get('email');
+              const submitBtn = e.target.querySelector('button[type="submit"]');
+              if (submitBtn) {
+                submitBtn.disabled = true;
+                submitBtn.textContent = 'Subscribing...';
+              }
+              try {
+                const response = await api.post('/subscribers/subscribe', { email });
+                toast.success(response.data.message || 'Subscribed successfully!');
+                e.target.reset();
+              } catch (error) {
+                console.error(error);
+                toast.error(error.response?.data?.message || 'Failed to subscribe');
+              } finally {
+                if (submitBtn) {
+                  submitBtn.disabled = false;
+                  submitBtn.textContent = 'Subscribe';
+                }
+              }
+            }}>
               <input
                 type="email"
+                name="email"
                 required
                 placeholder="you@studio.com"
                 className="flex-1 rounded-full bg-background/10 px-5 py-3 text-sm text-background outline-none ring-1 ring-background/20 placeholder:text-background/50 focus:ring-background/60" />
               
-              <button className="rounded-full bg-primary px-6 py-3 text-sm font-semibold text-primary-foreground shadow-soft transition hover:scale-[1.02]">
+              <button type="submit" className="rounded-full bg-primary px-6 py-3 text-sm font-semibold text-primary-foreground shadow-soft transition hover:scale-[1.02] disabled:opacity-70 disabled:cursor-not-allowed">
                 Subscribe
               </button>
             </form>
