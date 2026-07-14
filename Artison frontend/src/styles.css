@@ -104,3 +104,13 @@
 @utility shadow-card { box-shadow: var(--shadow-card); }
 @utility pb-safe { padding-bottom: env(safe-area-inset-bottom); }
 @utility pb-safe-or-2 { padding-bottom: max(env(safe-area-inset-bottom), 0.5rem); }
+
+@layer utilities {
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
+}

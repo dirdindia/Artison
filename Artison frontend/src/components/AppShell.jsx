@@ -4,6 +4,7 @@ import { Home, Compass, ShoppingBag, User, Search, Bell, Settings, LogOut, Packa
 import { useCart } from "@/context/CartContext";
 import { useAuth } from "@/context/AuthContext";
 import api from "@/api";
+import { toast } from "sonner";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -28,6 +29,23 @@ export function AppShell({ children, title, transparentHeader = false }) {
   ];
 
   const [notifications, setNotifications] = useState([]);
+  const [subscribeEmail, setSubscribeEmail] = useState("");
+  const [isSubscribing, setIsSubscribing] = useState(false);
+
+  const handleSubscribe = async (e) => {
+    e.preventDefault();
+    if (!subscribeEmail) return;
+    setIsSubscribing(true);
+    try {
+      const response = await api.post('/subscribers/subscribe', { email: subscribeEmail });
+      toast.success(response.data.message || 'Successfully subscribed!');
+      setSubscribeEmail('');
+    } catch (error) {
+      toast.error(error.response?.data?.message || 'Failed to subscribe');
+    } finally {
+      setIsSubscribing(false);
+    }
+  };
 
   useEffect(() => {
     if (isAuthenticated) {
@@ -264,11 +282,13 @@ export function AppShell({ children, title, transparentHeader = false }) {
               <p className="text-sm text-muted-foreground leading-relaxed">
                 The premier destination for discovering, collecting, and selling extraordinary original artwork.
               </p>
-              <form className="mt-4 flex flex-col gap-2" onSubmit={(e) => e.preventDefault()}>
+              <form className="mt-4 flex flex-col gap-2" onSubmit={handleSubscribe}>
                 <label className="text-xs font-semibold uppercase tracking-wider text-foreground">Subscribe to our newsletter</label>
                 <div className="flex gap-2">
-                  <input type="email" placeholder="Email address" className="w-full rounded-xl border border-input bg-background px-3 py-2 text-sm placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring" />
-                  <button className="rounded-xl bg-foreground px-4 py-2 text-sm font-semibold text-background hover:bg-foreground/90 transition-colors">Join</button>
+                  <input type="email" value={subscribeEmail} onChange={(e) => setSubscribeEmail(e.target.value)} disabled={isSubscribing} required placeholder="Email address" className="w-full rounded-xl border border-input bg-background px-3 py-2 text-sm placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring" />
+                  <button disabled={isSubscribing} className="rounded-xl bg-foreground px-4 py-2 text-sm font-semibold text-background hover:bg-foreground/90 transition-colors disabled:opacity-70">
+                    {isSubscribing ? 'Joining...' : 'Join'}
+                  </button>
                 </div>
               </form>
             </div>
@@ -288,7 +308,7 @@ export function AppShell({ children, title, transparentHeader = false }) {
             <div className="space-y-4">
               <h3 className="text-xs font-semibold uppercase tracking-wider text-foreground">Support</h3>
               <ul className="space-y-3 text-sm text-muted-foreground">
-                <li><a href="#" className="hover:text-primary transition-colors">Help Center</a></li>
+                <li><Link to="/about" className="hover:text-primary transition-colors">About Kalakosh</Link></li>
                 <li><a href="#" className="hover:text-primary transition-colors">Shipping & Delivery</a></li>
                 <li><a href="#" className="hover:text-primary transition-colors">Returns & Refunds</a></li>
                 <li><a href="#" className="hover:text-primary transition-colors">Contact Us</a></li>

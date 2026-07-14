@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { Link } from "react-router-dom";
 import { motion, useScroll, useTransform } from "framer-motion";
-import { ArrowRight, Sparkles, Palette, Truck, ShieldCheck, Star, Quote, Mail } from "lucide-react";
+import { ArrowRight, Sparkles, Palette, Truck, ShieldCheck, Star, Quote, Mail, X, ChevronDown } from "lucide-react";
 import { toast } from "sonner";
 import { AppShell } from "@/components/AppShell";
 import { ProductCard } from "@/components/ProductCard";
@@ -26,10 +26,41 @@ const testimonials = [
 { name: "Arjun M.", role: "Designer, Bengaluru", quote: "I commission 3D art from Riya every quarter. Artisana made discovery so easy." },
 { name: "Neha K.", role: "Architect, Delhi", quote: "Love that I support independent painters directly. Pricing feels fair and transparent." }];
 
+const categoryDescriptions = {
+  "Local Art": "Step into the world of timeless craftsmanship, where every brushstroke and pattern carries the soul of a community. Discover authentic folk and tribal art that celebrates heritage, stories, and traditions passed down through generations.",
+  "Modern Art": "Bold, expressive, and endlessly imaginative—our Modern Art collection brings fresh perspectives to life. Explore creations that blend creativity with contemporary style, transforming everyday spaces into inspiring works of art.",
+  "3D Art": "Experience art that goes beyond the canvas. From striking sculptures to intricate three-dimensional creations, this collection adds depth, texture, and a unique artistic presence to every corner of your space.",
+  "Handmade Collection": "Crafted with patience, passion, and a personal touch, every handmade piece is one of a kind. Explore beautifully created décor, gifts, and lifestyle products that celebrate the beauty of human craftsmanship and thoughtful design."
+};
+
+const factsData = [
+  { title: "Sohrai Art – Nature's Canvas", desc: "Created with natural earth pigments, Sohrai Art transforms ordinary walls into vibrant celebrations of wildlife, harvest, and life itself. Every stroke echoes a centuries-old tribal tradition." },
+  { title: "Khovar Art – A Symbol of New Beginnings", desc: "Traditionally painted on the walls of newlyweds' homes, Khovar Art is a beautiful expression of love, fertility, and prosperity, brought to life through intricate patterns and symbolism." },
+  { title: "Dokra Craft – Fire, Wax & Legacy", desc: "Over 4,000 years old, Dokra is one of India's oldest metal casting traditions. Each handcrafted piece is unique—no two creations are ever exactly alike." },
+  { title: "Bamboo Craft – From Forest to Masterpiece", desc: "With little more than bamboo and skilled hands, Jharkhand's artisans create elegant baskets, décor, and utility pieces that celebrate sustainable craftsmanship." },
+  { title: "Terracotta – Earth Shaped into Art", desc: "From humble clay emerge timeless sculptures, pottery, and decorative pieces. Terracotta is proof that the simplest elements of nature can become extraordinary works of art." },
+  { title: "Madhubani – Stories in Every Stroke", desc: "Originating in Bihar, Madhubani Art is known for its bold colours, intricate patterns, and mythological themes. Every painting is a visual story waiting to be discovered." },
+  { title: "Sikki Grass Craft – Woven with Gold", desc: "Made from the naturally golden Sikki grass of Bihar, these handcrafted creations blend beauty with utility, preserving a tradition passed down through generations." },
+  { title: "Manjusha Art – Where Folklore Comes Alive", desc: "Inspired by the legendary tale of Bihula and Bishahari, Manjusha Art is one of Bihar's most distinctive painting styles, recognised for its vibrant borders and expressive storytelling." },
+  { title: "Tikuli Art – A Tradition Reimagined", desc: "Once used to decorate bindis, Tikuli Art has evolved into stunning paintings on hardboard, combining intricate detailing with brilliant colours and timeless elegance." },
+  { title: "3D Art – Creativity Beyond the Canvas", desc: "Art no longer lives only on flat surfaces. Through depth, texture, and perspective, 3D art transforms imagination into immersive visual experiences." },
+  { title: "Sculptures – Where Stone Finds a Soul", desc: "A sculpture is more than a carved form—it's emotion, movement, and imagination frozen in time, inviting every viewer to see a story from a new perspective." },
+  { title: "Every Handmade Piece Has a Story", desc: "Behind every brushstroke, carving, and sculpture is an artist preserving culture, expressing creativity, and keeping generations of craftsmanship alive." }
+];
+
 
 export default function Home() {
   const [categoriesData, setCategoriesData] = useState([]);
   const [activeCategoryIndex, setActiveCategoryIndex] = useState(0);
+  const [activeFactIndex, setActiveFactIndex] = useState(0);
+  const [showNewsletterPopup, setShowNewsletterPopup] = useState(false);
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setShowNewsletterPopup(true);
+    }, 5000);
+    return () => clearTimeout(timer);
+  }, []);
 
   const sohraiRef = useRef(null);
   const { scrollYProgress } = useScroll({
@@ -52,8 +83,8 @@ export default function Home() {
     fetchCategories();
   }, []);
 
-  const [featuredProducts, setFeaturedProducts] = useState(products.slice(0, 4));
-  const [trendingProducts, setTrendingProducts] = useState(products.slice(4));
+  const [featuredProducts, setFeaturedProducts] = useState([]);
+  const [trendingProducts, setTrendingProducts] = useState([]);
   const [heroItems, setHeroItems] = useState(products.slice(0, 10));
 
   useEffect(() => {
@@ -233,7 +264,16 @@ export default function Home() {
       {/* Categories - Interactive List */}
       <motion.section initial={{ opacity: 0, y: 40 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, margin: "-100px" }} transition={{ duration: 0.6, ease: "easeOut" }} className="mt-8 px-5 md:mt-16 md:px-0">
         <div className="flex items-center justify-between mb-8">
-          <h2 className="font-display text-3xl font-bold">Categories</h2>
+                      <motion.h2 
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.8, delay: 0.4 }}
+              className="font-display text-5xl md:text-7xl font-bold text-amber-950 mb-8"
+              style={{ fontFamily: "'Dancing Script', cursive" }}
+            >
+              Categories
+            </motion.h2>
           <Link to="/categories" className="text-sm font-semibold text-primary hover:underline">All categories →</Link>
         </div>
         
@@ -242,15 +282,19 @@ export default function Home() {
             {/* Left side: List of Categories */}
             <div className="md:col-span-5 flex flex-col justify-top pr-0 md:pr-8">
               {categoriesData.slice(0, 5).map((c, idx) => (
-                <div
+                <motion.div
+                  initial={{ opacity: 0, x: -30 }}
+                  whileInView={{ opacity: 1, x: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ duration: 0.5, delay: idx * 0.15 }}
                   key={c._id || c.name}
                   onMouseEnter={() => setActiveCategoryIndex(idx)}
                   onClick={() => setActiveCategoryIndex(idx)}
                   className={`group flex items-center justify-between py-6 cursor-pointer transition-colors duration-300 border-b border-border/50 last:border-0 ${activeCategoryIndex === idx ? 'text-primary' : 'text-muted-foreground hover:text-foreground'}`}
                 >
-                  <span className={`font-display text-2xl md:text-3xl font-bold transition-transform duration-300 ${activeCategoryIndex === idx ? 'translate-x-2' : 'group-hover:translate-x-1'}`}>{c.name}</span>
+                  <span className={`font-display text-2xl md:text-3xl font-bold transition-transform duration-300 ${activeCategoryIndex === idx ? 'translate-x-2' : 'group-hover:translate-x-1'}`} style={{ fontFamily: "'Dancing Script', cursive",fontWeight:"bold" }}>{c.name}</span>
                   <ArrowRight className={`h-6 w-6 transition-all duration-300 ${activeCategoryIndex === idx ? 'opacity-100 -translate-x-2' : 'opacity-0 translate-x-2 group-hover:opacity-50 group-hover:translate-x-0'}`} />
-                </div>
+                </motion.div>
               ))}
             </div>
             
@@ -278,8 +322,10 @@ export default function Home() {
                       
                       <div className="absolute bottom-0 left-0 p-6 md:p-10 text-white w-full">
                         <h3 className="font-display text-3xl md:text-5xl font-bold mb-2 md:mb-3">{activeCat.name}</h3>
-                        {activeCat.description && (
-                          <p className="text-white/80 text-sm md:text-lg line-clamp-2 max-w-xl">{activeCat.description}</p>
+                        {(categoryDescriptions[activeCat.name] || activeCat.description) && (
+                          <p className="text-white/90 text-sm md:text-lg line-clamp-3 max-w-xl font-medium">
+                            {categoryDescriptions[activeCat.name] || activeCat.description}
+                          </p>
                         )}
                         <span className="mt-4 md:mt-6 inline-flex items-center gap-2 rounded-xl bg-white px-5 py-2.5 text-sm font-bold text-black shadow-lg transition-transform hover:-translate-y-1">
                           Explore {activeCat.name} <ArrowRight className="h-4 w-4" />
@@ -307,7 +353,7 @@ export default function Home() {
           <Link to="/featured" className="text-sm font-medium text-primary hover:underline">View all featured →</Link>
         </div>
         <div className="grid grid-cols-2 gap-3 sm:grid-cols-2 md:grid-cols-4 md:gap-5 px-5 md:px-0">
-          {featuredProducts.slice(0, 4).map((p) =>
+          {featuredProducts?.slice(0, 4).map((p) =>
             <ProductCard key={p._id || p.id} product={p} />
           )}
         </div>
@@ -355,7 +401,81 @@ export default function Home() {
           <Link to="/trending" className="text-sm font-medium text-primary hover:underline">View all trending →</Link>
         </div>
         <div className="grid grid-cols-2 gap-3 sm:grid-cols-2 md:grid-cols-4 md:gap-5 px-5 md:px-0">
-          {trendingProducts.slice(0, 4).map((p) => <ProductCard key={p._id || p.id} product={p} />)}
+          {trendingProducts?.slice(0, 4).map((p) => <ProductCard key={p._id || p.id} product={p} />)}
+        </div>
+      </motion.section>
+
+      {/* Facts Section */}
+      <motion.section initial={{ opacity: 0, y: 40 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, margin: "-100px" }} transition={{ duration: 0.6, ease: "easeOut" }} className="mt-14 px-5 md:mt-24 md:px-0">
+        <div className="mb-8 md:mb-12 text-center">
+          <motion.h2 
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.8 }}
+            className="font-display text-4xl md:text-6xl font-bold text-amber-950"
+            style={{ fontFamily: "'Dancing Script', cursive" }}
+          >
+            Fascinating Facts
+          </motion.h2>
+          <p className="mt-3 text-sm md:text-base text-muted-foreground">Discover the stories and legacy behind every masterpiece.</p>
+        </div>
+        
+        <div className="flex flex-col-reverse md:grid md:grid-cols-12 gap-4 md:gap-8 min-h-[400px]">
+          {/* Left side: List of Facts */}
+          <div className="md:col-span-5 relative pr-0 md:pr-8">
+            <div className="flex flex-col justify-top overflow-y-auto max-h-[500px] scrollbar-hide pb-12">
+              {factsData.map((fact, idx) => (
+              <motion.div
+                initial={{ opacity: 0, x: -30 }}
+                whileInView={{ opacity: 1, x: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.5, delay: idx * 0.1 }}
+                key={fact.title}
+                onMouseEnter={() => setActiveFactIndex(idx)}
+                onClick={() => setActiveFactIndex(idx)}
+                className={`group flex flex-col justify-center py-5 cursor-pointer transition-colors duration-300 border-b border-border/50 last:border-0 ${activeFactIndex === idx ? 'text-primary' : 'text-muted-foreground hover:text-foreground'}`}
+              >
+                <div className="flex items-center justify-between">
+                  <span className={`font-display text-xl md:text-2xl font-bold transition-transform duration-300 ${activeFactIndex === idx ? 'translate-x-2 text-amber-900' : 'group-hover:translate-x-1'}`}>
+                    {fact.title}
+                  </span>
+                  <ArrowRight className={`h-5 w-5 transition-all duration-300 ${activeFactIndex === idx ? 'opacity-100 -translate-x-2 text-amber-900' : 'opacity-0 translate-x-2 group-hover:opacity-50 group-hover:translate-x-0'}`} />
+                </div>
+              </motion.div>
+            ))}
+            </div>
+            {/* Scroll Indicator */}
+            <div className="absolute bottom-0 left-0 right-0 md:right-8 h-20 bg-gradient-to-t from-background via-background/80 to-transparent pointer-events-none flex items-end justify-center pb-2">
+               <motion.div animate={{ y: [0, 5, 0] }} transition={{ repeat: Infinity, duration: 1.5 }}>
+                 <ChevronDown className="h-6 w-6 text-muted-foreground opacity-70" />
+               </motion.div>
+            </div>
+          </div>
+          
+          {/* Right side: Fact Details */}
+          <div className="md:col-span-7 relative h-[300px] md:h-[500px] flex items-center justify-center p-8 md:p-14 bg-transparent">
+            {(() => {
+              const activeFact = factsData[activeFactIndex] || factsData[0];
+              return (
+                <motion.div 
+                  key={activeFactIndex}
+                  initial={{ opacity: 0, scale: 0.95 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  transition={{ duration: 0.5, type: 'spring' }}
+                  className="text-center"
+                >
+                  <Sparkles className="h-10 w-10 md:h-14 md:w-14 text-amber-500/80 mx-auto mb-6" />
+                  <h3 className="font-display text-3xl md:text-5xl font-bold mb-6 text-amber-950 leading-tight">
+                    {activeFact.title.split('–')[0]}
+                  </h3>
+                  <p className="text-amber-900/80 text-lg md:text-xl leading-relaxed max-w-xl mx-auto font-medium">
+                    {activeFact.desc}
+                  </p>
+                </motion.div>
+              )
+            })()}
+          </div>
         </div>
       </motion.section>
 
@@ -434,6 +554,74 @@ export default function Home() {
           </div>
         </div>
       </motion.section>
+
+
+      {/* Floating Newsletter Popup */}
+      {showNewsletterPopup && (
+        <motion.div
+          initial={{ opacity: 0, y: 50, scale: 0.9 }}
+          animate={{ opacity: 1, y: 0, scale: 1 }}
+          className="fixed bottom-4 right-4 z-50 w-[calc(100%-32px)] max-w-[360px] md:bottom-8 md:right-8"
+        >
+          <div className="relative overflow-hidden rounded-3xl bg-amber-50 p-6 text-amber-950 shadow-2xl border border-amber-200">
+            <button 
+              onClick={() => setShowNewsletterPopup(false)}
+              className="absolute right-4 top-4 z-10 rounded-full p-1.5 text-amber-950/60 transition hover:bg-amber-950/10 hover:text-amber-950"
+            >
+              <X className="h-4 w-4" />
+            </button>
+            <div className="absolute -right-10 -top-10 h-32 w-32 rounded-full bg-primary/20 blur-3xl" />
+            <div className="absolute -left-10 -bottom-10 h-32 w-32 rounded-full bg-amber-300/30 blur-3xl" />
+            <div className="relative">
+              <div className="inline-flex items-center gap-1.5 rounded-full bg-amber-950/10 px-2.5 py-1 text-[9px] font-medium uppercase tracking-widest text-amber-900">
+                <Mail className="h-3 w-3" /> Weekly drop
+              </div>
+              <h3 className="mt-3 font-sans text-xl font-black tracking-tight leading-tight md:text-2xl">
+                Get new artworks in your inbox.
+              </h3>
+              <p className="mt-2 text-xs text-amber-900/80">
+                Be first to see curated drops every Friday. No spam — just art.
+              </p>
+              
+              <form className="mt-5 flex flex-col gap-2" onSubmit={async (e) => {
+                e.preventDefault();
+                const formData = new FormData(e.target);
+                const email = formData.get('email');
+                const submitBtn = e.target.querySelector('button[type="submit"]');
+                if (submitBtn) {
+                  submitBtn.disabled = true;
+                  submitBtn.textContent = 'Subscribing...';
+                }
+                try {
+                  const response = await api.post('/subscribers/subscribe', { email });
+                  toast.success(response.data.message || 'Subscribed successfully!');
+                  setShowNewsletterPopup(false);
+                } catch (error) {
+                  console.error(error);
+                  toast.error(error.response?.data?.message || 'Failed to subscribe');
+                } finally {
+                  if (submitBtn) {
+                    submitBtn.disabled = false;
+                    submitBtn.textContent = 'Subscribe';
+                  }
+                }
+              }}>
+                <input
+                  type="email"
+                  name="email"
+                  required
+                  placeholder="you@studio.com"
+                  className="rounded-full bg-white/60 px-4 py-2.5 text-xs text-amber-950 outline-none ring-1 ring-amber-950/20 placeholder:text-amber-950/50 focus:ring-amber-950/40 w-full" 
+                />
+                <button type="submit" className="rounded-full bg-amber-950 px-4 py-2.5 text-xs font-semibold text-white shadow-soft transition hover:scale-[1.02] disabled:opacity-70 disabled:cursor-not-allowed w-full">
+                  Subscribe
+                </button>
+              </form>
+            </div>
+          </div>
+        </motion.div>
+      )}
+
     </AppShell>);
 
 }

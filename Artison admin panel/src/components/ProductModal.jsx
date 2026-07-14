@@ -160,8 +160,8 @@ export default function ProductModal({ isOpen, onClose, product, onSuccess, isVi
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!formData.name || !formData.price || !formData.category || !formData.subCategory) {
-      return Alert.error('Validation Error', 'Name, Price, Category and subCategory are required');
+    if (!formData.name || !formData.price || !formData.category) {
+      return Alert.error('Validation Error', 'Name, Price, and Category are required');
     }
     
     setLoading(true);
@@ -174,6 +174,10 @@ export default function ProductModal({ isOpen, onClose, product, onSuccess, isVi
         stock: formData.stock ? Number(formData.stock) : 0,
         weight: formData.weight ? Number(formData.weight) : undefined,
       };
+      
+      if (!payload.subCategory) {
+        delete payload.subCategory;
+      }
 
       if (product) {
         await api.put(`/products/${product._id}`, payload);
@@ -251,8 +255,8 @@ export default function ProductModal({ isOpen, onClose, product, onSuccess, isVi
                   </div>
 
                   <div className="space-y-1.5">
-                    <label htmlFor="subCategory" className="block text-sm font-medium text-[#5a4d4d]">subCategory *</label>
-                    <select name="subCategory" value={formData.subCategory} onChange={handleChange} required id="subCategory" disabled={isViewMode} className="w-full bg-[#fdfbf7] border border-[#eae0d5] rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#c39a5c]/20 focus:border-[#c39a5c] transition-colors appearance-none cursor-pointer disabled:bg-gray-50 disabled:text-gray-500">
+                    <label htmlFor="subCategory" className="block text-sm font-medium text-[#5a4d4d]">subCategory</label>
+                    <select name="subCategory" value={formData.subCategory} onChange={handleChange} id="subCategory" disabled={isViewMode} className="w-full bg-[#fdfbf7] border border-[#eae0d5] rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#c39a5c]/20 focus:border-[#c39a5c] transition-colors appearance-none cursor-pointer disabled:bg-gray-50 disabled:text-gray-500">
                       <option value="">Select a subCategory</option>
                       {subCategories.map(subCategory => (
                         <option key={subCategory._id} value={subCategory._id}>{subCategory.name}</option>
