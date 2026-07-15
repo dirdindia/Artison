@@ -80,7 +80,10 @@ export function AppShell({ children, title, transparentHeader = false }) {
           <Link to="/" className={`flex min-w-0 items-center gap-2 ${transparentHeader ? 'text-white' : ''}`}>
             <img src="/logo.png" alt="logo" className={`h-10 w-10 shrink-0 object-contain ${transparentHeader ? '' : 'mix-blend-multiply'}`} />
             <div className="min-w-0">
-              <div className="font-display text-lg font-bold leading-none">कलाkosh</div>
+              <div className="flex items-baseline leading-none tracking-wide pt-1">
+                <span className="font-ranga font-semibold text-2xl mr-1">कला</span>
+                <span className="font-samarkan text-2xl">kosh</span>
+              </div>
               <div className={`truncate text-[10px] uppercase tracking-widest ${transparentHeader ? 'text-white/80' : 'text-muted-foreground'}`}>{title ?? "Curated Art"}</div>
             </div>
           </Link>
@@ -120,7 +123,10 @@ export function AppShell({ children, title, transparentHeader = false }) {
           <Link to="/" className={`flex items-center gap-2.5 ${transparentHeader ? 'text-white' : ''}`}>
             <img src="/logo.png" alt="logo" className={`h-12 w-12 object-contain transition-transform hover:scale-110 ${transparentHeader ? '' : 'mix-blend-multiply'}`} />
             <div>
-              <div className="font-display text-xl font-bold leading-none">कलाkosh</div>
+              <div className="flex items-baseline leading-none tracking-wide pt-1">
+                <span className="font-ranga font-semibold text-3xl mr-1">कला</span>
+                <span className="font-samarkan text-3xl">kosh</span>
+              </div>
               <div className={`text-[10px] uppercase tracking-widest ${transparentHeader ? 'text-white/80' : 'text-muted-foreground'}`}>Original Art Marketplace</div>
             </div>
           </Link>
@@ -277,7 +283,11 @@ export function AppShell({ children, title, transparentHeader = false }) {
             <div className="col-span-1 md:col-span-1 lg:col-span-1 space-y-4">
               <Link to="/" className="flex items-center gap-2.5">
                 <img src="/logo.png" alt="logo" className="h-14 w-14 object-contain mix-blend-multiply" />
-                <span className="font-display text-xl font-bold">कलाkosh</span>
+              <div className="flex items-baseline leading-none tracking-wide pt-1">
+                <span className="font-ranga font-semibold text-xl mr-1">कला</span>
+                <span className="font-samarkan text-2xl">kosh</span>
+              </div>
+                
               </Link>
               <p className="text-sm text-muted-foreground leading-relaxed">
                 The premier destination for discovering, collecting, and selling extraordinary original artwork.
