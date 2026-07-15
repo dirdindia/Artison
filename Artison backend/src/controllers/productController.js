@@ -23,6 +23,10 @@ const getProducts = async (req, res) => {
       ];
     }
     
+    if (req.query.lowStock === 'true') {
+      query.stock = { $lt: 10 };
+    }
+    
     if (req.query.category) {
       const categories = req.query.category.split(',');
       query.category = { $in: categories };

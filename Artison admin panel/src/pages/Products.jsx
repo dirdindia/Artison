@@ -10,6 +10,9 @@ const Products = () => {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
+  const [activeTab, setActiveTab] = useState('all');
+  const [selectedCategory, setSelectedCategory] = useState('');
+  const [categories, setCategories] = useState([]);
   
   // Pagination State
   const [page, setPage] = useState(1);
@@ -24,10 +27,14 @@ const Products = () => {
 
   const { confirm } = useConfirm();
 
-  const fetchProducts = async (currentPage = 1, search = '') => {
+  const fetchProducts = async (currentPage = 1, search = '', tab = activeTab, cat = selectedCategory) => {
     setLoading(true);
     try {
-      const response = await api.get(`/products?page=${currentPage}&limit=10&search=${search}`);
+      let url = `/products?page=${currentPage}&limit=10&search=${search}`;
+      if (tab === 'lowStock') url += `&lowStock=true`;
+      if (cat) url += `&category=${cat}`;
+
+      const response = await api.get(url);
       if (response.data.success) {
         setProducts(response.data.data);
         setTotalPages(response.data.pagination.totalPages);
@@ -42,15 +49,29 @@ const Products = () => {
   };
 
   useEffect(() => {
-    fetchProducts(page, searchQuery);
-  }, [page]);
+    const fetchCategories = async () => {
+      try {
+        const response = await api.get('/categories');
+        if (response.data.success) {
+          setCategories(response.data.data);
+        }
+      } catch (error) {
+        console.error('Failed to fetch categories');
+      }
+    };
+    fetchCategories();
+  }, []);
+
+  useEffect(() => {
+    fetchProducts(page, searchQuery, activeTab, selectedCategory);
+  }, [page, activeTab, selectedCategory]);
 
   useEffect(() => {
     const timer = setTimeout(() => {
       if (page !== 1) {
         setPage(1);
       } else {
-        fetchProducts(1, searchQuery);
+        fetchProducts(1, searchQuery, activeTab, selectedCategory);
       }
     }, 500);
     return () => clearTimeout(timer);
@@ -115,7 +136,23 @@ const Products = () => {
       </div>
 
       <div className="bg-white rounded-2xl shadow-sm border border-[#eae0d5] overflow-hidden">
-        <div className="p-4 border-b border-[#eae0d5] flex items-center justify-between bg-[#fdfbf7]/50">
+        {/* Tabs */}
+        <div className="border-b border-[#eae0d5] flex items-center px-4 pt-2 bg-[#fdfbf7]/50">
+          <button 
+            onClick={() => { setActiveTab('all'); setPage(1); }}
+            className={`px-4 py-2 border-b-2 font-medium text-sm transition-colors ${activeTab === 'all' ? 'border-[#c39a5c] text-[#c39a5c]' : 'border-transparent text-gray-500 hover:text-gray-700'}`}
+          >
+            All Products
+          </button>
+          <button 
+            onClick={() => { setActiveTab('lowStock'); setPage(1); }}
+            className={`px-4 py-2 border-b-2 font-medium text-sm transition-colors ${activeTab === 'lowStock' ? 'border-[#c39a5c] text-[#c39a5c]' : 'border-transparent text-gray-500 hover:text-gray-700'}`}
+          >
+            Low Stock
+          </button>
+        </div>
+
+        <div className="p-4 border-b border-[#eae0d5] flex flex-col sm:flex-row items-center gap-4 bg-[#fdfbf7]/50">
           <div className="relative max-w-sm w-full">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
             <input 
@@ -125,6 +162,18 @@ const Products = () => {
               placeholder="Search artworks..." 
               className="w-full bg-white border border-[#eae0d5] rounded-lg pl-10 pr-4 py-2 text-sm focus:outline-none focus:border-[#c39a5c] transition-colors"
             />
+          </div>
+          <div className="w-full sm:w-auto min-w-[200px]">
+            <select
+              value={selectedCategory}
+              onChange={(e) => { setSelectedCategory(e.target.value); setPage(1); }}
+              className="w-full bg-white border border-[#eae0d5] rounded-lg px-4 py-2 text-sm focus:outline-none focus:border-[#c39a5c] transition-colors"
+            >
+              <option value="">All Categories</option>
+              {categories.map(cat => (
+                <option key={cat._id} value={cat._id}>{cat.name}</option>
+              ))}
+            </select>
           </div>
         </div>
 
@@ -172,7 +221,16 @@ const Products = () => {
                     <td className="px-6 py-4">{product.category?.name || '-'}</td>
                     <td className="px-6 py-4">{product.subCategory?.name || '-'}</td>
                     <td className="px-6 py-4 font-medium">₹{product.price}</td>
-                    <td className="px-6 py-4">{product.stock}</td>
+                    <td className="px-6 py-4">
+                      <div className="flex items-center gap-2">
+                        <span>{product.stock}</span>
+                        {product.stock < 10 && (
+                          <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-semibold bg-amber-100 text-amber-800 border border-amber-200 whitespace-nowrap">
+                            Low Stock
+                          </span>
+                        )}
+                      </div>
+                    </td>
                     <td className="px-6 py-4">
                       <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${product.isActive ? 'bg-emerald-100 text-emerald-800' : 'bg-red-100 text-red-800'}`}>
                         {product.isActive ? 'Active' : 'Inactive'}

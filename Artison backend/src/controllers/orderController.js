@@ -18,6 +18,7 @@ const getMyOrders = async (req, res) => {
     const total = await Order.countDocuments({ user: req.user.id });
     const orders = await Order.find({ user: req.user.id })
       .populate('orderItems.product')
+      .populate('user', 'name email')
       .sort({ createdAt: -1 })
       .skip(skip)
       .limit(limit);

@@ -270,7 +270,7 @@ export function AppShell({ children, title, transparentHeader = false }) {
       </nav>
 
       {/* Comprehensive Premium Footer */}
-      <footer className="mt-auto border-t border-border/60 bg-card hidden md:block">
+      <footer className="mt-auto border-t border-border/60 bg-card pb-20 md:pb-0">
         <div className="mx-auto w-full max-w-7xl px-8 py-16">
           <div className="grid grid-cols-1 md:grid-cols-4 gap-12">
             {/* SubCategory & Newsletter */}

@@ -16,6 +16,7 @@ import Orders from './pages/Orders';
 import Customers from './pages/Customers';
 import Marketing from './pages/Marketing';
 import Reviews from './pages/Reviews';
+import Feedbacks from './pages/Feedbacks';
 
 // Placeholder component for other routes
 const Placeholder = ({ title }) => (
@@ -45,6 +46,7 @@ function App() {
             <Route path="tickets" element={<Tickets />} />
             <Route path="marketing" element={<Marketing />} />
             <Route path="review" element={<Reviews />} />
+            <Route path="feedbacks" element={<Feedbacks />} />
             <Route path="analysis" element={<Placeholder title="Analysis" />} />
             <Route path="settings" element={<Settings />} />
           </Route>

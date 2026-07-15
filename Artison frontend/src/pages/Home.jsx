@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { Link } from "react-router-dom";
 import { motion, useScroll, useTransform } from "framer-motion";
-import { ArrowRight, Sparkles, Palette, Truck, ShieldCheck, Star, Quote, Mail, X, ChevronDown } from "lucide-react";
+import { ArrowRight, Sparkles, Palette, Truck, ShieldCheck, Star, Quote, Mail, X, ChevronDown, MessageSquare, ChevronLeft, ChevronRight } from "lucide-react";
 import { toast } from "sonner";
 import { AppShell } from "@/components/AppShell";
 import { ProductCard } from "@/components/ProductCard";
@@ -54,6 +54,11 @@ export default function Home() {
   const [activeCategoryIndex, setActiveCategoryIndex] = useState(0);
   const [activeFactIndex, setActiveFactIndex] = useState(0);
   const [showNewsletterPopup, setShowNewsletterPopup] = useState(false);
+  const [showFeedbackModal, setShowFeedbackModal] = useState(false);
+  const [feedbackData, setFeedbackData] = useState({ name: '', rating: 5, comment: '' });
+  const [isSubmittingFeedback, setIsSubmittingFeedback] = useState(false);
+  const [approvedFeedbacks, setApprovedFeedbacks] = useState([]);
+  const [activeFeedbackIndex, setActiveFeedbackIndex] = useState(0);
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -103,8 +108,30 @@ export default function Home() {
         console.error("Error fetching home products:", error);
       }
     };
+    
+    const fetchFeedbacks = async () => {
+      try {
+        const res = await api.get('/feedbacks/approved');
+        if (res.data?.success) {
+          setApprovedFeedbacks(res.data.data);
+        }
+      } catch (error) {
+        console.error("Error fetching feedbacks:", error);
+      }
+    };
+
     fetchHomeProducts();
+    fetchFeedbacks();
   }, []);
+
+  useEffect(() => {
+    if (approvedFeedbacks.length <= 1) return;
+    const interval = setInterval(() => {
+      setActiveFeedbackIndex((prev) => (prev + 1) % Math.min(approvedFeedbacks.length, 10));
+    }, 4000);
+    return () => clearInterval(interval);
+  }, [approvedFeedbacks]);
+
   const [currentIndex, setCurrentIndex] = useState(1);
   const [isAnimating, setIsAnimating] = useState(false);
 
@@ -360,7 +387,7 @@ export default function Home() {
       </motion.section>
 
       {/* Why Artisana - desktop only */}
-      <motion.section initial={{ opacity: 0, y: 40 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, margin: "-100px" }} transition={{ duration: 0.6, ease: "easeOut" }} className="mt-14 hidden md:block">
+      <motion.section initial={{ opacity: 0, y: 40 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, margin: "-100px" }} transition={{ duration: 0.6, ease: "easeOut" }} className="mt-14  md:block">
         <div className="grid gap-5 md:grid-cols-3">
           {perks.map((p) =>
           <div key={p.title} className="rounded-3xl bg-card p-7 shadow-soft">
@@ -479,22 +506,99 @@ export default function Home() {
         </div>
       </motion.section>
 
-      {/* Testimonials - desktop only */}
-      <motion.section initial={{ opacity: 0, y: 40 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, margin: "-100px" }} transition={{ duration: 0.6, ease: "easeOut" }} className="mt-14 hidden md:block">
-        <div className="mb-5 text-center">
+      {/* Testimonials */}
+      <motion.section initial={{ opacity: 0, y: 40 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, margin: "-100px" }} transition={{ duration: 0.6, ease: "easeOut" }} className="mt-14 px-5 overflow-hidden">
+        <div className="mb-8 text-center">
           <h2 className="font-display text-3xl font-bold">Loved by collectors</h2>
           <p className="text-sm text-muted-foreground">Real reviews from real buyers</p>
         </div>
-        <div className="grid gap-5 md:grid-cols-3">
-          {testimonials.map((t) =>
-          <div key={t.name} className="rounded-3xl bg-card p-7 shadow-soft">
-              <Quote className="h-6 w-6 text-primary/60" />
-              <p className="mt-3 text-sm leading-relaxed text-foreground/85">"{t.quote}"</p>
-              <div className="mt-5 flex items-center gap-1 text-gold">
-                {Array.from({ length: 5 }).map((_, i) => <Star key={i} className="h-4 w-4 fill-current" />)}
-              </div>
-              <div className="mt-3 text-sm font-semibold">{t.name}</div>
-              <div className="text-xs text-muted-foreground">{t.role}</div>
+        
+        <div className="relative h-[22rem] mx-auto w-full max-w-7xl flex items-center justify-center overflow-visible group">
+          {/* Previous Button */}
+          {approvedFeedbacks.length > 1 && (
+            <button
+              onClick={() => setActiveFeedbackIndex(prev => (prev - 1 + Math.min(approvedFeedbacks.length, 10)) % Math.min(approvedFeedbacks.length, 10))}
+              className="absolute left-2 md:left-12 z-30 p-2 md:p-3 rounded-full bg-background/80 backdrop-blur-sm border border-border shadow-lg text-foreground hover:bg-muted transition-all opacity-100 md:opacity-0 md:group-hover:opacity-100 focus:opacity-100"
+              aria-label="Previous feedback"
+            >
+              <ChevronLeft className="w-6 h-6" />
+            </button>
+          )}
+
+          {/* Next Button */}
+          {approvedFeedbacks.length > 1 && (
+            <button
+              onClick={() => setActiveFeedbackIndex(prev => (prev + 1) % Math.min(approvedFeedbacks.length, 10))}
+              className="absolute right-2 md:right-12 z-30 p-2 md:p-3 rounded-full bg-background/80 backdrop-blur-sm border border-border shadow-lg text-foreground hover:bg-muted transition-all opacity-100 md:opacity-0 md:group-hover:opacity-100 focus:opacity-100"
+              aria-label="Next feedback"
+            >
+              <ChevronRight className="w-6 h-6" />
+            </button>
+          )}
+
+          {approvedFeedbacks.length > 0 ? (
+            approvedFeedbacks.slice(0, 10).map((t, index) => {
+              const total = Math.min(approvedFeedbacks.length, 10);
+              let offset = (index - activeFeedbackIndex) % total;
+              if (offset < -Math.floor(total / 2)) offset += total;
+              if (offset > Math.floor(total / 2)) offset -= total;
+              
+              if (Math.abs(offset) > 2) return null; // Only show +/- 2 items
+
+              let x = "0%";
+              let scale = 1;
+              let opacity = 1;
+              let zIndex = 20;
+
+              if (offset === -1) {
+                x = "-50%";
+                scale = 0.85;
+                opacity = 0.5;
+                zIndex = 10;
+              } else if (offset === 1) {
+                x = "50%";
+                scale = 0.85;
+                opacity = 0.5;
+                zIndex = 10;
+              } else if (offset === -2) {
+                x = "-75%";
+                scale = 0.7;
+                opacity = 0.2;
+                zIndex = 5;
+              } else if (offset === 2) {
+                x = "75%";
+                scale = 0.7;
+                opacity = 0.2;
+                zIndex = 5;
+              }
+
+              return (
+                <motion.div
+                  key={t._id}
+                  className="absolute w-80 md:w-96 rounded-3xl bg-card p-8 shadow-xl border border-border"
+                  initial={false}
+                  animate={{ x, scale, opacity, zIndex }}
+                  transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
+                >
+                  <Quote className="h-8 w-8 text-primary/40 mb-4" />
+                  <p className="text-base leading-relaxed text-foreground/90 line-clamp-4 h-24">"{t.comment}"</p>
+                  <div className="mt-6 flex items-center justify-between">
+                    <div>
+                      <div className="text-sm font-bold text-foreground">{t.name}</div>
+                      {/* <div className="text-xs text-muted-foreground mt-0.5">Collector</div> */}
+                    </div>
+                    <div className="flex items-center gap-1 text-gold">
+                      {Array.from({ length: 5 }).map((_, i) => (
+                        <Star key={i} className={`h-4 w-4 ${i < t.rating ? 'fill-current' : 'text-gray-300'}`} />
+                      ))}
+                    </div>
+                  </div>
+                </motion.div>
+              );
+            })
+          ) : (
+            <div className="text-center text-muted-foreground py-8 w-full">
+              No feedback yet. Be the first to share your thoughts!
             </div>
           )}
         </div>
@@ -620,6 +724,99 @@ export default function Home() {
             </div>
           </div>
         </motion.div>
+      )}
+
+      {/* Floating Share Feedback Button */}
+      <button
+        onClick={() => setShowFeedbackModal(true)}
+        className="fixed bottom-24 right-4 md:bottom-8 md:right-8 z-40 flex items-center gap-2 rounded-full bg-primary px-4 py-3 text-sm font-semibold text-primary-foreground shadow-xl transition-transform hover:scale-105 hover:shadow-2xl"
+      >
+        <MessageSquare className="h-5 w-5" />
+        <span className="hidden sm:inline">Share Feedback</span>
+      </button>
+
+      {/* Feedback Modal */}
+      {showFeedbackModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
+          <motion.div
+            initial={{ opacity: 0, scale: 0.95, y: 20 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            className="relative w-full max-w-md overflow-hidden rounded-3xl bg-card p-6 shadow-2xl"
+          >
+            <button
+              onClick={() => setShowFeedbackModal(false)}
+              className="absolute right-4 top-4 z-10 rounded-full p-1.5 text-muted-foreground hover:bg-secondary hover:text-foreground"
+            >
+              <X className="h-5 w-5" />
+            </button>
+            <div className="mb-6">
+              <h3 className="font-display text-2xl font-bold">Share your feedback</h3>
+              <p className="text-sm text-muted-foreground mt-1">We'd love to hear your thoughts about Artisana.</p>
+            </div>
+            <form
+              onSubmit={async (e) => {
+                e.preventDefault();
+                setIsSubmittingFeedback(true);
+                try {
+                  const response = await api.post('/feedbacks', feedbackData);
+                  toast.success(response.data.message || 'Feedback submitted successfully!');
+                  setShowFeedbackModal(false);
+                  setFeedbackData({ name: '', rating: 5, comment: '' });
+                } catch (error) {
+                  toast.error(error.response?.data?.message || 'Failed to submit feedback');
+                } finally {
+                  setIsSubmittingFeedback(false);
+                }
+              }}
+              className="space-y-4"
+            >
+              <div>
+                <label className="block text-sm font-medium mb-1.5">Name</label>
+                <input
+                  type="text"
+                  required
+                  value={feedbackData.name}
+                  onChange={(e) => setFeedbackData({ ...feedbackData, name: e.target.value })}
+                  placeholder="Your Name"
+                  className="w-full rounded-xl border border-input bg-background px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary/50"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium mb-1.5">Rating</label>
+                <div className="flex gap-2 text-2xl">
+                  {[1, 2, 3, 4, 5].map((star) => (
+                    <button
+                      key={star}
+                      type="button"
+                      onClick={() => setFeedbackData({ ...feedbackData, rating: star })}
+                      className={`transition-colors focus:outline-none ${feedbackData.rating >= star ? 'text-amber-400' : 'text-gray-200'}`}
+                    >
+                      ★
+                    </button>
+                  ))}
+                </div>
+              </div>
+              <div>
+                <label className="block text-sm font-medium mb-1.5">Feedback</label>
+                <textarea
+                  required
+                  rows={4}
+                  value={feedbackData.comment}
+                  onChange={(e) => setFeedbackData({ ...feedbackData, comment: e.target.value })}
+                  placeholder="Tell us what you think..."
+                  className="w-full resize-none rounded-xl border border-input bg-background px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary/50"
+                />
+              </div>
+              <button
+                type="submit"
+                disabled={isSubmittingFeedback}
+                className="w-full rounded-full bg-foreground px-4 py-3 text-sm font-semibold text-background shadow-md transition-transform hover:scale-[1.02] disabled:opacity-70"
+              >
+                {isSubmittingFeedback ? 'Submitting...' : 'Submit Feedback'}
+              </button>
+            </form>
+          </motion.div>
+        </div>
       )}
 
     </AppShell>);

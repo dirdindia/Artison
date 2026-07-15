@@ -30,6 +30,7 @@ const MENU_ITEMS = [
   { name: 'Tickets', path: '/tickets', icon: LifeBuoy },
   { name: 'Marketing', path: '/marketing', icon: Megaphone },
   { name: 'Reviews', path: '/review', icon: Star },
+  { name: 'Site Feedbacks', path: '/feedbacks', icon: MessageSquare },
   { name: 'Analysis', path: '/analysis', icon: BarChart },
 ];
 
