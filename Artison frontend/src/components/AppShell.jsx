@@ -75,16 +75,15 @@ export function AppShell({ children, title, transparentHeader = false }) {
   return (
     <div className="mx-auto flex min-h-screen w-full max-w-md flex-col bg-background shadow-card md:max-w-none md:shadow-none overflow-x-hidden">
       {/* Mobile header */}
-      <header className={`z-50 px-5 pt-5 pb-3 md:hidden ${transparentHeader ? 'fixed top-0 left-0 right-0 bg-transparent text-white' : 'sticky top-0 bg-background/85 backdrop-blur-xl'}`}>
+      <header className={`z-50 px-5 pt-2 pb-3 md:hidden ${transparentHeader ? 'fixed top-0 left-0 right-0 bg-transparent text-white' : 'sticky top-0 bg-background/85 backdrop-blur-xl'}`}>
         <div className="flex items-center justify-between gap-3">
           <Link to="/" className={`flex min-w-0 items-center gap-2 ${transparentHeader ? 'text-white' : ''}`}>
             <img src="/logo.png" alt="logo" className={`h-10 w-10 shrink-0 object-contain ${transparentHeader ? '' : 'mix-blend-multiply'}`} />
             <div className="min-w-0">
               <div className="flex items-baseline leading-none tracking-wide pt-1">
-                <span className="font-ranga font-semibold text-2xl mr-1">कला</span>
-                <span className="font-samarkan text-2xl">kosh</span>
+                <img src="/kalakosh2.png" alt="kalakosh" className={`h-10 w-auto object-contain transition-all ${transparentHeader ? '' : 'brightness-0'}`} />
               </div>
-              <div className={`truncate text-[10px] uppercase tracking-widest ${transparentHeader ? 'text-white/80' : 'text-muted-foreground'}`}>{title ?? "Curated Art"}</div>
+              {/* <div className={`truncate text-[10px] uppercase tracking-widest ${transparentHeader ? 'text-white/80' : 'text-muted-foreground'}`}>{title ?? "Curated Art"}</div> */}
             </div>
           </Link>
           <div className="flex shrink-0 items-center gap-2">
@@ -119,15 +118,14 @@ export function AppShell({ children, title, transparentHeader = false }) {
 
       {/* Desktop header */}
       <header className={`z-50 hidden md:block ${transparentHeader ? 'fixed top-0 left-0 right-0 bg-transparent text-white' : 'sticky top-0 border-b border-border/60 bg-background/85 backdrop-blur-xl'}`}>
-        <div className="mx-auto flex w-full max-w-7xl items-center justify-between gap-6 px-8 py-4">
+        <div className="mx-auto flex w-full max-w-7xl items-center justify-between gap-6 px-8 py-2">
           <Link to="/" className={`flex items-center gap-2.5 ${transparentHeader ? 'text-white' : ''}`}>
             <img src="/logo.png" alt="logo" className={`h-12 w-12 object-contain transition-transform hover:scale-110 ${transparentHeader ? '' : 'mix-blend-multiply'}`} />
             <div>
               <div className="flex items-baseline leading-none tracking-wide pt-1">
-                <span className="font-ranga font-semibold text-3xl mr-1">कला</span>
-                <span className="font-samarkan text-3xl">kosh</span>
+                <img src="/kalakosh2.png" alt="kalakosh" className={`h-12 w-auto object-contain transition-all ${transparentHeader ? '' : 'brightness-0'}`} />
               </div>
-              <div className={`text-[10px] uppercase tracking-widest ${transparentHeader ? 'text-white/80' : 'text-muted-foreground'}`}>Original Art Marketplace</div>
+              {/* <div className={`text-[10px] uppercase tracking-widest ${transparentHeader ? 'text-white/80' : 'text-muted-foreground'}`}>Original Art Marketplace</div> */}
             </div>
           </Link>
           <nav className="flex items-center gap-1">
@@ -276,16 +274,19 @@ export function AppShell({ children, title, transparentHeader = false }) {
       </nav>
 
       {/* Comprehensive Premium Footer */}
-      <footer className="mt-auto border-t border-border/60 bg-card pb-20 md:pb-0">
-        <div className="mx-auto w-full max-w-7xl px-8 py-16">
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-12">
+      <footer className="mt-auto bg-card pb-20 md:pb-0">
+        <div className="relative border-t border-border/60">
+          {/* Subtle Image Pattern Overlay */}
+          <div className="absolute inset-0 pointer-events-none opacity-30 dark:opacity-10 mix-blend-multiply dark:mix-blend-screen bg-[url('/footer-pattern-geometric.jpg')] bg-repeat bg-[size:300px_300px]"></div>
+          
+          <div className="mx-auto w-full max-w-7xl px-8 py-16 relative z-10">
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-12">
             {/* SubCategory & Newsletter */}
             <div className="col-span-1 md:col-span-1 lg:col-span-1 space-y-4">
               <Link to="/" className="flex items-center gap-2.5">
-                <img src="/logo.png" alt="logo" className="h-14 w-14 object-contain mix-blend-multiply" />
-              <div className="flex items-baseline leading-none tracking-wide pt-1">
-                <span className="font-ranga font-semibold text-xl mr-1">कला</span>
-                <span className="font-samarkan text-2xl">kosh</span>
+                <img src="/logo.png" alt="logo" className="h-12 w-12 object-contain mix-blend-multiply" />
+           <div className="flex items-baseline leading-none tracking-wide pt-1">
+                <img src="/kalakosh2.png" alt="kalakosh" className="h-10 w-auto object-contain brightness-0 dark:brightness-100" />
               </div>
                 
               </Link>
@@ -319,9 +320,9 @@ export function AppShell({ children, title, transparentHeader = false }) {
               <h3 className="text-xs font-semibold uppercase tracking-wider text-foreground">Support</h3>
               <ul className="space-y-3 text-sm text-muted-foreground">
                 <li><Link to="/about" className="hover:text-primary transition-colors">About Kalakosh</Link></li>
-                <li><a href="#" className="hover:text-primary transition-colors">Shipping & Delivery</a></li>
-                <li><a href="#" className="hover:text-primary transition-colors">Returns & Refunds</a></li>
-                <li><a href="#" className="hover:text-primary transition-colors">Contact Us</a></li>
+                <li><Link to="/shipping" className="hover:text-primary transition-colors">Shipping & Delivery</Link></li>
+                <li><Link to="/returns" className="hover:text-primary transition-colors">Returns & Refunds</Link></li>
+                <li><Link to="/contact" className="hover:text-primary transition-colors">Contact Us</Link></li>
               </ul>
             </div>
 
@@ -336,8 +337,10 @@ export function AppShell({ children, title, transparentHeader = false }) {
               </div>
             </div>
           </div>
-          
-          <div className="mt-16 pt-8 border-t border-border flex flex-col md:flex-row items-center justify-between gap-4 text-xs text-muted-foreground">
+        </div>
+        </div>
+        <div className="mx-auto w-full max-w-7xl px-8 pb-8 relative z-10">
+          <div className="pt-8 border-t border-border flex flex-col md:flex-row items-center justify-between gap-4 text-xs text-muted-foreground">
             <span>© {new Date().getFullYear()} कलाkosh Inc. All rights reserved.</span>
             <div className="flex gap-6">
               <a href="#" className="hover:text-foreground transition-colors">Privacy Policy</a>

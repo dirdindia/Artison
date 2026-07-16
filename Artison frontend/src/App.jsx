@@ -16,6 +16,9 @@ import ForgotPassword from "./pages/ForgotPassword";
 import Featured from "./pages/Featured";
 import Trending from "./pages/Trending";
 import About from "./pages/About";
+import Shipping from "./pages/Shipping";
+import Returns from "./pages/Returns";
+import ContactUs from "./pages/ContactUs";
 
 // Simple route guard for protected routes
 function ProtectedRoute({ children }) {
@@ -44,6 +47,9 @@ function App() {
             <Route path="/signup" element={<Signup />} />
             <Route path="/forgot-password" element={<ForgotPassword />} />
             <Route path="/about" element={<About />} />
+            <Route path="/shipping" element={<Shipping />} />
+            <Route path="/returns" element={<Returns />} />
+            <Route path="/contact" element={<ContactUs />} />
             
             {/* Protected Routes */}
             <Route 

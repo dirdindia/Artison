@@ -45,8 +45,8 @@
   --color-canvas: var(--canvas);
   --color-clay: var(--clay);
   --color-gold: var(--gold);
-  --font-display: "Fraunces", Georgia, serif;
-  --font-sans: "Inter", system-ui, sans-serif;
+  --font-display: "Poppins", sans-serif;
+  --font-sans: "Poppins", sans-serif;
 }
 
 :root {
