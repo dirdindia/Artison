@@ -20,6 +20,7 @@ const ticketRoutes = require('./src/routes/ticketRoutes');
 const notificationRoutes = require('./src/routes/notificationRoutes');
 const subscriberRoutes = require('./src/routes/subscriberRoutes');
 const feedbackRoutes = require('./src/routes/feedbackRoutes');
+const settingsRoutes = require('./src/routes/settingsRoutes');
 
 // Connect to database
 connectDB().then(() => {
@@ -54,6 +55,7 @@ app.use('/api/tickets', ticketRoutes);
 app.use('/api/notifications', notificationRoutes);
 app.use('/api/subscribers', subscriberRoutes);
 app.use('/api/feedbacks', feedbackRoutes);
+app.use('/api/settings', settingsRoutes);
 
 app.get('/', (req, res) => {
   res.send('API is running...');

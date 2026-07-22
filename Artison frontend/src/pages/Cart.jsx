@@ -1,13 +1,34 @@
+import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { Minus, Plus, Trash2, ShoppingBag } from "lucide-react";
 import { AppShell } from "@/components/AppShell";
 import { useCart } from "@/context/CartContext";
 import { formatPrice } from "@/data/products";
+import api from "@/api";
 
 export default function CartPage() {
   const { cart, removeFromCart, updateQuantity } = useCart();
+  
+  const [taxRate, setTaxRate] = useState(18);
+
+  useEffect(() => {
+    const fetchSettings = async () => {
+      try {
+        const { data } = await api.get('/settings');
+        if (data && data.taxRate !== undefined) {
+          setTaxRate(data.taxRate);
+        }
+      } catch (err) {
+        console.error("Failed to fetch settings", err);
+      }
+    };
+    fetchSettings();
+  }, []);
+
   const subtotal = cart.reduce((s, c) => s + c.product.price * c.qty, 0);
   const shipping = cart.length ? 499 : 0;
+  const taxAmount = (subtotal * taxRate) / 100;
+  const total = subtotal + shipping + taxAmount;
 
   if (cart.length === 0) {
     return (
@@ -54,17 +75,18 @@ export default function CartPage() {
         <div className="mt-6 space-y-2 rounded-2xl bg-card p-4 shadow-soft">
           <Row label="Subtotal" value={formatPrice(subtotal)} />
           <Row label="Shipping" value={formatPrice(shipping)} />
+          <Row label={`Tax (${taxRate}%)`} value={formatPrice(taxAmount)} />
           <div className="my-1 border-t border-border" />
-          <Row label="Total" value={formatPrice(subtotal + shipping)} bold />
+          <Row label="Total" value={formatPrice(total)} bold />
           <Link to="/checkout" className="mt-3 hidden w-full rounded-2xl bg-gradient-warm py-3.5 text-sm font-semibold text-primary-foreground shadow-soft md:block text-center">
-            Checkout · {formatPrice(subtotal + shipping)}
+            Checkout · {formatPrice(total)}
           </Link>
         </div>
       </div>
 
       <div className="fixed inset-x-0 bottom-20 z-30 mx-auto w-full max-w-md px-5 md:hidden">
         <Link to="/checkout" className="w-full rounded-2xl bg-gradient-warm py-3.5 text-sm font-semibold text-primary-foreground shadow-card text-center block">
-          Checkout · {formatPrice(subtotal + shipping)}
+          Checkout · {formatPrice(total)}
         </Link>
       </div>
     </AppShell>);

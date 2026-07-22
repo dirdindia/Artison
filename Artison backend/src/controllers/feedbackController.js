@@ -1,4 +1,6 @@
 const Feedback = require('../models/Feedback');
+const Notification = require('../models/Notification');
+const Settings = require('../models/Settings');
 
 // Public: Submit a new feedback
 exports.submitFeedback = async (req, res) => {
@@ -14,6 +16,16 @@ exports.submitFeedback = async (req, res) => {
       rating: Number(rating),
       comment
     });
+
+    const settings = await Settings.findOne();
+    if (!settings || settings.newReviewAlert !== false) { // Default to true if not strictly false
+      await Notification.create({
+        recipientType: 'Admin',
+        message: `New feedback received from ${name}`,
+        type: 'FEEDBACK_NEW',
+        relatedId: feedback._id
+      });
+    }
 
     res.status(201).json({ success: true, message: 'Feedback submitted successfully', data: feedback });
   } catch (error) {

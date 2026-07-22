@@ -2,6 +2,7 @@ const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
 const nodemailer = require('nodemailer');
 const User = require('../models/User');
+const Settings = require('../models/Settings');
 const { signupValidation } = require('../validations/authValidation');
 
 const transporter = nodemailer.createTransport({
@@ -165,11 +166,14 @@ const checkEmail = async (req, res) => {
 
       if (process.env.EMAIL_USER && process.env.EMAIL_PASS && process.env.EMAIL_USER !== 'your_email@gmail.com') {
         try {
+          const settings = await Settings.findOne() || { storeName: 'KalaKosh' };
+          const storeName = settings.storeName || 'KalaKosh';
+          
           await transporter.sendMail({
             from: process.env.EMAIL_USER,
             to: email,
-            subject: 'Your KalaKosh Login OTP',
-            html: `<p>Your One-Time Password for KalaKosh is: <strong>${otp}</strong></p><p>This OTP is valid for 10 minutes.</p>`,
+            subject: `Your ${storeName} Login OTP`,
+            html: `<p>Your One-Time Password for ${storeName} is: <strong>${otp}</strong></p><p>This OTP is valid for 10 minutes.</p>`,
           });
           console.log(`Email successfully sent to ${email}`);
         } catch (mailErr) {
@@ -262,4 +266,34 @@ const resetPassword = async (req, res) => {
   }
 };
 
-module.exports = { loginAdmin, signupUser, loginUser, checkEmail, verifyOtp, resetPassword };
+const updatePassword = async (req, res) => {
+  try {
+    const { currentPassword, newPassword } = req.body;
+    
+    // Assuming req.user is set by the auth middleware
+    const user = await User.findById(req.user.id);
+
+    if (!user) {
+      return res.status(404).json({ success: false, message: 'User not found' });
+    }
+
+    // Check if current password is correct
+    if (!(await bcrypt.compare(currentPassword, user.password))) {
+      return res.status(401).json({ success: false, message: 'Current password is incorrect' });
+    }
+
+    // Hash the new password
+    const salt = await bcrypt.genSalt(10);
+    const hashedPassword = await bcrypt.hash(newPassword, salt);
+
+    user.password = hashedPassword;
+    await user.save();
+
+    return res.status(200).json({ success: true, message: 'Password updated successfully' });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ success: false, message: 'Server Error' });
+  }
+};
+
+module.exports = { loginAdmin, signupUser, loginUser, checkEmail, verifyOtp, resetPassword, updatePassword };

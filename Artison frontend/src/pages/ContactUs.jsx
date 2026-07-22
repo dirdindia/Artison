@@ -1,9 +1,33 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { AppShell } from '@/components/AppShell';
 import { Mail, Phone, MapPin } from 'lucide-react';
+import api from '../api';
 
 export default function ContactUs() {
+  const [settings, setSettings] = useState({
+    supportEmail: 'support@kalakosh.com',
+    contactPhone: '+91 123 456 7890',
+    businessAddress: 'New Delhi, India'
+  });
+
+  useEffect(() => {
+    const fetchSettings = async () => {
+      try {
+        const { data } = await api.get('/settings');
+        if (data) {
+          setSettings({
+            supportEmail: data.supportEmail || 'support@kalakosh.com',
+            contactPhone: data.contactPhone || '+91 123 456 7890',
+            businessAddress: data.businessAddress || 'New Delhi, India'
+          });
+        }
+      } catch (error) {
+        console.error('Failed to load settings:', error);
+      }
+    };
+    fetchSettings();
+  }, []);
   return (
     <AppShell title="Contact Us">
       <div className="max-w-4xl mx-auto py-12 px-5">
@@ -28,22 +52,22 @@ export default function ContactUs() {
             
             <div className="space-y-4">
               <div className="flex items-center gap-3 text-muted-foreground">
-                <div className="w-10 h-10 rounded-full bg-secondary flex items-center justify-center">
+                <div className="w-10 h-10 rounded-full bg-secondary flex items-center justify-center shrink-0">
                   <Mail className="h-5 w-5" />
                 </div>
-                <span>support@kalakosh.com</span>
+                <span>{settings.supportEmail}</span>
               </div>
               <div className="flex items-center gap-3 text-muted-foreground">
-                <div className="w-10 h-10 rounded-full bg-secondary flex items-center justify-center">
+                <div className="w-10 h-10 rounded-full bg-secondary flex items-center justify-center shrink-0">
                   <Phone className="h-5 w-5" />
                 </div>
-                <span>+91 123 456 7890</span>
+                <span>{settings.contactPhone}</span>
               </div>
               <div className="flex items-center gap-3 text-muted-foreground">
-                <div className="w-10 h-10 rounded-full bg-secondary flex items-center justify-center">
+                <div className="w-10 h-10 rounded-full bg-secondary flex items-center justify-center shrink-0">
                   <MapPin className="h-5 w-5" />
                 </div>
-                <span>New Delhi, India</span>
+                <span className="whitespace-pre-wrap">{settings.businessAddress}</span>
               </div>
             </div>
           </div>

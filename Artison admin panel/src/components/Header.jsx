@@ -6,6 +6,7 @@ import { useNavigate } from 'react-router-dom';
 export default function Header({ toggleSidebar }) {
   const [notifications, setNotifications] = useState([]);
   const [showDropdown, setShowDropdown] = useState(false);
+  const [loadingId, setLoadingId] = useState(null);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -25,12 +26,28 @@ export default function Header({ toggleSidebar }) {
     }
   };
 
-  const handleNotificationClick = async (id) => {
+  const handleNotificationClick = async (notification) => {
     try {
-      await api.put(`/notifications/${id}/read`);
-      setNotifications(notifications.map(n => n._id === id ? { ...n, read: true } : n));
+      setLoadingId(notification._id);
+      await api.put(`/notifications/${notification._id}/read`);
+      setNotifications(notifications.map(n => n._id === notification._id ? { ...n, read: true } : n));
       setShowDropdown(false);
-      navigate('/tickets');
+      
+      if (notification.type === 'ORDER_NEW') navigate('/orders');
+      else if (notification.type === 'FEEDBACK_NEW') navigate('/feedbacks');
+      else if (notification.type === 'STOCK_LOW') navigate('/products');
+      else navigate('/tickets');
+    } catch (e) {
+      console.error(e);
+    } finally {
+      setLoadingId(null);
+    }
+  };
+
+  const handleMarkAllAsRead = async () => {
+    try {
+      await api.put('/notifications/read-all');
+      setNotifications(notifications.map(n => ({ ...n, read: true })));
     } catch (e) {}
   };
 
@@ -47,7 +64,9 @@ export default function Header({ toggleSidebar }) {
           <Menu className="w-5 h-5" />
         </button>
         <div className="flex items-center text-[#c39a5c] font-bold text-xl tracking-tight cursor-pointer">
-          <span className="text-[#3b2f2f]">Art</span>ison
+             <div className="flex items-baseline leading-none tracking-wide pt-1">
+                <img src="/kalakosh2.png" alt="kalakosh" className="h-10 w-auto object-contain brightness-0 dark:brightness-100" />
+              </div>
         </div>
       </div>
       
@@ -73,7 +92,17 @@ export default function Header({ toggleSidebar }) {
 
         {showDropdown && (
           <div className="absolute top-12 right-10 w-72 bg-white rounded-xl shadow-lg border border-[#eae0d5] overflow-hidden z-50">
-            <div className="p-3 border-b border-[#eae0d5] bg-[#fdfbf7] font-bold text-sm">Notifications</div>
+            <div className="p-3 border-b border-[#eae0d5] bg-[#fdfbf7] flex justify-between items-center">
+              <span className="font-bold text-sm">Notifications</span>
+              {unreadCount > 0 && (
+                <button 
+                  onClick={handleMarkAllAsRead} 
+                  className="text-xs text-[#c39a5c] hover:underline cursor-pointer font-medium"
+                >
+                  Mark all as read
+                </button>
+              )}
+            </div>
             <div className="max-h-80 overflow-y-auto">
               {unreadNotifications.length === 0 ? (
                 <div className="p-4 text-center text-sm text-gray-500">No new notifications</div>
@@ -81,11 +110,21 @@ export default function Header({ toggleSidebar }) {
                 unreadNotifications.map(n => (
                   <div 
                     key={n._id} 
-                    onClick={() => handleNotificationClick(n._id)}
-                    className={`p-3 border-b border-[#eae0d5] cursor-pointer hover:bg-[#fdfbf7] transition-colors ${n.read ? 'opacity-60' : 'bg-[#c39a5c]/5'}`}
+                    onClick={() => handleNotificationClick(n)}
+                    className={`p-3 border-b border-[#eae0d5] cursor-pointer hover:bg-[#fdfbf7] transition-colors flex items-center justify-between ${n.read ? 'opacity-60' : 'bg-[#c39a5c]/5'}`}
                   >
-                    <div className="text-sm font-medium">{n.message}</div>
-                    <div className="text-xs text-gray-400 mt-1">{new Date(n.createdAt).toLocaleString()}</div>
+                    <div className="flex-1 pr-2">
+                      <div className="text-sm font-medium">{n.message}</div>
+                      <div className="text-xs text-gray-400 mt-1">{new Date(n.createdAt).toLocaleString()}</div>
+                    </div>
+                    {loadingId === n._id && (
+                      <div className="flex-shrink-0">
+                        <svg className="animate-spin h-4 w-4 text-[#c39a5c]" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                        </svg>
+                      </div>
+                    )}
                   </div>
                 ))
               )}

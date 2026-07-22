@@ -24,6 +24,22 @@ export default function Checkout() {
   const [applyingCoupon, setApplyingCoupon] = useState(false);
   const [couponError, setCouponError] = useState("");
 
+  const [taxRate, setTaxRate] = useState(18);
+
+  useEffect(() => {
+    const fetchSettings = async () => {
+      try {
+        const { data } = await api.get('/settings');
+        if (data && data.taxRate !== undefined) {
+          setTaxRate(data.taxRate);
+        }
+      } catch (err) {
+        console.error("Failed to fetch settings", err);
+      }
+    };
+    fetchSettings();
+  }, []);
+
   // Identity fields
   const [email, setEmail] = useState(user?.email || "");
   const [otpSent, setOtpSent] = useState(false);
@@ -47,7 +63,8 @@ export default function Checkout() {
 
   const subtotal = cart.reduce((s, c) => s + c.product.price * c.qty, 0);
   const shipping = cart.length ? 499 : 0;
-  const initialTotal = subtotal + shipping;
+  const taxAmount = (subtotal * taxRate) / 100;
+  const initialTotal = subtotal + shipping + taxAmount;
   const discountAmount = appliedCoupon ? appliedCoupon.discountAmount : 0;
   const total = initialTotal - discountAmount;
 
@@ -390,6 +407,7 @@ export default function Checkout() {
                   <div className="space-y-2 text-sm">
                     <div className="flex justify-between text-muted-foreground"><span>Subtotal</span><span>{formatPrice(subtotal)}</span></div>
                     <div className="flex justify-between text-muted-foreground"><span>Shipping</span><span>{formatPrice(shipping)}</span></div>
+                    <div className="flex justify-between text-muted-foreground"><span>Tax ({taxRate}%)</span><span>{formatPrice(taxAmount)}</span></div>
                     {appliedCoupon && (
                       <div className="flex justify-between text-green-600 font-medium"><span>Discount ({appliedCoupon.code})</span><span>-{formatPrice(appliedCoupon.discountAmount)}</span></div>
                     )}

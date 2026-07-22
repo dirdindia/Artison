@@ -5,6 +5,7 @@ const Razorpay = require('razorpay');
 const crypto = require('crypto');
 const bcrypt = require('bcryptjs');
 const Notification = require('../models/Notification');
+const Settings = require('../models/Settings');
 
 // @desc    Get logged in user orders
 // @route   GET /api/orders/myorders
@@ -189,21 +190,36 @@ const verifyOrderPayment = async (req, res) => {
     order.paidAt = Date.now();
     order.paymentId = paymentId;
 
+    const settings = await Settings.findOne();
+    const newOrdersAlert = settings ? settings.newOrdersAlert : true;
+    const lowStockAlert = settings ? settings.lowStockAlert : true;
+
     // Decrement product stock
     for (const item of order.orderItems) {
-      await Product.findByIdAndUpdate(item.product, {
+      const product = await Product.findByIdAndUpdate(item.product, {
         $inc: { stock: -item.qty }
-      });
+      }, { new: true });
+
+      if (product && product.stock <= 5 && lowStockAlert) {
+        await Notification.create({
+          recipientType: 'Admin',
+          message: `Low stock alert: ${product.name} (Only ${product.stock} left)`,
+          type: 'STOCK_LOW',
+          relatedId: product._id
+        });
+      }
     }
 
     const updatedOrder = await order.save();
 
-    await Notification.create({
-      recipientType: 'Admin',
-      message: `New paid order received! Order ID: #${order._id.toString().substring(18)}`,
-      type: 'ORDER_NEW',
-      relatedId: order._id
-    });
+    if (newOrdersAlert !== false) {
+      await Notification.create({
+        recipientType: 'Admin',
+        message: `New paid order received! Order ID: #${order._id.toString().substring(18)}`,
+        type: 'ORDER_NEW',
+        relatedId: order._id
+      });
+    }
 
     res.json({ success: true, data: updatedOrder });
   } catch (error) {
@@ -243,21 +259,36 @@ const razorpayWebhook = async (req, res) => {
         order.paidAt = Date.now();
         order.paymentId = paymentId;
 
+        const settings = await Settings.findOne();
+        const newOrdersAlert = settings ? settings.newOrdersAlert : true;
+        const lowStockAlert = settings ? settings.lowStockAlert : true;
+
         // Decrement product stock
         for (const item of order.orderItems) {
-          await Product.findByIdAndUpdate(item.product, {
+          const product = await Product.findByIdAndUpdate(item.product, {
             $inc: { stock: -item.qty }
-          });
+          }, { new: true });
+
+          if (product && product.stock <= 5 && lowStockAlert) {
+            await Notification.create({
+              recipientType: 'Admin',
+              message: `Low stock alert: ${product.name} (Only ${product.stock} left)`,
+              type: 'STOCK_LOW',
+              relatedId: product._id
+            });
+          }
         }
 
         await order.save();
 
-        await Notification.create({
-          recipientType: 'Admin',
-          message: `New paid order received! Order ID: #${order._id.toString().substring(18)}`,
-          type: 'ORDER_NEW',
-          relatedId: order._id
-        });
+        if (newOrdersAlert !== false) {
+          await Notification.create({
+            recipientType: 'Admin',
+            message: `New paid order received! Order ID: #${order._id.toString().substring(18)}`,
+            type: 'ORDER_NEW',
+            relatedId: order._id
+          });
+        }
 
         console.log(`Webhook: Order ${razorpayOrderId} marked as paid.`);
       }

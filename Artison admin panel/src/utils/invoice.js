@@ -1,9 +1,28 @@
-const getInvoiceHtml = (order) => {
+import api from './api';
+
+const getInvoiceHtml = async (order) => {
   const subtotal = order.orderItems.reduce((sum, item) => sum + (item.price * item.qty), 0);
   const shipping = order.totalPrice - subtotal;
   const userInfo = JSON.parse(localStorage.getItem('userInfo') || '{}');
   const customerName = order.user?.name || order.guestName || userInfo.name || 'Customer';
   const customerEmail = order.user?.email || order.guestEmail || userInfo.email || '';
+
+  let storeName = 'KALAKOSH';
+  let address = 'Kalakosh Complex, Artisan Road, Craft City, India';
+  let phone = '+91 9999900000';
+  let email = 'support@kalakosh.com';
+
+  try {
+    const { data } = await api.get('/settings');
+    if (data) {
+      storeName = (data.storeName || storeName).toUpperCase();
+      address = data.businessAddress?.replace(/\n/g, ', ') || address;
+      phone = data.contactPhone || phone;
+      email = data.supportEmail || email;
+    }
+  } catch (err) {
+    console.error('Failed to load settings', err);
+  }
 
   return `
     <div id="invoice-content" style="font-family: Arial, sans-serif; padding: 20px; font-size: 12px; color: #000; background: white;">
@@ -16,13 +35,13 @@ const getInvoiceHtml = (order) => {
         <div style="display: flex; border-bottom: 1px solid #000; padding: 10px;">
           <div style="width: 25%; display: flex; align-items: center; justify-content: center; border-right: 1px solid #000;">
             <div style="width: 60px; height: 60px; background: #000; color: #fff; display: flex; align-items: center; justify-content: center; font-family: 'Playfair Display', serif; font-size: 36px; font-weight: bold; border-radius: 4px;">
-              K
+              ${storeName.charAt(0)}
             </div>
           </div>
           <div style="width: 50%; text-align: center; padding: 0 10px;">
-            <h1 style="margin: 0; font-size: 24px; letter-spacing: 1px; font-weight: bold;">KALAKOSH</h1>
-            <p style="margin: 4px 0 0; font-size: 11px;">Kalakosh Complex, Artisan Road, Craft City, India</p>
-            <p style="margin: 2px 0 0; font-size: 11px;">PHONE: +91 9999900000, E-MAIL: support@kalakosh.com</p>
+            <h1 style="margin: 0; font-size: 24px; letter-spacing: 1px; font-weight: bold;">${storeName}</h1>
+            <p style="margin: 4px 0 0; font-size: 11px;">${address}</p>
+            <p style="margin: 2px 0 0; font-size: 11px;">PHONE: ${phone}, E-MAIL: ${email}</p>
           </div>
           <div style="width: 25%; border-left: 1px solid #000; padding-left: 10px; font-size: 10px; display: flex; flex-direction: column; justify-content: center;">
             <div><strong>GST IN:</strong> 22AAAAA0000A1Z5</div>
@@ -140,9 +159,11 @@ const getInvoiceHtml = (order) => {
   `;
 };
 
-export const generateInvoice = (order) => {
+export const generateInvoice = async (order) => {
   const printWindow = window.open('', '_blank');
   
+  const invoiceHtmlContent = await getInvoiceHtml(order);
+
   const html = `
     <!DOCTYPE html>
     <html lang="en">
@@ -151,7 +172,7 @@ export const generateInvoice = (order) => {
       <title>Invoice #${order._id.substring(18)}</title>
     </head>
     <body>
-      ${getInvoiceHtml(order)}
+      ${invoiceHtmlContent}
       <script>
         window.onload = function() { window.print(); }
       </script>
@@ -164,9 +185,11 @@ export const generateInvoice = (order) => {
   printWindow.document.close();
 };
 
-export const downloadInvoice = (order) => {
+export const downloadInvoice = async (order) => {
   const printWindow = window.open('', '_blank');
   
+  const invoiceHtmlContent = await getInvoiceHtml(order);
+
   const html = `
     <!DOCTYPE html>
     <html lang="en">
@@ -181,7 +204,7 @@ export const downloadInvoice = (order) => {
         <p>This window will close automatically once the download starts.</p>
       </div>
       <div style="display: none;">
-        ${getInvoiceHtml(order)}
+        ${invoiceHtmlContent}
       </div>
       <script>
         window.onload = function() {
