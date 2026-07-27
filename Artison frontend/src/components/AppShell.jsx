@@ -73,26 +73,26 @@ export function AppShell({ children, title, transparentHeader = false }) {
   const unreadCount = unreadNotifications.length;
 
   return (
-    <div className="mx-auto flex min-h-screen w-full max-w-md flex-col bg-background shadow-card md:max-w-none md:shadow-none overflow-x-hidden">
+    <div className="mx-auto flex min-h-screen w-full max-w-md flex-col bg-background shadow-card md:max-w-none md:shadow-none">
       {/* Mobile header */}
-      <header className={`z-50 px-5 pt-2 pb-3 md:hidden ${transparentHeader ? 'fixed top-0 left-0 right-0 bg-transparent text-white' : 'sticky top-0 bg-background/85 backdrop-blur-xl'}`}>
+      <header className={`z-50 px-5 pt-2 pb-3 md:hidden ${transparentHeader ? 'sticky top-0 bg-[#f8f1de]/90 backdrop-blur-xl border-b border-amber-950/20 text-amber-950' : 'sticky top-0 bg-background/85 backdrop-blur-xl'}`}>
         <div className="flex items-center justify-between gap-3">
-          <Link to="/" className={`flex min-w-0 items-center gap-2 ${transparentHeader ? 'text-white' : ''}`}>
-            <img src="/logo.png" alt="logo" className={`h-10 w-10 shrink-0 object-contain ${transparentHeader ? '' : 'mix-blend-multiply'}`} />
+          <Link to="/" className={`flex min-w-0 items-center gap-2 ${transparentHeader ? 'text-amber-950' : ''}`}>
+            <img src="/logo.png" alt="logo" className="h-10 w-10 shrink-0 object-contain mix-blend-multiply" />
             <div className="min-w-0">
               <div className="flex items-baseline leading-none tracking-wide pt-1">
-                <img src="/kalakosh2.png" alt="kalakosh" className={`h-10 w-auto object-contain transition-all ${transparentHeader ? '' : 'brightness-0'}`} />
+                <img src="/kalakosh2.png" alt="kalakosh" className="h-10 w-auto object-contain transition-all brightness-0 opacity-90" />
               </div>
-              {/* <div className={`truncate text-[10px] uppercase tracking-widest ${transparentHeader ? 'text-white/80' : 'text-muted-foreground'}`}>{title ?? "Curated Art"}</div> */}
+              {/* <div className={`truncate text-[10px] uppercase tracking-widest ${transparentHeader ? 'text-amber-950/80' : 'text-muted-foreground'}`}>{title ?? "Curated Art"}</div> */}
             </div>
           </Link>
           <div className="flex shrink-0 items-center gap-2">
-            <button className={`grid h-9 w-9 place-items-center rounded-full ${transparentHeader ? 'bg-transparent text-white' : 'bg-secondary text-foreground/70'}`}><Search className="h-4 w-4" /></button>
+            <button className={`grid h-9 w-9 place-items-center rounded-full ${transparentHeader ? 'bg-transparent text-amber-950' : 'bg-secondary text-foreground/70'}`}><Search className="h-4 w-4" /></button>
             {isAuthenticated && (
               <DropdownMenu>
-                <DropdownMenuTrigger className={`relative grid h-9 w-9 place-items-center rounded-full outline-none ${transparentHeader ? 'bg-transparent text-white' : 'bg-secondary text-foreground/70'}`}>
+                <DropdownMenuTrigger className={`relative grid h-9 w-9 place-items-center rounded-full outline-none ${transparentHeader ? 'bg-transparent text-amber-950' : 'bg-secondary text-foreground/70'}`}>
                   <Bell className="h-4 w-4" />
-                  {unreadCount > 0 && <span className={`absolute right-1.5 top-1.5 h-2 w-2 rounded-full ${transparentHeader ? 'bg-white' : 'bg-primary'}`} />}
+                  {unreadCount > 0 && <span className={`absolute right-1.5 top-1.5 h-2 w-2 rounded-full ${transparentHeader ? 'bg-amber-900' : 'bg-primary'}`} />}
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end" className="w-64 mt-2 max-h-80 overflow-y-auto">
                   <DropdownMenuLabel>Notifications</DropdownMenuLabel>
@@ -117,15 +117,15 @@ export function AppShell({ children, title, transparentHeader = false }) {
       </header>
 
       {/* Desktop header */}
-      <header className={`z-50 hidden md:block ${transparentHeader ? 'fixed top-0 left-0 right-0 bg-transparent text-white' : 'sticky top-0 border-b border-border/60 bg-background/85 backdrop-blur-xl'}`}>
+      <header className={`z-50 hidden md:block ${transparentHeader ? 'sticky top-0 bg-[#f8f1de]/90 backdrop-blur-xl border-b border-amber-950/20 text-amber-950' : 'sticky top-0 border-b border-border/60 bg-background/85 backdrop-blur-xl'}`}>
         <div className="mx-auto flex w-full max-w-7xl items-center justify-between gap-6 px-8 py-2">
-          <Link to="/" className={`flex items-center gap-2.5 ${transparentHeader ? 'text-white' : ''}`}>
-            <img src="/logo.png" alt="logo" className={`h-12 w-12 object-contain transition-transform hover:scale-110 ${transparentHeader ? '' : 'mix-blend-multiply'}`} />
+          <Link to="/" className={`flex items-center gap-2.5 ${transparentHeader ? 'text-amber-950' : ''}`}>
+            <img src="/logo.png" alt="logo" className="h-12 w-12 object-contain transition-transform hover:scale-110 mix-blend-multiply" />
             <div>
               <div className="flex items-baseline leading-none tracking-wide pt-1">
-                <img src="/kalakosh2.png" alt="kalakosh" className={`h-12 w-auto object-contain transition-all ${transparentHeader ? '' : 'brightness-0'}`} />
+                <img src="/kalakosh2.png" alt="kalakosh" className="h-12 w-auto object-contain transition-all brightness-0 opacity-90" />
               </div>
-              {/* <div className={`text-[10px] uppercase tracking-widest ${transparentHeader ? 'text-white/80' : 'text-muted-foreground'}`}>Original Art Marketplace</div> */}
+              {/* <div className={`text-[10px] uppercase tracking-widest ${transparentHeader ? 'text-amber-950/80' : 'text-muted-foreground'}`}>Original Art Marketplace</div> */}
             </div>
           </Link>
           <nav className="flex items-center gap-1">
@@ -137,7 +137,7 @@ export function AppShell({ children, title, transparentHeader = false }) {
                   key={t.to}
                   to={t.to}
                   className={`rounded-full px-4 py-2 text-sm transition-colors ${
-                  active ? (transparentHeader ? "text-white font-semibold" : "bg-foreground text-background font-medium") : (transparentHeader ? "text-white/80 hover:text-white font-medium" : "text-foreground/70 hover:bg-secondary font-medium")}`
+                  active ? (transparentHeader ? "text-amber-950 font-semibold" : "bg-foreground text-background font-medium") : (transparentHeader ? "text-amber-950/80 hover:text-amber-950 font-medium" : "text-foreground/70 hover:bg-secondary font-medium")}`
                   }>
                   {t.label}
                 </Link>
@@ -145,15 +145,15 @@ export function AppShell({ children, title, transparentHeader = false }) {
             })}
           </nav>
           <div className="flex items-center gap-4">
-            <div className={`flex items-center gap-2 transition-shadow ${transparentHeader ? 'w-48 lg:w-64 border-b border-white/30 pb-1 text-white' : 'w-56 lg:w-72 rounded-full bg-secondary px-4 py-2 focus-within:ring-2 focus-within:ring-ring'}`}>
-              <Search className={`h-4 w-4 ${transparentHeader ? 'text-white' : 'text-muted-foreground'}`} />
-              <input placeholder="Search art, artists…" className={`w-full bg-transparent text-sm outline-none ${transparentHeader ? 'placeholder:text-white/70' : 'placeholder:text-muted-foreground'}`} />
+            <div className={`flex items-center gap-2 transition-shadow ${transparentHeader ? 'w-48 lg:w-64 border-b border-amber-950/30 pb-1 text-amber-950' : 'w-56 lg:w-72 rounded-full bg-secondary px-4 py-2 focus-within:ring-2 focus-within:ring-ring'}`}>
+              <Search className={`h-4 w-4 ${transparentHeader ? 'text-amber-950' : 'text-muted-foreground'}`} />
+              <input placeholder="Search art, artists…" className={`w-full bg-transparent text-sm outline-none ${transparentHeader ? 'placeholder:text-amber-950/70' : 'placeholder:text-muted-foreground'}`} />
             </div>
             
-            <Link to="/cart" className={`relative grid h-10 w-10 place-items-center rounded-full transition-colors ${transparentHeader ? 'bg-transparent text-white hover:text-white/70' : 'bg-secondary hover:bg-secondary/80'}`}>
+            <Link to="/cart" className={`relative grid h-10 w-10 place-items-center rounded-full transition-colors ${transparentHeader ? 'bg-transparent text-amber-950 hover:text-amber-950/70' : 'bg-secondary hover:bg-secondary/80'}`}>
               <ShoppingBag className="h-4 w-4" />
               {cartCount > 0 &&
-                <span className={`absolute -right-1 -top-1 grid h-5 min-w-5 place-items-center rounded-full px-1 text-[10px] font-bold shadow-sm ${transparentHeader ? 'bg-white text-black' : 'bg-primary text-primary-foreground'}`}>
+                <span className={`absolute -right-1 -top-1 grid h-5 min-w-5 place-items-center rounded-full px-1 text-[10px] font-bold shadow-sm ${transparentHeader ? 'bg-amber-900 text-black' : 'bg-primary text-primary-foreground'}`}>
                   {cartCount}
                 </span>
               }
@@ -161,9 +161,9 @@ export function AppShell({ children, title, transparentHeader = false }) {
 
             {isAuthenticated && (
               <DropdownMenu>
-                <DropdownMenuTrigger className={`relative grid h-10 w-10 place-items-center rounded-full transition-colors outline-none ${transparentHeader ? 'bg-transparent text-white hover:text-white/70' : 'bg-secondary hover:bg-secondary/80'}`}>
+                <DropdownMenuTrigger className={`relative grid h-10 w-10 place-items-center rounded-full transition-colors outline-none ${transparentHeader ? 'bg-transparent text-amber-950 hover:text-amber-950/70' : 'bg-secondary hover:bg-secondary/80'}`}>
                   <Bell className="h-4 w-4" />
-                  {unreadCount > 0 && <span className={`absolute right-2 top-2 h-2.5 w-2.5 rounded-full border-2 ${transparentHeader ? 'bg-white border-transparent' : 'bg-primary border-background'}`} />}
+                  {unreadCount > 0 && <span className={`absolute right-2 top-2 h-2.5 w-2.5 rounded-full border-2 ${transparentHeader ? 'bg-amber-900 border-transparent' : 'bg-primary border-background'}`} />}
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end" className="w-80 mt-2 max-h-96 overflow-y-auto">
                   <DropdownMenuLabel>Notifications</DropdownMenuLabel>
@@ -189,7 +189,7 @@ export function AppShell({ children, title, transparentHeader = false }) {
             {isAuthenticated ? (
               <DropdownMenu>
                 <DropdownMenuTrigger className="focus-visible:outline-none rounded-full ring-offset-background focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2">
-                  <Avatar className={`h-10 w-10 border shadow-sm transition-transform hover:scale-105 ${transparentHeader ? 'border-white/30' : 'border-border'}`}>
+                  <Avatar className={`h-10 w-10 border shadow-sm transition-transform hover:scale-105 ${transparentHeader ? 'border-amber-950/30' : 'border-border'}`}>
                     <AvatarImage src={user?.avatar} alt={user?.name} />
                     <AvatarFallback className="bg-gradient-warm text-primary-foreground font-semibold">
                       {user?.name?.charAt(0).toUpperCase()}
@@ -219,10 +219,10 @@ export function AppShell({ children, title, transparentHeader = false }) {
               </DropdownMenu>
             ) : (
               <div className="flex items-center gap-2">
-                <Link to="/login" className={`px-4 py-2 text-sm font-medium transition-colors ${transparentHeader ? 'text-white hover:text-white/80' : 'text-foreground hover:text-foreground/80'}`}>
+                <Link to="/login" className={`px-4 py-2 text-sm font-medium transition-colors ${transparentHeader ? 'text-amber-950 hover:text-amber-950/80' : 'text-foreground hover:text-foreground/80'}`}>
                   Sign In
                 </Link>
-                <Link to="/signup" className={`hidden lg:inline-flex items-center gap-1.5 rounded-full px-4 py-2 text-sm font-semibold transition hover:scale-[1.02] ${transparentHeader ? 'border border-white text-white hover:bg-white hover:text-black' : 'bg-foreground text-background shadow-soft hover:shadow-md'}`}>
+                <Link to="/signup" className={`hidden lg:inline-flex items-center gap-1.5 rounded-full px-4 py-2 text-sm font-semibold transition hover:scale-[1.02] ${transparentHeader ? 'border border-amber-950 text-amber-950 hover:bg-amber-900 hover:text-black' : 'bg-foreground text-background shadow-soft hover:shadow-md'}`}>
                   Join कलाkosh
                 </Link>
               </div>
@@ -232,7 +232,7 @@ export function AppShell({ children, title, transparentHeader = false }) {
       </header>
 
       <main className="flex-1 pb-28 md:pb-16">
-        <div className="md:mx-auto md:w-full md:max-w-7xl md:px-8 md:pt-6">{children}</div>
+        <div className={`md:mx-auto md:w-full md:max-w-7xl md:px-8 ${transparentHeader ? '' : 'md:pt-6'}`}>{children}</div>
       </main>
 
       {/* Mobile bottom nav */}

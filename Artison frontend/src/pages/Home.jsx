@@ -90,20 +90,26 @@ export default function Home() {
 
   const [featuredProducts, setFeaturedProducts] = useState([]);
   const [trendingProducts, setTrendingProducts] = useState([]);
-  const [heroItems, setHeroItems] = useState(products.slice(0, 10));
+  const [heroItems, setHeroItems] = useState([
+    { image: '/hero1.jpeg' },
+    { image: '/hero2.jpeg' },
+    { image: '/hero3.jpeg' },
+    { image: '/hero4.jpeg' },
+    { image: '/hero5.jpeg' },
+    { image: '/hero6.jpeg' },
+    { image: '/hero7.jpeg' }
+  ]);
 
   useEffect(() => {
     const fetchHomeProducts = async () => {
       try {
-        const [featuredRes, trendingRes, heroRes] = await Promise.all([
+        const [featuredRes, trendingRes] = await Promise.all([
           api.get('/products?tags=Featured&limit=4'),
-          api.get('/products?tags=Trending&limit=4'),
-          api.get('/products?limit=4')
+          api.get('/products?tags=Trending&limit=4')
         ]);
         
         if (featuredRes.data?.success && featuredRes.data.data.length > 0) setFeaturedProducts(featuredRes.data.data);
         if (trendingRes.data?.success && trendingRes.data.data.length > 0) setTrendingProducts(trendingRes.data.data);
-        if (heroRes.data?.success && heroRes.data.data.length > 0) setHeroItems(heroRes.data.data);
       } catch (error) {
         console.error("Error fetching home products:", error);
       }
@@ -135,14 +141,16 @@ export default function Home() {
   const [currentIndex, setCurrentIndex] = useState(1);
   const [isAnimating, setIsAnimating] = useState(false);
 
-  const handleHeroClick = () => {
-    if (isAnimating) return;
-    setIsAnimating(true);
-    setTimeout(() => {
-      setCurrentIndex((prev) => (prev - 1 + heroItems.length) % heroItems.length);
-      setIsAnimating(false);
-    }, 700);
-  };
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setIsAnimating(true);
+      setTimeout(() => {
+        setCurrentIndex((prev) => (prev - 1 + heroItems.length) % heroItems.length);
+        setIsAnimating(false);
+      }, 700);
+    }, 4000); // 4 seconds between transitions
+    return () => clearInterval(interval);
+  }, [heroItems.length]);
 
   const currentItem = heroItems[currentIndex];
   const nextItemIndex = (currentIndex - 1 + heroItems.length) % heroItems.length;
@@ -158,9 +166,9 @@ export default function Home() {
         whileInView={{ opacity: 1 }} 
         viewport={{ once: true }} 
         transition={{ duration: 0.6 }} 
-        className="w-screen relative left-1/2 -translate-x-1/2 -mt-5 md:-mt-6"
+        className="w-screen relative left-1/2 -translate-x-1/2 mt-0 md:mt-0"
       >
-        <div className="w-full h-[75vh] md:h-[95vh] relative overflow-hidden bg-zinc-950 cursor-pointer group" onClick={handleHeroClick}>
+        <div className="w-full h-[75vh] md:h-[95vh] relative overflow-hidden bg-zinc-950 group">
           {/* Layer 1: Upcoming Background */}
           <img src={upcomingBgItem.image} className="absolute inset-0 h-full w-full object-cover z-0" alt="" />
           <div className="absolute inset-0 bg-black/40 z-[1]" />
@@ -184,10 +192,7 @@ export default function Home() {
             />
           </div>
           
-          {/* Click Hint */}
-          <div className={`absolute bottom-8 right-8 md:bottom-12 md:right-12 z-30 bg-black/50 text-white px-5 py-2 rounded-full backdrop-blur-md font-medium text-sm transition-opacity duration-300 ${isAnimating ? 'opacity-0' : 'opacity-100 group-hover:scale-105'}`}>
-            Click to cycle
-          </div>
+          {/* Click Hint Removed */}
           
           {/* Optional Overlay Text */}
           {/* <div className={`absolute bottom-8 left-8 md:bottom-12 md:left-12 z-30 transition-opacity duration-300 pointer-events-none ${isAnimating ? 'opacity-0' : 'opacity-100'}`}>
@@ -225,70 +230,13 @@ export default function Home() {
       </motion.section>
 
 
-            {/* Sohrai Art Spotlight */}
-      <motion.section 
-        ref={sohraiRef}
-        initial={{ opacity: 0, y: 40 }} 
-        whileInView={{ opacity: 1, y: 0 }} 
-        viewport={{ once: true, margin: "-100px" }} 
-        transition={{ duration: 0.8, ease: "easeOut" }} 
-        className="w-screen relative left-1/2 -translate-x-1/2 mt-0 md:mt-0"
-      >
-        <div className="relative overflow-hidden bg-[#f8f1de] p-10 md:p-24 shadow-xl border-y border-[#e2d5b8]">
-          {/* Floral Vintage Image Background */}
-          <motion.img 
-            src="https://png.pngtree.com/background/20210709/original/pngtree-gold-pattern-poster-background-picture-image_424792.jpg" 
-            alt="Vintage Floral Pattern" 
-            style={{ y: backgroundY }}
-            className="absolute -top-[20%] -left-[10%] w-[120%] h-[140%] object-cover opacity-15 pointer-events-none mix-blend-multiply" 
-          />
-          <div className="absolute inset-0 bg-gradient-to-tr from-[#dcb98a]/10 via-transparent to-[#ffffff]/40" />
-          
-          <div className="relative z-10 max-w-4xl mx-auto text-center">
-            <motion.div
-              initial={{ opacity: 0, scale: 0.9 }}
-              whileInView={{ opacity: 1, scale: 1 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.8, delay: 0.2 }}
-              className="inline-flex items-center gap-2 rounded-full border border-amber-700/20 bg-amber-700/5 px-4 py-1.5 text-xs font-semibold uppercase tracking-widest text-amber-900 mb-6"
-            >
-              <Sparkles className="h-3.5 w-3.5" /> Cultural Heritage
-            </motion.div>
-            
-            <motion.h2 
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.8, delay: 0.4 }}
-              className="font-display text-5xl md:text-7xl font-bold text-amber-950 mb-8"
-              style={{ fontFamily: "'Dancing Script', cursive" }}
-            >
-              Sohrai Art
-            </motion.h2>
-            
-            <motion.p 
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 1.0, delay: 0.6 }}
-              className="text-2xl md:text-3xl leading-relaxed text-amber-900/80 font-medium"
-              style={{ fontFamily: "'Sacramento', cursive",fontWeight:"bold" }}
-            >
-              More than just an art form, Sohrai art is the heartbeat of Jharkhand's villages. 
-              Created by tribal women, these beautiful wall paintings celebrate nature, 
-              harvest, animals, and the deep bond between people and the earth. Made with natural 
-              colors drawn from soil and stone, every line and pattern carries generations of stories, 
-              traditions, and love. In a world that is constantly changing, Sohrai art stands as a quiet
-               reminder that true beauty is found in our roots. Every piece is not just handmade—it is a 
-               living memory of a culture that continues to inspire with its simplicity, warmth, and timeless grace.
-            </motion.p>
-          </div>
-        </div>
-      </motion.section>
+
 
       
 
-      {/* Categories - Interactive List */}
+{/*===================== Categories - Interactive List =====================*/}
+
+
       <motion.section initial={{ opacity: 0, y: 40 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, margin: "-100px" }} transition={{ duration: 0.6, ease: "easeOut" }} className="mt-8 px-5 md:mt-16 md:px-0">
         <div className="flex items-center justify-between mb-8">
                       <motion.h2 
@@ -369,8 +317,7 @@ export default function Home() {
       </motion.section>
 
 
-
-      {/* Featured */}
+     {/* Featured */}
       <motion.section initial={{ opacity: 0, y: 40 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, margin: "-100px" }} transition={{ duration: 0.6, ease: "easeOut" }} className="mt-7 md:mt-14">
         <div className="mb-3 flex items-end justify-between px-5 md:mb-5 md:px-0">
           <div>
@@ -386,20 +333,74 @@ export default function Home() {
         </div>
       </motion.section>
 
-      {/* Why Artisana - desktop only */}
-      <motion.section initial={{ opacity: 0, y: 40 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, margin: "-100px" }} transition={{ duration: 0.6, ease: "easeOut" }} className="mt-14  md:block">
-        <div className="grid gap-5 md:grid-cols-3">
-          {perks.map((p) =>
-          <div key={p.title} className="rounded-3xl bg-card p-7 shadow-soft">
-              <div className="grid h-12 w-12 place-items-center rounded-2xl bg-gradient-warm text-primary-foreground">
-                <p.icon className="h-5 w-5" />
-              </div>
-              <h3 className="mt-4 font-display text-xl font-bold">{p.title}</h3>
-              <p className="mt-1 text-sm text-muted-foreground">{p.desc}</p>
-            </div>
-          )}
+
+{/*=================== Sohrai Art Spotlight=================== */}
+
+
+      <motion.section 
+        ref={sohraiRef}
+        initial={{ opacity: 0, y: 40 }} 
+        whileInView={{ opacity: 1, y: 0 }} 
+        viewport={{ once: true, margin: "-100px" }} 
+        transition={{ duration: 0.8, ease: "easeOut" }} 
+        className="w-screen relative left-1/2 -translate-x-1/2 mt-0 md:mt-0"
+      >
+        <div className="relative overflow-hidden bg-[#f8f1de] p-10 md:p-24 shadow-xl border-y border-[#e2d5b8]">
+          {/* Floral Vintage Image Background */}
+          <motion.img 
+            src="https://png.pngtree.com/background/20210709/original/pngtree-gold-pattern-poster-background-picture-image_424792.jpg" 
+            alt="Vintage Floral Pattern" 
+            style={{ y: backgroundY }}
+            className="absolute -top-[20%] -left-[10%] w-[120%] h-[140%] object-cover opacity-15 pointer-events-none mix-blend-multiply" 
+          />
+          <div className="absolute inset-0 bg-gradient-to-tr from-[#dcb98a]/10 via-transparent to-[#ffffff]/40" />
+          
+          <div className="relative z-10 max-w-4xl mx-auto text-center">
+            <motion.div
+              initial={{ opacity: 0, scale: 0.9 }}
+              whileInView={{ opacity: 1, scale: 1 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.8, delay: 0.2 }}
+              className="inline-flex items-center gap-2 rounded-full border border-amber-700/20 bg-amber-700/5 px-4 py-1.5 text-xs font-semibold uppercase tracking-widest text-amber-900 mb-6"
+            >
+              <Sparkles className="h-3.5 w-3.5" /> Cultural Heritage
+            </motion.div>
+            
+            <motion.h2 
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.8, delay: 0.4 }}
+              className="font-display text-5xl md:text-7xl font-bold text-amber-950 mb-8"
+              style={{ fontFamily: "'Dancing Script', cursive" }}
+            >
+              Sohrai Art
+            </motion.h2>
+            
+            <motion.p 
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 1.0, delay: 0.6 }}
+              className="text-2xl md:text-3xl leading-relaxed text-amber-900/80 font-medium"
+              style={{ fontFamily: "'Sacramento', cursive",fontWeight:"bold" }}
+            >
+              More than just an art form, Sohrai art is the heartbeat of Jharkhand's villages. 
+              Created by tribal women, these beautiful wall paintings celebrate nature, 
+              harvest, animals, and the deep bond between people and the earth. Made with natural 
+              colors drawn from soil and stone, every line and pattern carries generations of stories, 
+              traditions, and love. In a world that is constantly changing, Sohrai art stands as a quiet
+               reminder that true beauty is found in our roots. Every piece is not just handmade—it is a 
+               living memory of a culture that continues to inspire with its simplicity, warmth, and timeless grace.
+            </motion.p>
+          </div>
         </div>
       </motion.section>
+
+
+ 
+
+
 
       {/* Artists */}
       {/* <motion.section initial={{ opacity: 0, y: 40 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, margin: "-100px" }} transition={{ duration: 0.6, ease: "easeOut" }} className="mt-7 px-5 md:mt-14 md:px-0">
@@ -432,6 +433,21 @@ export default function Home() {
         </div>
       </motion.section>
 
+            {/* Why Artisana - desktop only */}
+      <motion.section initial={{ opacity: 0, y: 40 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, margin: "-100px" }} transition={{ duration: 0.6, ease: "easeOut" }} className="mt-14  md:block">
+        <div className="grid gap-5 md:grid-cols-3">
+          {perks.map((p) =>
+          <div key={p.title} className="rounded-3xl bg-card p-7 shadow-soft">
+              <div className="grid h-12 w-12 place-items-center rounded-2xl bg-gradient-warm text-primary-foreground">
+                <p.icon className="h-5 w-5" />
+              </div>
+              <h3 className="mt-4 font-display text-xl font-bold">{p.title}</h3>
+              <p className="mt-1 text-sm text-muted-foreground">{p.desc}</p>
+            </div>
+          )}
+        </div>
+      </motion.section>
+
       {/* Facts Section */}
       <motion.section initial={{ opacity: 0, y: 40 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, margin: "-100px" }} transition={{ duration: 0.6, ease: "easeOut" }} className="mt-14 px-5 md:mt-24 md:px-0">
         <div className="mb-8 md:mb-12 text-center">
@@ -447,6 +463,8 @@ export default function Home() {
           </motion.h2>
           <p className="mt-3 text-sm md:text-base text-muted-foreground">Discover the stories and legacy behind every masterpiece.</p>
         </div>
+
+        
         
         <div className="flex flex-col-reverse md:grid md:grid-cols-12 gap-4 md:gap-8 min-h-[400px]">
           {/* Left side: List of Facts */}
