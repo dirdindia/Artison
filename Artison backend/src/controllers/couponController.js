@@ -93,6 +93,29 @@ const deleteCoupon = async (req, res) => {
   }
 };
 
+// Get all active public coupons
+const getActiveCoupons = async (req, res) => {
+  try {
+    const currentDate = new Date();
+    // active coupons: isActive is true and expiryDate > now
+    const coupons = await Coupon.find({ 
+      isActive: true, 
+      expiryDate: { $gt: currentDate } 
+    })
+    .populate('selectedProducts', 'name images')
+    .populate('selectedCategories', 'name')
+    .sort({ createdAt: -1 });
+
+    res.status(200).json({
+      success: true,
+      data: coupons
+    });
+  } catch (error) {
+    res.status(500).json({ success: false, message: 'Server Error', error: error.message });
+  }
+};
+
+
 // Validate coupon and calculate discount
 const validateCoupon = async (req, res) => {
   try {
@@ -189,6 +212,7 @@ const validateCoupon = async (req, res) => {
 module.exports = {
   createCoupon,
   getCoupons,
+  getActiveCoupons,
   updateCoupon,
   deleteCoupon,
   validateCoupon

@@ -7,12 +7,14 @@ const { couponSchema } = require('../validations/couponValidation');
 const {
   createCoupon,
   getCoupons,
+  getActiveCoupons,
   updateCoupon,
   deleteCoupon,
   validateCoupon
 } = require('../controllers/couponController');
 
 router.post('/validate', validateCoupon);
+router.get('/active', getActiveCoupons); // Public route for active coupons
 router.post('/', protectAdmin, validate(couponSchema), createCoupon);
 router.get('/', protectAdmin, paginate, getCoupons);
 router.put('/:id', protectAdmin, validate(couponSchema), updateCoupon);

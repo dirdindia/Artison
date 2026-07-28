@@ -6,6 +6,15 @@ const crypto = require('crypto');
 const bcrypt = require('bcryptjs');
 const Notification = require('../models/Notification');
 const Settings = require('../models/Settings');
+const nodemailer = require('nodemailer');
+
+const transporter = nodemailer.createTransport({
+  service: 'gmail',
+  auth: {
+    user: process.env.EMAIL_USER,
+    pass: process.env.EMAIL_PASS
+  }
+});
 
 // @desc    Get logged in user orders
 // @route   GET /api/orders/myorders
@@ -291,6 +300,38 @@ const razorpayWebhook = async (req, res) => {
         }
 
         console.log(`Webhook: Order ${razorpayOrderId} marked as paid.`);
+      }
+    } else if (event === 'payment.failed') {
+      const paymentEntity = req.body.payload.payment.entity;
+      const razorpayOrderId = paymentEntity.order_id;
+      const email = paymentEntity.email || req.body.payload.payment.entity.contact;
+
+      if (email) {
+        // Send payment failure email
+        const mailOptions = {
+          from: process.env.EMAIL_USER,
+          to: email,
+          subject: 'Payment Failed - Artisna',
+          html: `
+            <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #eee; border-radius: 10px;">
+              <h2 style="color: #e53e3e; text-align: center;">Payment Failed</h2>
+              <p>Hi there,</p>
+              <p>We noticed that your recent payment attempt for order <strong>#${razorpayOrderId}</strong> on Artisna was unsuccessful.</p>
+              <p>Don't worry! Your cart is still saved. You can return to the website and try checking out again.</p>
+              <br/>
+              <p>If you face any issues, feel free to contact our support team.</p>
+              <p>Best regards,<br/>The Artisna Team</p>
+            </div>
+          `
+        };
+
+        transporter.sendMail(mailOptions, (error, info) => {
+          if (error) {
+            console.error('Error sending payment failed email:', error);
+          } else {
+            console.log('Payment failed email sent:', info.response);
+          }
+        });
       }
     }
 

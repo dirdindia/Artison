@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { Link } from "react-router-dom";
-import { motion, useScroll, useTransform } from "framer-motion";
+import { motion, useScroll, useTransform, AnimatePresence } from "framer-motion";
 import { ArrowRight, Sparkles, Palette, Truck, ShieldCheck, Star, Quote, Mail, X, ChevronDown, MessageSquare, ChevronLeft, ChevronRight } from "lucide-react";
 import { toast } from "sonner";
 import { AppShell } from "@/components/AppShell";
@@ -59,6 +59,27 @@ export default function Home() {
   const [isSubmittingFeedback, setIsSubmittingFeedback] = useState(false);
   const [approvedFeedbacks, setApprovedFeedbacks] = useState([]);
   const [activeFeedbackIndex, setActiveFeedbackIndex] = useState(0);
+
+  const [activeCoupons, setActiveCoupons] = useState([
+    { _id: '1', code: 'WELCOME20', discountType: 'percentage', discountValue: 20, applicability: 'all', description: 'Get 20% off on all products site-wide!', minSpend: 1000 },
+    { _id: '2', code: 'SOHRAI500', discountType: 'fixed', discountValue: 500, applicability: 'categories', selectedCategories: [{name: 'Sohrai Art'}], description: 'Flat ₹500 off on any Sohrai Art piece.' },
+    { _id: '3', code: 'SPECIAL10', discountType: 'percentage', discountValue: 10, applicability: 'products', selectedProducts: [{name: 'Terracotta Horse'}], description: '10% off exclusively on selected product.' }
+  ]);
+  const [currentCouponIndex, setCurrentCouponIndex] = useState(0);
+
+  useEffect(() => {
+    const fetchCoupons = async () => {
+      try {
+        const res = await api.get('/coupons/active');
+        if (res.data?.success && res.data.data.length > 0) {
+          setActiveCoupons(res.data.data);
+        }
+      } catch (error) {
+        console.error("Error fetching coupons:", error);
+      }
+    };
+    fetchCoupons();
+  }, []);
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -138,95 +159,93 @@ export default function Home() {
     return () => clearInterval(interval);
   }, [approvedFeedbacks]);
 
-  const [currentIndex, setCurrentIndex] = useState(1);
-  const [isAnimating, setIsAnimating] = useState(false);
-
   useEffect(() => {
     const interval = setInterval(() => {
-      setIsAnimating(true);
-      setTimeout(() => {
-        setCurrentIndex((prev) => (prev - 1 + heroItems.length) % heroItems.length);
-        setIsAnimating(false);
-      }, 700);
-    }, 4000); // 4 seconds between transitions
+      setActiveFactIndex((prev) => (prev + 1) % factsData.length);
+    }, 6000); // 6 seconds per fact
     return () => clearInterval(interval);
-  }, [heroItems.length]);
-
-  const currentItem = heroItems[currentIndex];
-  const nextItemIndex = (currentIndex - 1 + heroItems.length) % heroItems.length;
-  const nextItem = heroItems[nextItemIndex];
-  const upcomingBgIndex = (currentIndex - 2 + heroItems.length) % heroItems.length;
-  const upcomingBgItem = heroItems[upcomingBgIndex];
+  }, []);
 
   return (
     <AppShell title="Discover" transparentHeader={true}>
-      {/* Animated Hero - Responsive */}
-      <motion.section 
-        initial={{ opacity: 0 }} 
-        whileInView={{ opacity: 1 }} 
-        viewport={{ once: true }} 
-        transition={{ duration: 0.6 }} 
-        className="w-screen relative left-1/2 -translate-x-1/2 mt-0 md:mt-0"
-      >
-        <div className="w-full h-[75vh] md:h-[95vh] relative overflow-hidden bg-zinc-950 group">
-          {/* Layer 1: Upcoming Background */}
-          <img src={upcomingBgItem.image} className="absolute inset-0 h-full w-full object-cover z-0" alt="" />
-          <div className="absolute inset-0 bg-black/40 z-[1]" />
-
-          {/* Layer 2: Transitioning Background */}
-          <div className={`absolute inset-0 z-10 flex items-center justify-center transition-all duration-700 ease-[cubic-bezier(0.65,0,0.35,1)] ${isAnimating ? 'p-[5%] md:p-[8%]' : 'p-0'}`}>
-            <img 
-              src={nextItem.image} 
-              className={`h-full w-full transition-all duration-700 ease-[cubic-bezier(0.65,0,0.35,1)] ${isAnimating ? 'rounded-3xl shadow-2xl object-contain' : 'rounded-none shadow-none object-cover'}`}
-              alt=""
-            />
-            <div className={`absolute inset-0 bg-black/40 transition-opacity duration-700 ${isAnimating ? 'opacity-0' : 'opacity-100'}`} />
-          </div>
-
-          {/* Layer 3: Transitioning Foreground */}
-          <div className={`absolute inset-0 z-20 flex items-center justify-center p-[5%] md:p-[8%] transition-all duration-700 ease-[cubic-bezier(0.65,0,0.35,1)] ${isAnimating ? 'scale-75 opacity-0' : 'scale-100 opacity-100 pointer-events-none'}`}>
-            <img 
-              src={currentItem.image} 
-              className="h-full w-full object-contain rounded-3xl "
-              alt=""
-            />
+      {/* Seamless Integrated Hero Layout */}
+      <motion.section className="w-screen relative left-1/2 -translate-x-1/2 mt-0 md:mt-0 bg-[#0a0a0a]">
+        <div className="w-full min-h-[85vh] md:h-[95vh] relative overflow-hidden flex items-center">
+          
+          {/* Large Integrated Image with Soft Edges */}
+          <div className="absolute inset-y-0 right-0 z-0 flex items-center justify-end w-full md:w-[85%]">
+            <AnimatePresence mode="wait">
+              <motion.div
+                key={activeFactIndex}
+                initial={{ opacity: 0, scale: 1.02 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: 1.5, ease: "easeOut" }}
+                className="relative w-full h-[70vh] md:h-full"
+                style={{
+                  WebkitMaskImage: 'radial-gradient(ellipse at right center, black 40%, transparent 90%)',
+                  maskImage: 'radial-gradient(ellipse at right center, black 40%, transparent 90%)'
+                }}
+              >
+                <img 
+                  src={heroItems[activeFactIndex % heroItems.length].image} 
+                  className="w-full h-full object-contain object-right opacity-90" 
+                  alt="" 
+                />
+              </motion.div>
+            </AnimatePresence>
           </div>
           
-          {/* Click Hint Removed */}
+          {/* Gradients to merge background and ensure text readability */}
+          <div className="absolute inset-0 bg-gradient-to-r from-[#0a0a0a] via-[#0a0a0a]/80 to-transparent z-10" />
+          <div className="absolute inset-0 bg-gradient-to-t from-[#0a0a0a] via-[#0a0a0a]/40 to-transparent z-10 md:hidden" />
           
-          {/* Optional Overlay Text */}
-          {/* <div className={`absolute bottom-8 left-8 md:bottom-12 md:left-12 z-30 transition-opacity duration-300 pointer-events-none ${isAnimating ? 'opacity-0' : 'opacity-100'}`}>
-             <h1 className="text-white font-display text-4xl md:text-6xl font-bold max-w-2xl leading-tight drop-shadow-xl">
-               Discover masterpieces<br/>for modern spaces.
-             </h1>
-             <p className="mt-4 text-white/90 text-lg md:text-xl max-w-xl font-medium drop-shadow-md">
-               Elevate your environment with authentic original artworks.
-             </p>
-          </div> */}
+          {/* Subtle Warm Glows */}
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_50%,_rgba(245,158,11,0.05),_transparent_50%)] z-10 pointer-events-none" />
+
+          {/* Main Content Container */}
+          <div className="relative z-20 w-full max-w-7xl mx-auto px-6 md:px-12 flex flex-col items-start justify-center pt-24 pb-12 md:py-0">
+            
+            {/* Text Content */}
+            <div className="w-full md:w-1/2 flex flex-col">
+              <AnimatePresence mode="wait">
+                <motion.div
+                  key={activeFactIndex}
+                  initial={{ opacity: 0, x: -30 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, x: 30 }}
+                  transition={{ duration: 0.8, type: "spring" }}
+                >
+                  <div className="inline-flex items-center gap-2 rounded-full border border-amber-500/30 bg-amber-500/10 px-4 py-1.5 text-xs font-semibold uppercase tracking-widest text-amber-400 mb-6 backdrop-blur-md shadow-lg">
+                    <Sparkles className="h-3.5 w-3.5" /> Fascinating Facts
+                  </div>
+                  <h1 className="text-white font-display text-4xl md:text-6xl lg:text-7xl font-bold leading-tight mb-6" style={{ fontFamily: "'Dancing Script', cursive" }}>
+                    {factsData[activeFactIndex].title.split('–')[0]}
+                  </h1>
+                  <p className="text-white/80 text-lg md:text-xl font-light leading-relaxed border-l-2 border-amber-500/50 pl-4">
+                    {factsData[activeFactIndex].desc}
+                  </p>
+                </motion.div>
+              </AnimatePresence>
+              
+              {/* Navigation Indicators */}
+              <div className="flex gap-2 mt-10">
+                {factsData.map((_, idx) => (
+                  <button
+                    key={idx}
+                    onClick={() => setActiveFactIndex(idx)}
+                    className={`h-1.5 rounded-full transition-all duration-500 ${
+                      activeFactIndex === idx 
+                        ? 'w-10 bg-amber-500' 
+                        : 'w-2 bg-white/20 hover:bg-white/40'
+                    }`}
+                  />
+                ))}
+              </div>
+            </div>
+            
+          </div>
         </div>
-
-        {/* Stats strip */}
-        {/* <motion.div 
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 1.0, delay: 0.8 }}
-          className="mt-8 grid grid-cols-2 gap-4 rounded-[2rem] bg-card p-8 shadow-sm border border-border/40 sm:grid-cols-4"
-        >
-          {stats.map((s, i) =>
-          <motion.div 
-              key={s.label} 
-              initial={{ opacity: 0, scale: 0.9 }}
-              whileInView={{ opacity: 1, scale: 1 }}
-              viewport={{ once: true }}
-              transition={{ delay: 0.9 + (i * 0.15), duration: 0.8 }}
-              className="text-center group"
-          >
-              <div className="font-display text-3xl font-bold text-primary transition-transform duration-300 group-hover:scale-110">{s.value}</div>
-              <div className="mt-1 text-[11px] font-semibold uppercase tracking-widest text-muted-foreground">{s.label}</div>
-            </motion.div>
-          )}
-        </motion.div> */}
       </motion.section>
 
 
@@ -334,93 +353,116 @@ export default function Home() {
       </motion.section>
 
 
-{/*=================== Sohrai Art Spotlight=================== */}
 
-
-      <motion.section 
-        ref={sohraiRef}
-        initial={{ opacity: 0, y: 40 }} 
-        whileInView={{ opacity: 1, y: 0 }} 
-        viewport={{ once: true, margin: "-100px" }} 
-        transition={{ duration: 0.8, ease: "easeOut" }} 
-        className="w-screen relative left-1/2 -translate-x-1/2 mt-0 md:mt-0"
-      >
-        <div className="relative overflow-hidden bg-[#f8f1de] p-10 md:p-24 shadow-xl border-y border-[#e2d5b8]">
-          {/* Floral Vintage Image Background */}
-          <motion.img 
-            src="https://png.pngtree.com/background/20210709/original/pngtree-gold-pattern-poster-background-picture-image_424792.jpg" 
-            alt="Vintage Floral Pattern" 
-            style={{ y: backgroundY }}
-            className="absolute -top-[20%] -left-[10%] w-[120%] h-[140%] object-cover opacity-15 pointer-events-none mix-blend-multiply" 
-          />
-          <div className="absolute inset-0 bg-gradient-to-tr from-[#dcb98a]/10 via-transparent to-[#ffffff]/40" />
-          
-          <div className="relative z-10 max-w-4xl mx-auto text-center">
-            <motion.div
-              initial={{ opacity: 0, scale: 0.9 }}
-              whileInView={{ opacity: 1, scale: 1 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.8, delay: 0.2 }}
-              className="inline-flex items-center gap-2 rounded-full border border-amber-700/20 bg-amber-700/5 px-4 py-1.5 text-xs font-semibold uppercase tracking-widest text-amber-900 mb-6"
-            >
-              <Sparkles className="h-3.5 w-3.5" /> Cultural Heritage
-            </motion.div>
-            
-            <motion.h2 
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.8, delay: 0.4 }}
-              className="font-display text-5xl md:text-7xl font-bold text-amber-950 mb-8"
-              style={{ fontFamily: "'Dancing Script', cursive" }}
-            >
-              Sohrai Art
-            </motion.h2>
-            
-            <motion.p 
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 1.0, delay: 0.6 }}
-              className="text-2xl md:text-3xl leading-relaxed text-amber-900/80 font-medium"
-              style={{ fontFamily: "'Sacramento', cursive",fontWeight:"bold" }}
-            >
-              More than just an art form, Sohrai art is the heartbeat of Jharkhand's villages. 
-              Created by tribal women, these beautiful wall paintings celebrate nature, 
-              harvest, animals, and the deep bond between people and the earth. Made with natural 
-              colors drawn from soil and stone, every line and pattern carries generations of stories, 
-              traditions, and love. In a world that is constantly changing, Sohrai art stands as a quiet
-               reminder that true beauty is found in our roots. Every piece is not just handmade—it is a 
-               living memory of a culture that continues to inspire with its simplicity, warmth, and timeless grace.
-            </motion.p>
-          </div>
-        </div>
-      </motion.section>
-
-
- 
-
-
-
-      {/* Artists */}
-      {/* <motion.section initial={{ opacity: 0, y: 40 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, margin: "-100px" }} transition={{ duration: 0.6, ease: "easeOut" }} className="mt-7 px-5 md:mt-14 md:px-0">
-        <div className="mb-3 flex items-end justify-between md:mb-5">
-          <h2 className="font-display text-xl font-bold md:text-3xl">Trending artists</h2>
-          <Link to="/explore" className="hidden text-sm font-medium text-primary md:inline">Discover more →</Link>
-        </div>
-        <div className="space-y-2 md:grid md:grid-cols-3 md:gap-5 md:space-y-0">
-          {artists.slice(0, 3).map((a) =>
-          <div key={a.id} className="flex items-center gap-3 rounded-2xl bg-card p-3 shadow-soft md:flex-col md:items-start md:p-6">
-              <img src={a.avatar} alt={a.name} className="h-12 w-12 shrink-0 rounded-full object-cover md:h-20 md:w-20" />
-              <div className="min-w-0 flex-1 md:w-full">
-                <div className="truncate font-semibold md:text-lg">{a.name}</div>
-                <div className="text-xs text-muted-foreground md:text-sm">{a.works} works · {a.followers} followers</div>
-              </div>
-              <button className="shrink-0 rounded-full bg-foreground px-3 py-1.5 text-xs font-medium text-background md:w-full md:py-2">Follow</button>
+      {/* Active Coupons Slider */}
+      {activeCoupons.length > 0 && (
+        <motion.section initial={{ opacity: 0, y: 40 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, margin: "-100px" }} transition={{ duration: 0.6, ease: "easeOut" }} className="mt-7 md:mt-14 px-5 md:px-0">
+          <div className="mb-3 flex items-end justify-between md:mb-5">
+            <div>
+              <h2 className="font-display text-xl font-bold md:text-3xl text-amber-950">Active Offers</h2>
+              <p className="text-xs text-muted-foreground md:text-sm">Exclusive discounts just for you</p>
             </div>
-          )}
-        </div>
-      </motion.section> */}
+            <div className="flex gap-2">
+              <button onClick={() => setCurrentCouponIndex(prev => (prev - 1 + activeCoupons.length) % activeCoupons.length)} className="grid h-8 w-8 place-items-center rounded-full bg-secondary text-foreground hover:bg-amber-100 shadow-sm"><ChevronLeft className="h-4 w-4" /></button>
+              <button onClick={() => setCurrentCouponIndex(prev => (prev + 1) % activeCoupons.length)} className="grid h-8 w-8 place-items-center rounded-full bg-secondary text-foreground hover:bg-amber-100 shadow-sm"><ChevronRight className="h-4 w-4" /></button>
+            </div>
+          </div>
+          
+          <div className="relative overflow-hidden rounded-[2rem] shadow-2xl min-h-[350px] flex items-center p-6 md:p-12 mt-6">
+            
+            {/* Dynamic Background Image */}
+            <AnimatePresence mode="wait">
+              <motion.img 
+                key={`bg-${currentCouponIndex}`}
+                src={
+                  activeCoupons[currentCouponIndex].applicability === 'all' ? 'https://images.unsplash.com/photo-1549465220-1a8b9238cd48?q=80&w=2040&auto=format&fit=crop' :
+                  activeCoupons[currentCouponIndex].applicability === 'categories' ? 'https://images.unsplash.com/photo-1460661419201-fd4cecdf8a8b?q=80&w=2000&auto=format&fit=crop' :
+                  'https://images.unsplash.com/photo-1618160702438-9b02ab6515c9?q=80&w=2000&auto=format&fit=crop'
+                }
+                initial={{ opacity: 0, scale: 1.05 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: 0.8 }}
+                className="absolute inset-0 w-full h-full object-cover"
+                alt="Background"
+              />
+            </AnimatePresence>
+            
+            {/* Dark Gradient Overlay for readability */}
+            <div className="absolute inset-0 bg-gradient-to-r from-black/95 via-black/70 to-black/30 z-0" />
+            
+            <AnimatePresence mode="wait">
+              <motion.div
+                key={currentCouponIndex}
+                initial={{ opacity: 0, y: 30 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -30 }}
+                transition={{ duration: 0.5, type: 'spring' }}
+                className="relative z-10 w-full flex flex-col md:flex-row items-center gap-8 md:gap-16 pb-6 md:pb-0"
+              >
+                
+                {/* Discount Badge */}
+                <div className="shrink-0 flex flex-col items-center justify-center w-32 h-32 md:w-40 md:h-40 rounded-full bg-white/10 backdrop-blur-md border border-white/20 shadow-2xl relative">
+                    <div className="absolute inset-2 rounded-full border border-dashed border-white/30 animate-spin-slow" style={{ animationDuration: '20s' }}></div>
+                    <span className="block text-4xl md:text-5xl font-black text-amber-400 leading-none drop-shadow-md z-10">
+                      {activeCoupons[currentCouponIndex].discountType === 'percentage' 
+                        ? `${activeCoupons[currentCouponIndex].discountValue}%` 
+                        : `₹${activeCoupons[currentCouponIndex].discountValue}`}
+                    </span>
+                    <span className="text-xs font-bold text-white uppercase tracking-widest mt-2 block z-10">OFF</span>
+                </div>
+
+                {/* Coupon Details */}
+                <div className="flex-1 text-center md:text-left">
+                  <div className="inline-flex items-center gap-2 rounded-full bg-white/10 backdrop-blur-md px-4 py-1.5 text-[10px] md:text-xs font-bold uppercase tracking-widest text-amber-300 mb-4 border border-white/20">
+                    <Sparkles className="h-3 w-3" />
+                    {activeCoupons[currentCouponIndex].applicability === 'all' ? 'Site-wide Offer' : 
+                     activeCoupons[currentCouponIndex].applicability === 'categories' ? `Category: ${activeCoupons[currentCouponIndex].selectedCategories?.[0]?.name || 'Selected'}` :
+                     'Exclusive Product Offer'}
+                  </div>
+                  <h3 className="font-display text-3xl md:text-4xl font-bold text-white mb-4 drop-shadow-lg leading-tight">
+                    {activeCoupons[currentCouponIndex].description || "Special Discount just for you"}
+                  </h3>
+                  
+                  <div className="flex flex-col sm:flex-row items-center gap-4 mt-6 justify-center md:justify-start">
+                    <div className="flex items-center gap-3 border border-white/30 bg-black/40 backdrop-blur-md rounded-xl px-6 py-3 shadow-inner">
+                      <span className="font-mono text-xl md:text-2xl font-bold text-amber-400 tracking-widest">
+                        {activeCoupons[currentCouponIndex].code}
+                      </span>
+                    </div>
+                    <button 
+                      onClick={() => {
+                        navigator.clipboard.writeText(activeCoupons[currentCouponIndex].code);
+                        toast.success("Coupon code copied!");
+                      }}
+                      className="rounded-xl bg-amber-500 hover:bg-amber-400 px-8 py-3 text-sm md:text-base font-bold text-black shadow-[0_0_20px_rgba(245,158,11,0.4)] transition active:scale-95"
+                    >
+                      Copy Code
+                    </button>
+                  </div>
+                  
+                  {(activeCoupons[currentCouponIndex].minSpend) > 0 && (
+                     <p className="text-xs text-white/60 mt-5 font-medium">
+                       *Valid on minimum purchase of ₹{activeCoupons[currentCouponIndex].minSpend}
+                     </p>
+                  )}
+                </div>
+              </motion.div>
+            </AnimatePresence>
+            
+            {/* Dots Overlay */}
+            <div className="absolute bottom-5 left-0 right-0 z-20 flex justify-center gap-3">
+              {activeCoupons.map((_, idx) => (
+                <button
+                  key={idx}
+                  onClick={() => setCurrentCouponIndex(idx)}
+                  className={`h-1.5 rounded-full transition-all duration-300 ${currentCouponIndex === idx ? 'w-10 bg-amber-400' : 'w-2 bg-white/40 hover:bg-white/70'}`}
+                />
+              ))}
+            </div>
+          </div>
+        </motion.section>
+      )}
 
       {/* Trending grid */}
       <motion.section initial={{ opacity: 0, y: 40 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, margin: "-100px" }} transition={{ duration: 0.6, ease: "easeOut" }} className="mt-7 px-5 md:mt-14 md:px-0">
@@ -448,81 +490,7 @@ export default function Home() {
         </div>
       </motion.section>
 
-      {/* Facts Section */}
-      <motion.section initial={{ opacity: 0, y: 40 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, margin: "-100px" }} transition={{ duration: 0.6, ease: "easeOut" }} className="mt-14 px-5 md:mt-24 md:px-0">
-        <div className="mb-8 md:mb-12 text-center">
-          <motion.h2 
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.8 }}
-            className="font-display text-4xl md:text-6xl font-bold text-amber-950"
-            style={{ fontFamily: "'Dancing Script', cursive" }}
-          >
-            Fascinating Facts
-          </motion.h2>
-          <p className="mt-3 text-sm md:text-base text-muted-foreground">Discover the stories and legacy behind every masterpiece.</p>
-        </div>
 
-        
-        
-        <div className="flex flex-col-reverse md:grid md:grid-cols-12 gap-4 md:gap-8 min-h-[400px]">
-          {/* Left side: List of Facts */}
-          <div className="md:col-span-5 relative pr-0 md:pr-8">
-            <div className="flex flex-col justify-top overflow-y-auto max-h-[500px] scrollbar-hide pb-12">
-              {factsData.map((fact, idx) => (
-              <motion.div
-                initial={{ opacity: 0, x: -30 }}
-                whileInView={{ opacity: 1, x: 0 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.5, delay: idx * 0.1 }}
-                key={fact.title}
-                onMouseEnter={() => setActiveFactIndex(idx)}
-                onClick={() => setActiveFactIndex(idx)}
-                className={`group flex flex-col justify-center py-5 cursor-pointer transition-colors duration-300 border-b border-border/50 last:border-0 ${activeFactIndex === idx ? 'text-primary' : 'text-muted-foreground hover:text-foreground'}`}
-              >
-                <div className="flex items-center justify-between">
-                  <span className={`font-display text-xl md:text-2xl font-bold transition-transform duration-300 ${activeFactIndex === idx ? 'translate-x-2 text-amber-900' : 'group-hover:translate-x-1'}`}>
-                    {fact.title}
-                  </span>
-                  <ArrowRight className={`h-5 w-5 transition-all duration-300 ${activeFactIndex === idx ? 'opacity-100 -translate-x-2 text-amber-900' : 'opacity-0 translate-x-2 group-hover:opacity-50 group-hover:translate-x-0'}`} />
-                </div>
-              </motion.div>
-            ))}
-            </div>
-            {/* Scroll Indicator */}
-            <div className="absolute bottom-0 left-0 right-0 md:right-8 h-20 bg-gradient-to-t from-background via-background/80 to-transparent pointer-events-none flex items-end justify-center pb-2">
-               <motion.div animate={{ y: [0, 5, 0] }} transition={{ repeat: Infinity, duration: 1.5 }}>
-                 <ChevronDown className="h-6 w-6 text-muted-foreground opacity-70" />
-               </motion.div>
-            </div>
-          </div>
-          
-          {/* Right side: Fact Details */}
-          <div className="md:col-span-7 relative h-[300px] md:h-[500px] flex items-center justify-center p-8 md:p-14 bg-transparent">
-            {(() => {
-              const activeFact = factsData[activeFactIndex] || factsData[0];
-              return (
-                <motion.div 
-                  key={activeFactIndex}
-                  initial={{ opacity: 0, scale: 0.95 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  transition={{ duration: 0.5, type: 'spring' }}
-                  className="text-center"
-                >
-                  <Sparkles className="h-10 w-10 md:h-14 md:w-14 text-amber-500/80 mx-auto mb-6" />
-                  <h3 className="font-display text-3xl md:text-5xl font-bold mb-6 text-amber-950 leading-tight">
-                    {activeFact.title.split('–')[0]}
-                  </h3>
-                  <p className="text-amber-900/80 text-lg md:text-xl leading-relaxed max-w-xl mx-auto font-medium">
-                    {activeFact.desc}
-                  </p>
-                </motion.div>
-              )
-            })()}
-          </div>
-        </div>
-      </motion.section>
 
       {/* Testimonials */}
       <motion.section initial={{ opacity: 0, y: 40 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, margin: "-100px" }} transition={{ duration: 0.6, ease: "easeOut" }} className="mt-14 px-5 overflow-hidden">

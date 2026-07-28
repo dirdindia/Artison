@@ -73,7 +73,7 @@ export function AppShell({ children, title, transparentHeader = false }) {
   const unreadCount = unreadNotifications.length;
 
   return (
-    <div className="mx-auto flex min-h-screen w-full max-w-md flex-col bg-background shadow-card md:max-w-none md:shadow-none">
+    <div className="mx-auto flex min-h-screen w-full max-w-md flex-col overflow-x-hidden bg-background shadow-card md:max-w-none md:shadow-none">
       {/* Mobile header */}
       <header className={`z-50 px-5 pt-2 pb-3 md:hidden ${transparentHeader ? 'sticky top-0 bg-[#f8f1de]/90 backdrop-blur-xl border-b border-amber-950/20 text-amber-950' : 'sticky top-0 bg-background/85 backdrop-blur-xl'}`}>
         <div className="flex items-center justify-between gap-3">
