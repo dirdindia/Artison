@@ -34,18 +34,18 @@ const categoryDescriptions = {
 };
 
 const factsData = [
-  { title: "Sohrai Art – Nature's Canvas", desc: "Created with natural earth pigments, Sohrai Art transforms ordinary walls into vibrant celebrations of wildlife, harvest, and life itself. Every stroke echoes a centuries-old tribal tradition." },
-  { title: "Khovar Art – A Symbol of New Beginnings", desc: "Traditionally painted on the walls of newlyweds' homes, Khovar Art is a beautiful expression of love, fertility, and prosperity, brought to life through intricate patterns and symbolism." },
-  { title: "Dokra Craft – Fire, Wax & Legacy", desc: "Over 4,000 years old, Dokra is one of India's oldest metal casting traditions. Each handcrafted piece is unique—no two creations are ever exactly alike." },
-  { title: "Bamboo Craft – From Forest to Masterpiece", desc: "With little more than bamboo and skilled hands, Jharkhand's artisans create elegant baskets, décor, and utility pieces that celebrate sustainable craftsmanship." },
-  { title: "Terracotta – Earth Shaped into Art", desc: "From humble clay emerge timeless sculptures, pottery, and decorative pieces. Terracotta is proof that the simplest elements of nature can become extraordinary works of art." },
-  { title: "Madhubani – Stories in Every Stroke", desc: "Originating in Bihar, Madhubani Art is known for its bold colours, intricate patterns, and mythological themes. Every painting is a visual story waiting to be discovered." },
-  { title: "Sikki Grass Craft – Woven with Gold", desc: "Made from the naturally golden Sikki grass of Bihar, these handcrafted creations blend beauty with utility, preserving a tradition passed down through generations." },
-  { title: "Manjusha Art – Where Folklore Comes Alive", desc: "Inspired by the legendary tale of Bihula and Bishahari, Manjusha Art is one of Bihar's most distinctive painting styles, recognised for its vibrant borders and expressive storytelling." },
-  { title: "Tikuli Art – A Tradition Reimagined", desc: "Once used to decorate bindis, Tikuli Art has evolved into stunning paintings on hardboard, combining intricate detailing with brilliant colours and timeless elegance." },
-  { title: "3D Art – Creativity Beyond the Canvas", desc: "Art no longer lives only on flat surfaces. Through depth, texture, and perspective, 3D art transforms imagination into immersive visual experiences." },
-  { title: "Sculptures – Where Stone Finds a Soul", desc: "A sculpture is more than a carved form—it's emotion, movement, and imagination frozen in time, inviting every viewer to see a story from a new perspective." },
-  { title: "Every Handmade Piece Has a Story", desc: "Behind every brushstroke, carving, and sculpture is an artist preserving culture, expressing creativity, and keeping generations of craftsmanship alive." }
+  { title: "Sohrai Art – Nature's Canvas", desc: "Created with natural earth pigments, Sohrai Art transforms ordinary walls into vibrant celebrations of wildlife, harvest, and life itself. Every stroke echoes a centuries-old tribal tradition.", image: "/sohrai art.jpg.jpeg" },
+  { title: "Khovar Art – A Symbol of New Beginnings", desc: "Traditionally painted on the walls of newlyweds' homes, Khovar Art is a beautiful expression of love, fertility, and prosperity, brought to life through intricate patterns and symbolism.", image: "/khovar art.jpg.jpeg" },
+  { title: "Dokra Craft – Fire, Wax & Legacy", desc: "Over 4,000 years old, Dokra is one of India's oldest metal casting traditions. Each handcrafted piece is unique—no two creations are ever exactly alike.", image: "/dokra art.jpg.jpeg" },
+  { title: "Bamboo Craft – From Forest to Masterpiece", desc: "With little more than bamboo and skilled hands, Jharkhand's artisans create elegant baskets, décor, and utility pieces that celebrate sustainable craftsmanship.", image: "/Bamboo Handicrafts.jpg.jpeg" },
+  { title: "Terracotta – Earth Shaped into Art", desc: "From humble clay emerge timeless sculptures, pottery, and decorative pieces. Terracotta is proof that the simplest elements of nature can become extraordinary works of art.", image: "/Terracotta.jpg.jpeg" },
+  { title: "Madhubani – Stories in Every Stroke", desc: "Originating in Bihar, Madhubani Art is known for its bold colours, intricate patterns, and mythological themes. Every painting is a visual story waiting to be discovered.", image: "/Madhubani.jpg.jpeg" },
+  { title: "Sikki Grass Craft – Woven with Gold", desc: "Made from the naturally golden Sikki grass of Bihar, these handcrafted creations blend beauty with utility, preserving a tradition passed down through generations.", image: "/Sikki Grass Craft.jpg.jpeg" },
+  { title: "Manjusha Art – Where Folklore Comes Alive", desc: "Inspired by the legendary tale of Bihula and Bishahari, Manjusha Art is one of Bihar's most distinctive painting styles, recognised for its vibrant borders and expressive storytelling.", image: "/Manjusha art.jpg.jpeg" },
+  { title: "Tikuli Art – A Tradition Reimagined", desc: "Once used to decorate bindis, Tikuli Art has evolved into stunning paintings on hardboard, combining intricate detailing with brilliant colours and timeless elegance.", image: "/tikuli art.jpg.jpeg" },
+  { title: "3D Art – Creativity Beyond the Canvas", desc: "Art no longer lives only on flat surfaces. Through depth, texture, and perspective, 3D art transforms imagination into immersive visual experiences.", image: "/3D art.jpg.jpeg" },
+  { title: "Sculptures – Where Stone Finds a Soul", desc: "A sculpture is more than a carved form—it's emotion, movement, and imagination frozen in time, inviting every viewer to see a story from a new perspective.", image: "/sculpture art.jpg.jpeg" },
+  { title: "Every Handmade Piece Has a Story", desc: "Behind every brushstroke, carving, and sculpture is an artist preserving culture, expressing creativity, and keeping generations of craftsmanship alive.", image: "/hero1.jpeg" }
 ];
 
 
@@ -188,7 +188,7 @@ export default function Home() {
                 }}
               >
                 <img 
-                  src={heroItems[activeFactIndex % heroItems.length].image} 
+                  src={factsData[activeFactIndex].image} 
                   className="w-full h-full object-contain object-right opacity-90" 
                   alt="" 
                 />

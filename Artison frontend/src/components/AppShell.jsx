@@ -87,7 +87,7 @@ export function AppShell({ children, title, transparentHeader = false }) {
             </div>
           </Link>
           <div className="flex shrink-0 items-center gap-2">
-            <button className={`grid h-9 w-9 place-items-center rounded-full ${transparentHeader ? 'bg-transparent text-amber-950' : 'bg-secondary text-foreground/70'}`}><Search className="h-4 w-4" /></button>
+            {/* <button className={`grid h-9 w-9 place-items-center rounded-full ${transparentHeader ? 'bg-transparent text-amber-950' : 'bg-secondary text-foreground/70'}`}><Search className="h-4 w-4" /></button> */}
             {isAuthenticated && (
               <DropdownMenu>
                 <DropdownMenuTrigger className={`relative grid h-9 w-9 place-items-center rounded-full outline-none ${transparentHeader ? 'bg-transparent text-amber-950' : 'bg-secondary text-foreground/70'}`}>
@@ -145,10 +145,10 @@ export function AppShell({ children, title, transparentHeader = false }) {
             })}
           </nav>
           <div className="flex items-center gap-4">
-            <div className={`flex items-center gap-2 transition-shadow ${transparentHeader ? 'w-48 lg:w-64 border-b border-amber-950/30 pb-1 text-amber-950' : 'w-56 lg:w-72 rounded-full bg-secondary px-4 py-2 focus-within:ring-2 focus-within:ring-ring'}`}>
+            {/* <div className={`flex items-center gap-2 transition-shadow ${transparentHeader ? 'w-48 lg:w-64 border-b border-amber-950/30 pb-1 text-amber-950' : 'w-56 lg:w-72 rounded-full bg-secondary px-4 py-2 focus-within:ring-2 focus-within:ring-ring'}`}>
               <Search className={`h-4 w-4 ${transparentHeader ? 'text-amber-950' : 'text-muted-foreground'}`} />
               <input placeholder="Search art, artists…" className={`w-full bg-transparent text-sm outline-none ${transparentHeader ? 'placeholder:text-amber-950/70' : 'placeholder:text-muted-foreground'}`} />
-            </div>
+            </div> */}
             
             <Link to="/cart" className={`relative grid h-10 w-10 place-items-center rounded-full transition-colors ${transparentHeader ? 'bg-transparent text-amber-950 hover:text-amber-950/70' : 'bg-secondary hover:bg-secondary/80'}`}>
               <ShoppingBag className="h-4 w-4" />
