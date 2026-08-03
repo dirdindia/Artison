@@ -19,10 +19,9 @@ const newsletterSchema = Joi.object({
 // Note: Requires process.env.EMAIL_USER and process.env.EMAIL_PASS
 const transporter = nodemailer.createTransport({
   host: 'smtp.gmail.com',
-  port: 587,
-  secure: false, // TLS requires secure: false
-  requireTLS: true,
-  family: 4, // Force IPv4 to prevent IPv6 ENETUNREACH on Render
+  port: 465,
+  secure: true, // Use SSL
+  family: 4, // Force IPv4
   auth: {
     user: process.env.EMAIL_USER,
     pass: process.env.EMAIL_PASS
