@@ -35,6 +35,7 @@ export default function Header({ toggleSidebar }) {
       
       if (notification.type === 'ORDER_NEW') navigate('/orders');
       else if (notification.type === 'FEEDBACK_NEW') navigate('/feedbacks');
+      else if (notification.type === 'CONTACT_NEW') navigate('/contacts');
       else if (notification.type === 'STOCK_LOW') navigate('/products');
       else navigate('/tickets');
     } catch (e) {

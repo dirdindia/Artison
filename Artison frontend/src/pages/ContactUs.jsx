@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { AppShell } from '@/components/AppShell';
-import { Mail, Phone, MapPin } from 'lucide-react';
+import { Mail, Phone, MapPin, Loader2 } from 'lucide-react';
 import api from '../api';
+import { toast } from 'sonner';
 
 export default function ContactUs() {
   const [settings, setSettings] = useState({
@@ -28,6 +29,33 @@ export default function ContactUs() {
     };
     fetchSettings();
   }, []);
+
+  const [formData, setFormData] = useState({
+    name: '',
+    email: '',
+    mobile: '',
+    message: ''
+  });
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const handleChange = (e) => {
+    setFormData({ ...formData, [e.target.name]: e.target.value });
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setIsSubmitting(true);
+    try {
+      await api.post('/contacts', formData);
+      toast.success('Your message has been sent successfully!');
+      setFormData({ name: '', email: '', mobile: '', message: '' });
+    } catch (error) {
+      console.error(error);
+      toast.error('Failed to send message. Please try again.');
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
   return (
     <AppShell title="Contact Us">
       <div className="max-w-4xl mx-auto py-12 px-5">
@@ -73,21 +101,26 @@ export default function ContactUs() {
           </div>
           
           <div className="bg-card p-6 rounded-2xl shadow-sm border border-border/50">
-            <form className="space-y-4">
+            <form className="space-y-4" onSubmit={handleSubmit}>
               <div>
                 <label className="block text-sm font-medium mb-1">Name</label>
-                <input type="text" className="w-full rounded-xl border border-input bg-transparent px-3 py-2" placeholder="Your name" />
+                <input type="text" name="name" value={formData.name} onChange={handleChange} required className="w-full rounded-xl border border-input bg-transparent px-3 py-2" placeholder="Your name" />
               </div>
               <div>
                 <label className="block text-sm font-medium mb-1">Email</label>
-                <input type="email" className="w-full rounded-xl border border-input bg-transparent px-3 py-2" placeholder="your@email.com" />
+                <input type="email" name="email" value={formData.email} onChange={handleChange} required className="w-full rounded-xl border border-input bg-transparent px-3 py-2" placeholder="your@email.com" />
+              </div>
+              <div>
+                <label className="block text-sm font-medium mb-1">Mobile No.</label>
+                <input type="tel" name="mobile" value={formData.mobile} onChange={handleChange} required className="w-full rounded-xl border border-input bg-transparent px-3 py-2" placeholder="Your mobile number" />
               </div>
               <div>
                 <label className="block text-sm font-medium mb-1">Message</label>
-                <textarea className="w-full rounded-xl border border-input bg-transparent px-3 py-2 h-32 resize-none" placeholder="How can we help you?"></textarea>
+                <textarea name="message" value={formData.message} onChange={handleChange} required className="w-full rounded-xl border border-input bg-transparent px-3 py-2 h-32 resize-none" placeholder="How can we help you?"></textarea>
               </div>
-              <button className="w-full rounded-xl bg-foreground text-background py-2.5 font-semibold hover:bg-foreground/90 transition-colors">
-                Send Message
+              <button disabled={isSubmitting} type="submit" className="w-full flex items-center justify-center rounded-xl bg-foreground text-background py-2.5 font-semibold hover:bg-foreground/90 transition-colors disabled:opacity-70 disabled:cursor-not-allowed">
+                {isSubmitting ? <Loader2 className="w-5 h-5 animate-spin mr-2" /> : null}
+                {isSubmitting ? 'Sending...' : 'Send Message'}
               </button>
             </form>
           </div>

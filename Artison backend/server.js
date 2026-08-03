@@ -21,6 +21,7 @@ const notificationRoutes = require('./src/routes/notificationRoutes');
 const subscriberRoutes = require('./src/routes/subscriberRoutes');
 const feedbackRoutes = require('./src/routes/feedbackRoutes');
 const settingsRoutes = require('./src/routes/settingsRoutes');
+const contactRoutes = require('./src/routes/contactRoutes');
 
 // Connect to database
 connectDB().then(() => {
@@ -56,6 +57,7 @@ app.use('/api/notifications', notificationRoutes);
 app.use('/api/subscribers', subscriberRoutes);
 app.use('/api/feedbacks', feedbackRoutes);
 app.use('/api/settings', settingsRoutes);
+app.use('/api/contacts', contactRoutes);
 
 app.get('/', (req, res) => {
   res.send('API is running...');

@@ -14,7 +14,8 @@ import {
   LogOut,
   Award,
   LifeBuoy,
-  Star
+  Star,
+  Mail
 } from 'lucide-react';
 import { useConfirm } from '../context/ConfirmContext';
 import Alert from '../utils/Alert';
@@ -31,6 +32,7 @@ const MENU_ITEMS = [
   { name: 'Marketing', path: '/marketing', icon: Megaphone },
   { name: 'Reviews', path: '/review', icon: Star },
   { name: 'Site Feedbacks', path: '/feedbacks', icon: MessageSquare },
+  { name: 'Contact Messages', path: '/contacts', icon: Mail },
   { name: 'Analysis', path: '/analysis', icon: BarChart },
 ];
 
