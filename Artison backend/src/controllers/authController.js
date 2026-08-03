@@ -18,6 +18,7 @@ const transporter = nodemailer.createTransport({
   port: 587,
   secure: false, // TLS requires secure: false
   requireTLS: true,
+  family: 4, // Force IPv4 to prevent IPv6 ENETUNREACH on Render
   auth: {
     user: process.env.EMAIL_USER,
     pass: process.env.EMAIL_PASS,
