@@ -90,7 +90,7 @@ const loginAdmin = async (req, res) => {
     const user = await User.findOne({ email });
 
     if (user && (await bcrypt.compare(password, user.password))) {
-      if (user.role !== 'admin') {
+      if (user.role !== 'admin' && user.role !== 'subadmin') {
         return res.status(403).json({ success: false, message: 'Not authorized as admin' });
       }
 

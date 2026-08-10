@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const { protectAdmin } = require('../middlewares/authMiddleware');
+const { protectAdmin, protectSuperAdmin } = require('../middlewares/authMiddleware');
 const { paginate } = require('../middlewares/pagination');
 const validate = require('../middlewares/validateMiddleware');
 const { couponSchema } = require('../validations/couponValidation');
@@ -18,6 +18,6 @@ router.get('/active', getActiveCoupons); // Public route for active coupons
 router.post('/', protectAdmin, validate(couponSchema), createCoupon);
 router.get('/', protectAdmin, paginate, getCoupons);
 router.put('/:id', protectAdmin, validate(couponSchema), updateCoupon);
-router.delete('/:id', protectAdmin, deleteCoupon);
+router.delete('/:id', protectSuperAdmin, deleteCoupon);
 
 module.exports = router;

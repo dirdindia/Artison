@@ -18,6 +18,7 @@ import Marketing from './pages/Marketing';
 import Reviews from './pages/Reviews';
 import Feedbacks from './pages/Feedbacks';
 import ContactMessages from './pages/ContactMessages';
+import SubAdmins from './pages/SubAdmins';
 
 // Placeholder component for other routes
 const Placeholder = ({ title }) => (
@@ -51,6 +52,7 @@ function App() {
             <Route path="contacts" element={<ContactMessages />} />
             <Route path="analysis" element={<Placeholder title="Analysis" />} />
             <Route path="settings" element={<Settings />} />
+            <Route path="subadmins" element={<SubAdmins />} />
           </Route>
           {/* Fallback route */}
           <Route path="*" element={<Navigate to="/" replace />} />

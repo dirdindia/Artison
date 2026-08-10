@@ -22,6 +22,7 @@ const Categories = () => {
   const [viewingImage, setViewingImage] = useState(null);
 
   const { confirm } = useConfirm();
+  const user = JSON.parse(localStorage.getItem('user'));
 
   const fetchCategories = async (currentPage = 1) => {
     setLoading(true);
@@ -155,7 +156,12 @@ const Categories = () => {
                         <button onClick={() => openEditModal(cat)} className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors cursor-pointer">
                           <Edit2 className="w-4 h-4" />
                         </button>
-                        <button onClick={() => handleDelete(cat._id)} className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors cursor-pointer">
+                        <button 
+                          onClick={() => handleDelete(cat._id)} 
+                          disabled={user?.role === 'subadmin'}
+                          title={user?.role === 'subadmin' ? "Subadmins cannot delete" : "Delete"}
+                          className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+                        >
                           <Trash2 className="w-4 h-4" />
                         </button>
                       </div>

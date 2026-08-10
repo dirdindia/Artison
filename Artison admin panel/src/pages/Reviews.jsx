@@ -10,6 +10,7 @@ export default function Reviews() {
   const [processingId, setProcessingId] = useState(null);
   const [filter, setFilter] = useState('all');
   const { confirm } = useConfirm();
+  const user = JSON.parse(localStorage.getItem('user'));
 
   useEffect(() => {
     fetchReviews();
@@ -162,9 +163,9 @@ export default function Reviews() {
                       )}
                       <button
                         onClick={() => handleDelete(review.productId, review._id)}
-                        disabled={processingId === review._id + '_delete'}
-                        className="p-1.5 rounded-md transition-colors text-gray-500 hover:text-red-600 hover:bg-red-50 cursor-pointer disabled:opacity-50"
-                        title="Delete Review"
+                        disabled={processingId === review._id + '_delete' || user?.role === 'subadmin'}
+                        className="p-1.5 rounded-md transition-colors text-gray-500 hover:text-red-600 hover:bg-red-50 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+                        title={user?.role === 'subadmin' ? "Subadmins cannot delete" : "Delete Review"}
                       >
                         {processingId === review._id + '_delete' ? (
                           <Loader2 className="w-5 h-5 animate-spin text-red-500" />

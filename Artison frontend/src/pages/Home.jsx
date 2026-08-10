@@ -82,10 +82,14 @@ export default function Home() {
   }, []);
 
   useEffect(() => {
-    const timer = setTimeout(() => {
-      setShowNewsletterPopup(true);
-    }, 5000);
-    return () => clearTimeout(timer);
+    const hasSeenPopup = sessionStorage.getItem('hasSeenNewsletterPopup');
+    if (!hasSeenPopup) {
+      const timer = setTimeout(() => {
+        setShowNewsletterPopup(true);
+        sessionStorage.setItem('hasSeenNewsletterPopup', 'true');
+      }, 5000);
+      return () => clearTimeout(timer);
+    }
   }, []);
 
   const sohraiRef = useRef(null);

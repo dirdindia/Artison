@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { X, Upload, Loader2, XCircle, Info, Image as ImageIcon, DollarSign, Truck, UploadCloud, Trash2 } from 'lucide-react';
+import { X, Upload, Loader2, XCircle, Info, Image as ImageIcon, IndianRupee, Truck, UploadCloud, Trash2 } from 'lucide-react';
 import Alert from '../utils/Alert';
 import api from '../utils/api';
 import ImageViewer from './ImageViewer';
@@ -7,7 +7,7 @@ import ImageViewer from './ImageViewer';
 const tabs = [
   { id: 'basic', label: 'Basic Info', icon: Info },
   { id: 'media', label: 'Media', icon: ImageIcon },
-  { id: 'inventory', label: 'Pricing & Inventory', icon: DollarSign },
+  { id: 'inventory', label: 'Pricing & Inventory', icon: IndianRupee },
   { id: 'shipping', label: 'Shipping', icon: Truck },
 ];
 
@@ -89,6 +89,55 @@ export default function ProductModal({ isOpen, onClose, product, onSuccess, isVi
       Alert.error('Error', 'Failed to fetch categories or subCategories');
     }
   };
+
+  useEffect(() => {
+    if (!product && formData.category && categories.length > 0) {
+      const generateSKU = async () => {
+        const cat = categories.find(c => c._id === formData.category);
+        const subCat = formData.subCategory ? subCategories.find(s => s._id === formData.subCategory) : null;
+        
+        if (!cat) return;
+        
+        const getInitials = (str) => {
+           if (!str) return '';
+           const match = str.match(/\b\w/g);
+           return match ? match.join('').toUpperCase() : str.substring(0, 2).toUpperCase();
+        };
+
+        let prefix = getInitials(cat.name);
+        if (subCat) {
+          prefix += '-' + getInitials(subCat.name);
+        }
+        
+        try {
+          const res = await api.get('/products?limit=1000');
+          if (res.data.success) {
+            const products = res.data.data;
+            const matchingSKUs = products
+              .map(p => p.sku)
+              .filter(sku => sku && sku.startsWith(prefix + '-'));
+              
+            let maxSeq = 0;
+            matchingSKUs.forEach(sku => {
+              const parts = sku.split('-');
+              const numStr = parts[parts.length - 1];
+              const num = parseInt(numStr, 10);
+              if (!isNaN(num) && num > maxSeq) {
+                maxSeq = num;
+              }
+            });
+            
+            const nextSeq = (maxSeq + 1).toString().padStart(3, '0');
+            setFormData(prev => ({ ...prev, sku: `${prefix}-${nextSeq}` }));
+          }
+        } catch (error) {
+          console.error("Failed to generate SKU", error);
+        }
+      };
+      
+      generateSKU();
+    }
+  }, [formData.category, formData.subCategory, product, categories, subCategories]);
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;

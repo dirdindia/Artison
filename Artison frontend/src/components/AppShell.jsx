@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
-import { Home, Compass, ShoppingBag, User, Search, Bell, Settings, LogOut, Package, Instagram, Twitter, Facebook, Mail } from "lucide-react";
+import { Home, Compass, ShoppingBag, User, Search, Bell, Settings, LogOut, Package, Instagram, Facebook, Mail, Info } from "lucide-react";
 import { useCart } from "@/context/CartContext";
 import { useAuth } from "@/context/AuthContext";
 import api from "@/api";
@@ -23,6 +23,7 @@ export function AppShell({ children, title, transparentHeader = false }) {
 
   const tabs = [
     { to: "/", icon: Home, label: "Home" },
+    { to: "/about", icon: Info, label: "About Us" },
     { to: "/explore", icon: Compass, label: "Explore" },
     { to: "/cart", icon: ShoppingBag, label: "Cart" },
     { to: isAuthenticated ? "/profile" : "/login", icon: User, label: isAuthenticated ? "Profile" : "Sign In" }
@@ -219,9 +220,19 @@ export function AppShell({ children, title, transparentHeader = false }) {
               </DropdownMenu>
             ) : (
               <div className="flex items-center gap-2">
-                <Link to="/login" className={`px-4 py-2 text-sm font-medium transition-colors ${transparentHeader ? 'text-amber-950 hover:text-amber-950/80' : 'text-foreground hover:text-foreground/80'}`}>
-                  Sign In
-                </Link>
+                <DropdownMenu>
+                  <DropdownMenuTrigger className={`px-4 py-2 text-sm font-medium transition-colors outline-none cursor-pointer ${transparentHeader ? 'text-amber-950 hover:text-amber-950/80' : 'text-foreground hover:text-foreground/80'}`}>
+                    Sign In
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end" className="w-40 mt-2">
+                    <DropdownMenuItem asChild>
+                      <Link to="/login" className="cursor-pointer w-full">User Sign In</Link>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem asChild>
+                      <a href={import.meta.env.DEV ? "http://localhost:5173" : "https://admin.kala-kosh.co.in"} className="cursor-pointer w-full text-primary font-medium">Admin Sign In</a>
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
                 <Link to="/signup" className={`hidden lg:inline-flex items-center gap-1.5 rounded-full px-4 py-2 text-sm font-semibold transition hover:scale-[1.02] ${transparentHeader ? 'border border-amber-950 text-amber-950 hover:bg-amber-900 hover:text-black' : 'bg-foreground text-background shadow-soft hover:shadow-md'}`}>
                   Join कलाkosh
                 </Link>
@@ -241,6 +252,30 @@ export function AppShell({ children, title, transparentHeader = false }) {
           {tabs.map((t) => {
             const active = pathname === t.to || (t.label === "Sign In" && pathname === "/login");
             const Icon = t.icon;
+
+            if (t.label === "Sign In") {
+              return (
+                <DropdownMenu key={t.to}>
+                  <DropdownMenuTrigger className={`relative flex flex-1 flex-col items-center gap-0.5 rounded-xl px-2 py-1.5 text-[10px] font-medium transition-colors outline-none ${
+                    active ? "text-foreground font-semibold" : "text-muted-foreground hover:text-foreground/80"}`
+                  }>
+                    <div className="relative">
+                      <Icon className="h-5 w-5" />
+                    </div>
+                    <span>{t.label}</span>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="center" side="top" sideOffset={10} className="w-40">
+                    <DropdownMenuItem asChild>
+                      <Link to="/login" className="cursor-pointer w-full">User Sign In</Link>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem asChild>
+                      <a href={import.meta.env.DEV ? "http://localhost:5173" : "https://admin.kala-kosh.co.in"} className="cursor-pointer w-full text-primary font-medium">Admin Sign In</a>
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              );
+            }
+
             return (
               <Link
                 key={t.to}
@@ -331,7 +366,7 @@ export function AppShell({ children, title, transparentHeader = false }) {
               <h3 className="text-xs font-semibold uppercase tracking-wider text-foreground">Connect</h3>
               <div className="flex items-center gap-4">
                 <a href="#" className="text-muted-foreground hover:text-primary transition-colors"><Instagram className="h-5 w-5" /></a>
-                <a href="#" className="text-muted-foreground hover:text-primary transition-colors"><Twitter className="h-5 w-5" /></a>
+                <a href="#" className="text-muted-foreground hover:text-primary transition-colors"><svg viewBox="0 0 24 24" className="h-5 w-5" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" /></svg></a>
                 <a href="#" className="text-muted-foreground hover:text-primary transition-colors"><Facebook className="h-5 w-5" /></a>
                 <a href="#" className="text-muted-foreground hover:text-primary transition-colors"><Mail className="h-5 w-5" /></a>
               </div>
@@ -342,10 +377,15 @@ export function AppShell({ children, title, transparentHeader = false }) {
         <div className="mx-auto w-full max-w-7xl px-8 pb-8 relative z-10">
           <div className="pt-8 border-t border-border flex flex-col md:flex-row items-center justify-between gap-4 text-xs text-muted-foreground">
             <span>© {new Date().getFullYear()} कलाkosh Inc. All rights reserved.</span>
+              <div className="flex gap-6">
+              <p>Powered by DIRD</p>
+              
+            
+            </div>
             <div className="flex gap-6">
               <a href="#" className="hover:text-foreground transition-colors">Privacy Policy</a>
               <a href="#" className="hover:text-foreground transition-colors">Terms of Service</a>
-              <a href="#" className="hover:text-foreground transition-colors">Cookie Settings</a>
+            
             </div>
           </div>
         </div>

@@ -6,7 +6,7 @@ const {
   markContactAsRead,
   deleteContactMessage,
 } = require('../controllers/contactController');
-const { protectAdmin } = require('../middlewares/authMiddleware');
+const { protectAdmin, protectSuperAdmin } = require('../middlewares/authMiddleware');
 
 router.route('/')
   .post(createContactMessage)
@@ -16,6 +16,6 @@ router.route('/:id/read')
   .put(protectAdmin, markContactAsRead);
 
 router.route('/:id')
-  .delete(protectAdmin, deleteContactMessage);
+  .delete(protectSuperAdmin, deleteContactMessage);
 
 module.exports = router;

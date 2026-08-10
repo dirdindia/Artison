@@ -11,6 +11,7 @@ export default function ContactMessages() {
   const [expandedId, setExpandedId] = useState(null);
   const [deletingId, setDeletingId] = useState(null);
   const { confirm } = useConfirm();
+  const user = JSON.parse(localStorage.getItem('user'));
 
   useEffect(() => {
     fetchMessages();
@@ -131,9 +132,9 @@ export default function ContactMessages() {
                     )}
                     <button 
                       onClick={(e) => { e.stopPropagation(); handleDelete(msg._id); }}
-                      disabled={deletingId === msg._id}
-                      className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors cursor-pointer disabled:opacity-50"
-                      title="Delete message"
+                      disabled={deletingId === msg._id || user?.role === 'subadmin'}
+                      className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+                      title={user?.role === 'subadmin' ? "Subadmins cannot delete" : "Delete message"}
                     >
                       {deletingId === msg._id ? (
                         <div className="w-5 h-5 border-2 border-red-600 border-t-transparent rounded-full animate-spin"></div>

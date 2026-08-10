@@ -9,6 +9,7 @@ const Feedbacks = () => {
   const [loading, setLoading] = useState(true);
   const [updatingId, setUpdatingId] = useState(null);
   const { confirm } = useConfirm();
+  const user = JSON.parse(localStorage.getItem('user'));
 
   const fetchFeedbacks = async () => {
     setLoading(true);
@@ -122,7 +123,8 @@ const Feedbacks = () => {
                         </button>
                         <button 
                           onClick={() => handleDelete(item._id)} 
-                          disabled={updatingId === item._id}
+                          disabled={updatingId === item._id || user?.role === 'subadmin'}
+                          title={user?.role === 'subadmin' ? "Subadmins cannot delete" : "Delete"}
                           className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
                         >
                           {updatingId === item._id ? <Loader2 className="w-4 h-4 animate-spin" /> : <Trash2 className="w-4 h-4" />}

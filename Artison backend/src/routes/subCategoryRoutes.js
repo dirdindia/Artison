@@ -6,7 +6,7 @@ const {
   updateSubCategory,
   deleteSubCategory
 } = require('../controllers/subCategoryController');
-const { protectAdmin } = require('../middlewares/authMiddleware');
+const { protectAdmin, protectSuperAdmin } = require('../middlewares/authMiddleware');
 const { paginate } = require('../middlewares/pagination');
 const validate = require('../middlewares/validateMiddleware');
 const { SubCategorySchema } = require('../validations/subCategoryValidation');
@@ -14,6 +14,6 @@ const { SubCategorySchema } = require('../validations/subCategoryValidation');
 router.post('/', protectAdmin, validate(SubCategorySchema), createSubCategory);
 router.get('/', paginate, getSubCategories);
 router.put('/:id', protectAdmin, validate(SubCategorySchema), updateSubCategory);
-router.delete('/:id', protectAdmin, deleteSubCategory);
+router.delete('/:id', protectSuperAdmin, deleteSubCategory);
 
 module.exports = router;

@@ -20,6 +20,7 @@ const Coupons = () => {
   const [editingCoupon, setEditingCoupon] = useState(null);
 
   const { confirm } = useConfirm();
+  const user = JSON.parse(localStorage.getItem('user'));
 
   const fetchCoupons = async (currentPage = 1, search = '') => {
     setLoading(true);
@@ -171,7 +172,9 @@ const Coupons = () => {
                       </button>
                       <button 
                         onClick={(e) => { e.stopPropagation(); handleDelete(coupon._id); }}
-                        className="p-2 text-[#5a4d4d] hover:text-red-500 transition-colors rounded-lg hover:bg-white shadow-sm border border-transparent hover:border-[#eae0d5] cursor-pointer"
+                        disabled={user?.role === 'subadmin'}
+                        title={user?.role === 'subadmin' ? "Subadmins cannot delete" : "Delete"}
+                        className="p-2 text-[#5a4d4d] hover:text-red-500 transition-colors rounded-lg hover:bg-white shadow-sm border border-transparent hover:border-[#eae0d5] cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
                       >
                         <Trash2 className="w-4 h-4" />
                       </button>

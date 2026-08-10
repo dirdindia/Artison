@@ -7,9 +7,14 @@ export default function Header({ toggleSidebar }) {
   const [notifications, setNotifications] = useState([]);
   const [showDropdown, setShowDropdown] = useState(false);
   const [loadingId, setLoadingId] = useState(null);
+  const [user, setUser] = useState(null);
   const navigate = useNavigate();
 
   useEffect(() => {
+    const saved = localStorage.getItem('user');
+    if (saved) {
+      setUser(JSON.parse(saved));
+    }
     fetchNotifications();
   }, []);
 
@@ -132,8 +137,16 @@ export default function Header({ toggleSidebar }) {
             </div>
           </div>
         )}
-        <div className="h-8 w-8 rounded-full bg-[#fdfbf7] border border-[#eae0d5] flex items-center justify-center overflow-hidden cursor-pointer hover:border-[#c39a5c] transition-colors">
-          <UserCircle className="w-6 h-6 text-gray-400" />
+        <div className="flex items-center gap-2">
+          {user && (
+            <div className="hidden md:flex flex-col items-end mr-1">
+              <span className="text-sm font-bold text-[#3b2f2f] leading-none">{user.name}</span>
+              <span className="text-[10px] text-[#c39a5c] font-bold uppercase tracking-wider mt-1">{user.role === 'admin' ? 'Super Admin' : 'Subadmin'}</span>
+            </div>
+          )}
+          <div className="h-8 w-8 rounded-full bg-[#fdfbf7] border border-[#eae0d5] flex items-center justify-center overflow-hidden cursor-pointer hover:border-[#c39a5c] transition-colors">
+            <UserCircle className="w-6 h-6 text-gray-400" />
+          </div>
         </div>
       </div>
     </header>

@@ -23,6 +23,7 @@ const Marketing = () => {
   const [image, setImage] = useState(null);
   const [sending, setSending] = useState(false);
   const { confirm } = useConfirm();
+  const user = JSON.parse(localStorage.getItem('user'));
 
   const fetchSubscribers = async (currentPage = 1) => {
     setLoading(true);
@@ -328,9 +329,9 @@ const Marketing = () => {
                           </button>
                           <button 
                             onClick={() => handleDeleteSubscriber(sub._id)}
-                            disabled={processingId === sub._id + '_delete'}
+                            disabled={processingId === sub._id + '_delete' || user?.role === 'subadmin'}
                             className="p-1.5 rounded-md transition-colors text-gray-500 hover:text-red-600 hover:bg-red-50 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
-                            title="Delete Subscriber"
+                            title={user?.role === 'subadmin' ? "Subadmins cannot delete" : "Delete Subscriber"}
                           >
                             {processingId === sub._id + '_delete' ? (
                               <Loader2 className="w-5 h-5 animate-spin text-red-500" />

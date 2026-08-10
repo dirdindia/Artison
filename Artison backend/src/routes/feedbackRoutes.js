@@ -7,7 +7,7 @@ const {
   approveFeedback,
   deleteFeedback
 } = require('../controllers/feedbackController');
-const { protectAdmin } = require('../middlewares/authMiddleware');
+const { protectAdmin, protectSuperAdmin } = require('../middlewares/authMiddleware');
 
 // Public routes
 router.post('/', submitFeedback);
@@ -16,6 +16,6 @@ router.get('/approved', getApprovedFeedbacks);
 // Admin routes
 router.get('/', protectAdmin, getAllFeedbacks);
 router.put('/:id/approve', protectAdmin, approveFeedback);
-router.delete('/:id', protectAdmin, deleteFeedback);
+router.delete('/:id', protectSuperAdmin, deleteFeedback);
 
 module.exports = router;

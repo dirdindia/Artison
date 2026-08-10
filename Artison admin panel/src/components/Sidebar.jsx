@@ -15,7 +15,8 @@ import {
   Award,
   LifeBuoy,
   Star,
-  Mail
+  Mail,
+  UserCog
 } from 'lucide-react';
 import { useConfirm } from '../context/ConfirmContext';
 import Alert from '../utils/Alert';
@@ -39,6 +40,11 @@ const MENU_ITEMS = [
 export default function Sidebar() {
   const { confirm } = useConfirm();
   const navigate = useNavigate();
+  
+  const [user, setUser] = useState(() => {
+    const saved = localStorage.getItem('user');
+    return saved ? JSON.parse(saved) : null;
+  });
 
   const handleLogout = async () => {
     const isConfirmed = await confirm({
@@ -76,6 +82,21 @@ export default function Sidebar() {
             <span className="truncate">{item.name}</span>
           </NavLink>
         ))}
+        {user?.role === 'admin' && (
+          <NavLink
+            to="/subadmins"
+            className={({ isActive }) =>
+              `flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors ${
+                isActive
+                  ? 'bg-[#3b2f2f] text-[#fcf9f2] shadow-sm'
+                  : 'text-[#5a4d4d] hover:bg-[#eae0d5]/50'
+              }`
+            }
+          >
+            <UserCog className="w-5 h-5" />
+            <span className="truncate">Subadmins</span>
+          </NavLink>
+        )}
       </div>
 
       <div className="px-4 pt-4 mt-auto border-t border-[#eae0d5] space-y-1">
