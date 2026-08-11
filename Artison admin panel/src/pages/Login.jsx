@@ -50,7 +50,7 @@ const Login = () => {
             <Lock className="text-white w-8 h-8" />
           </div>
           <h1 className="text-2xl font-bold text-gray-900">Admin Login</h1>
-          <p className="text-gray-500 mt-2">Welcome back to Artisna Dashboard</p>
+          <p className="text-gray-500 mt-2">Welcome back to Kalakosh Dashboard</p>
         </div>
 
         {error && (

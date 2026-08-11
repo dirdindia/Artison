@@ -167,7 +167,7 @@ export default function Checkout() {
         key: key_id,
         amount: orderData.amount,
         currency: orderData.currency,
-        name: "Artisna",
+        name: "Kalakosh",
         description: "Order Payment",
         order_id: orderData.id,
         handler: verifyPayment, 

@@ -5,12 +5,12 @@ const CartContext = createContext(null);
 
 export function CartProvider({ children }) {
   const [cart, setCart] = useState(() => {
-    const saved = localStorage.getItem("artisana-cart");
+    const saved = localStorage.getItem("kalakosh-cart");
     return saved ? JSON.parse(saved) : [];
   });
 
   useEffect(() => {
-    localStorage.setItem("artisana-cart", JSON.stringify(cart));
+    localStorage.setItem("kalakosh-cart", JSON.stringify(cart));
   }, [cart]);
 
   const addToCart = (product) => {

@@ -35,7 +35,7 @@ export default function Signup() {
         <div className="absolute inset-0 bg-gradient-to-t from-background/90 via-background/20 to-transparent" />
         <div className="absolute bottom-10 left-10 text-primary-foreground max-w-md">
           <h2 className="font-display text-4xl font-bold leading-tight">Share your vision with the world.</h2>
-          <p className="mt-4 text-primary-foreground/80">Join Artisana to discover, collect, and sell extraordinary original artwork.</p>
+          <p className="mt-4 text-primary-foreground/80">Join Kalakosh to discover, collect, and sell extraordinary original artwork.</p>
         </div>
       </div>
 

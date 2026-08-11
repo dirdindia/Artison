@@ -314,16 +314,16 @@ const razorpayWebhook = async (req, res) => {
         const mailOptions = {
           from: process.env.EMAIL_USER,
           to: email,
-          subject: 'Payment Failed - Artisna',
+          subject: 'Payment Failed - Kalakosh',
           html: `
             <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #eee; border-radius: 10px;">
               <h2 style="color: #e53e3e; text-align: center;">Payment Failed</h2>
               <p>Hi there,</p>
-              <p>We noticed that your recent payment attempt for order <strong>#${razorpayOrderId}</strong> on Artisna was unsuccessful.</p>
+              <p>We noticed that your recent payment attempt for order <strong>#${razorpayOrderId}</strong> on Kalakosh was unsuccessful.</p>
               <p>Don't worry! Your cart is still saved. You can return to the website and try checking out again.</p>
               <br/>
               <p>If you face any issues, feel free to contact our support team.</p>
-              <p>Best regards,<br/>The Artisna Team</p>
+              <p>Best regards,<br/>The Kalakosh Team</p>
             </div>
           `
         };

@@ -7,7 +7,7 @@ const AuthContext = createContext(null);
 
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(() => {
-    const saved = localStorage.getItem("artisana-user");
+    const saved = localStorage.getItem("kalakosh-user");
     return saved ? JSON.parse(saved) : null;
   });
 
@@ -16,9 +16,9 @@ export function AuthProvider({ children }) {
 
   useEffect(() => {
     if (user) {
-      localStorage.setItem("artisana-user", JSON.stringify(user));
+      localStorage.setItem("kalakosh-user", JSON.stringify(user));
     } else {
-      localStorage.removeItem("artisana-user");
+      localStorage.removeItem("kalakosh-user");
     }
   }, [user]);
 

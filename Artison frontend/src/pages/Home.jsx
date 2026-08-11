@@ -22,9 +22,9 @@ const perks = [
 
 
 const testimonials = [
-{ name: "Priya S.", role: "Collector, Mumbai", quote: "Found my favorite living room piece here. The packaging and finish were museum quality." },
-{ name: "Arjun M.", role: "Designer, Bengaluru", quote: "I commission 3D art from Riya every quarter. Artisana made discovery so easy." },
-{ name: "Neha K.", role: "Architect, Delhi", quote: "Love that I support independent painters directly. Pricing feels fair and transparent." }];
+{ name: "Priya S.", role: "Collector, Mumbai", quote: "The quality and authenticity guaranteed by Kalakosh is unmatched. My living room feels alive now." },
+{ name: "Arjun M.", role: "Designer, Bengaluru", quote: "I commission 3D art from Riya every quarter. Kalakosh made discovery so easy." },
+{ name: "Neha K.", role: "Art Enthusiast, Delhi", quote: "Found the perfect abstract piece for my new office. The direct connection with artists is wonderful." }];
 
 const categoryDescriptions = {
   "Local Art": "Step into the world of timeless craftsmanship, where every brushstroke and pattern carries the soul of a community. Discover authentic folk and tribal art that celebrates heritage, stories, and traditions passed down through generations.",
@@ -41,7 +41,7 @@ const factsData = [
   { title: "Terracotta – Earth Shaped into Art", desc: "From humble clay emerge timeless sculptures, pottery, and decorative pieces. Terracotta is proof that the simplest elements of nature can become extraordinary works of art.", image: "/Terracotta.jpg.jpeg" },
   { title: "Madhubani – Stories in Every Stroke", desc: "Originating in Bihar, Madhubani Art is known for its bold colours, intricate patterns, and mythological themes. Every painting is a visual story waiting to be discovered.", image: "/Madhubani.jpg.jpeg" },
   { title: "Sikki Grass Craft – Woven with Gold", desc: "Made from the naturally golden Sikki grass of Bihar, these handcrafted creations blend beauty with utility, preserving a tradition passed down through generations.", image: "/Sikki Grass Craft.jpg.jpeg" },
-  { title: "Manjusha Art – Where Folklore Comes Alive", desc: "Inspired by the legendary tale of Bihula and Bishahari, Manjusha Art is one of Bihar's most distinctive painting styles, recognised for its vibrant borders and expressive storytelling.", image: "/Manjusha art.jpg.jpeg" },
+  { title: "Manjusha Art – Where Folklore Comes Alive", desc: "Inspired by the legendary tale of Bihula and Bishahari, Manjusha Art is one of Bihar's most distinctive painting styles, recognised for its vibrant borders and expressive storytelling.", image: "/Manjusha art.jpeg" },
   { title: "Tikuli Art – A Tradition Reimagined", desc: "Once used to decorate bindis, Tikuli Art has evolved into stunning paintings on hardboard, combining intricate detailing with brilliant colours and timeless elegance.", image: "/tikuli art.jpg.jpeg" },
   { title: "3D Art – Creativity Beyond the Canvas", desc: "Art no longer lives only on flat surfaces. Through depth, texture, and perspective, 3D art transforms imagination into immersive visual experiences.", image: "/3D art.jpg.jpeg" },
   { title: "Sculptures – Where Stone Finds a Soul", desc: "A sculpture is more than a carved form—it's emotion, movement, and imagination frozen in time, inviting every viewer to see a story from a new perspective.", image: "/sculpture art.jpg.jpeg" },
@@ -814,7 +814,7 @@ export default function Home() {
             </button>
             <div className="mb-6">
               <h3 className="font-display text-2xl font-bold">Share your feedback</h3>
-              <p className="text-sm text-muted-foreground mt-1">We'd love to hear your thoughts about Artisana.</p>
+              <p className="text-sm text-muted-foreground mt-1">We'd love to hear your thoughts about Kalakosh.</p>
             </div>
             <form
               onSubmit={async (e) => {

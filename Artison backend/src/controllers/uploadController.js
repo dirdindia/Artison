@@ -4,7 +4,7 @@ const uploadToCloudinary = async (fileBuffer, mimetype) => {
   const b64 = Buffer.from(fileBuffer).toString("base64");
   const dataURI = "data:" + mimetype + ";base64," + b64;
   return await cloudinary.uploader.upload(dataURI, {
-    folder: 'artisna',
+    folder: 'kalakosh',
     resource_type: 'auto', // Automatically detects image, video, or raw (doc)
   });
 };

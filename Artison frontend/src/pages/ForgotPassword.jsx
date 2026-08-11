@@ -52,7 +52,7 @@ export default function ForgotPassword() {
       <div className="hidden lg:block lg:w-1/2 relative overflow-hidden bg-canvas">
         <img 
           src="https://images.unsplash.com/photo-1547826039-bfc35e0f1ea8?auto=format&fit=crop&w=1200&q=80" 
-          alt="Artisana Gallery" 
+          alt="Kalakosh Gallery" 
           className="absolute inset-0 h-full w-full object-cover opacity-90"
         />
         <div className="absolute inset-0 bg-gradient-to-t from-background/80 via-transparent to-transparent" />
