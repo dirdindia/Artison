@@ -34,9 +34,7 @@ const getInvoiceHtml = async (order) => {
         <!-- Header -->
         <div style="display: flex; border-bottom: 1px solid #000; padding: 10px;">
           <div style="width: 25%; display: flex; align-items: center; justify-content: center; border-right: 1px solid #000;">
-            <div style="width: 60px; height: 60px; background: #000; color: #fff; display: flex; align-items: center; justify-content: center; font-family: 'Playfair Display', serif; font-size: 36px; font-weight: bold; border-radius: 4px;">
-              ${storeName.charAt(0)}
-            </div>
+            <img src="/logo.png" alt="Kalakosh Logo" style="max-width: 100px; max-height: 80px; object-fit: contain;" />
           </div>
           <div style="width: 50%; text-align: center; padding: 0 10px;">
             <h1 style="margin: 0; font-size: 24px; letter-spacing: 1px; font-weight: bold;">${storeName}</h1>

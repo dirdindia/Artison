@@ -231,12 +231,14 @@ export default function Categories() {
                   {activeItem.description}
                 </p>
               )}
-              <Link 
-                to={exploreUrl}
-                className="mt-8 md:mt-10 text-primary font-medium hover:text-primary/80 flex items-center gap-3 w-fit text-lg md:text-xl group bg-primary/5 hover:bg-primary/10 px-6 py-3 rounded-full transition-colors"
-              >
-                {exploreText} <ChevronRight className="h-5 w-5 transition-transform group-hover:translate-x-1" />
-              </Link>
+              {!hoveredSubCategory && (
+                <Link 
+                  to={exploreUrl}
+                  className="mt-8 md:mt-10 text-primary font-medium hover:text-primary/80 flex items-center gap-3 w-fit text-lg md:text-xl group bg-primary/5 hover:bg-primary/10 px-6 py-3 rounded-full transition-colors"
+                >
+                  {exploreText} <ChevronRight className="h-5 w-5 transition-transform group-hover:translate-x-1" />
+                </Link>
+              )}
             </div>
           )}
         </div>

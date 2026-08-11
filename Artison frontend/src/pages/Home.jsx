@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { Link } from "react-router-dom";
 import { motion, useScroll, useTransform, AnimatePresence } from "framer-motion";
-import { ArrowRight, Sparkles, Palette, Truck, ShieldCheck, Star, Quote, Mail, X, ChevronDown, MessageSquare, ChevronLeft, ChevronRight } from "lucide-react";
+import { ArrowRight, Sparkles, Palette, Truck, ShieldCheck, Star, Quote, Mail, X, ChevronDown, MessageSquare, ChevronLeft, ChevronRight, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { AppShell } from "@/components/AppShell";
 import { ProductCard } from "@/components/ProductCard";
@@ -52,6 +52,27 @@ const factsData = [
 export default function Home() {
   const [categoriesData, setCategoriesData] = useState([]);
   const [activeCategoryIndex, setActiveCategoryIndex] = useState(0);
+  const [subCategoriesCache, setSubCategoriesCache] = useState({});
+  const [hoveredSubCategory, setHoveredSubCategory] = useState(null);
+  const [loadingSubCategories, setLoadingSubCategories] = useState(false);
+
+  const handleCategoryHover = async (c, idx) => {
+    setActiveCategoryIndex(idx);
+    setHoveredSubCategory(null);
+    if (!subCategoriesCache[c._id]) {
+      setLoadingSubCategories(true);
+      try {
+        const res = await api.get(`/subcategories?category=${c._id}&limit=50`);
+        if (res.data && res.data.data) {
+          setSubCategoriesCache(prev => ({ ...prev, [c._id]: res.data.data }));
+        }
+      } catch (err) {
+        console.error("Failed to fetch sub-categories", err);
+      } finally {
+        setLoadingSubCategories(false);
+      }
+    }
+  };
   const [activeFactIndex, setActiveFactIndex] = useState(0);
   const [showNewsletterPopup, setShowNewsletterPopup] = useState(false);
   const [showFeedbackModal, setShowFeedbackModal] = useState(false);
@@ -280,19 +301,57 @@ export default function Home() {
             {/* Left side: List of Categories */}
             <div className="md:col-span-5 flex flex-col justify-top pr-0 md:pr-8">
               {categoriesData.slice(0, 5).map((c, idx) => (
-                <motion.div
-                  initial={{ opacity: 0, x: -30 }}
-                  whileInView={{ opacity: 1, x: 0 }}
-                  viewport={{ once: true }}
-                  transition={{ duration: 0.5, delay: idx * 0.15 }}
-                  key={c._id || c.name}
-                  onMouseEnter={() => setActiveCategoryIndex(idx)}
-                  onClick={() => setActiveCategoryIndex(idx)}
-                  className={`group flex items-center justify-between py-6 cursor-pointer transition-colors duration-300 border-b border-border/50 last:border-0 ${activeCategoryIndex === idx ? 'text-primary' : 'text-muted-foreground hover:text-foreground'}`}
-                >
-                  <span className={`font-display text-2xl md:text-3xl font-bold transition-transform duration-300 ${activeCategoryIndex === idx ? 'translate-x-2' : 'group-hover:translate-x-1'}`} style={{ fontFamily: "'Dancing Script', cursive",fontWeight:"bold" }}>{c.name}</span>
-                  <ArrowRight className={`h-6 w-6 transition-all duration-300 ${activeCategoryIndex === idx ? 'opacity-100 -translate-x-2' : 'opacity-0 translate-x-2 group-hover:opacity-50 group-hover:translate-x-0'}`} />
-                </motion.div>
+                <div key={c._id || c.name} className="flex flex-col border-b border-border/50 last:border-0">
+                  <motion.div
+                    initial={{ opacity: 0, x: -30 }}
+                    whileInView={{ opacity: 1, x: 0 }}
+                    viewport={{ once: true }}
+                    transition={{ duration: 0.5, delay: idx * 0.15 }}
+                    onMouseEnter={() => handleCategoryHover(c, idx)}
+                    onClick={() => handleCategoryHover(c, idx)}
+                    className={`group flex items-center justify-between py-6 cursor-pointer transition-colors duration-300 ${activeCategoryIndex === idx ? 'text-primary' : 'text-muted-foreground hover:text-foreground'}`}
+                  >
+                    <span className={`font-display text-2xl md:text-3xl font-bold transition-transform duration-300 ${activeCategoryIndex === idx ? 'translate-x-2' : 'group-hover:translate-x-1'}`} style={{ fontFamily: "'Dancing Script', cursive",fontWeight:"bold" }}>{c.name}</span>
+                    <ArrowRight className={`h-6 w-6 transition-all duration-300 ${activeCategoryIndex === idx ? 'opacity-100 -translate-x-2' : 'opacity-0 translate-x-2 group-hover:opacity-50 group-hover:translate-x-0'}`} />
+                  </motion.div>
+                  <AnimatePresence>
+                    {activeCategoryIndex === idx && loadingSubCategories && !subCategoriesCache[c._id] && (
+                      <motion.div
+                        initial={{ opacity: 0, height: 0 }}
+                        animate={{ opacity: 1, height: "auto" }}
+                        exit={{ opacity: 0, height: 0 }}
+                        className="flex items-center gap-2 pl-4 pb-6 text-muted-foreground/60"
+                      >
+                        <Loader2 className="h-5 w-5 animate-spin" />
+                        <span className="text-sm font-medium">Loading...</span>
+                      </motion.div>
+                    )}
+                    {activeCategoryIndex === idx && subCategoriesCache[c._id]?.length > 0 && (
+                      <motion.div
+                        initial={{ opacity: 0, height: 0 }}
+                        animate={{ opacity: 1, height: "auto" }}
+                        exit={{ opacity: 0, height: 0 }}
+                        className="flex flex-col gap-3 pl-4 pb-6 overflow-hidden"
+                      >
+                        {subCategoriesCache[c._id].map(sub => (
+                          <Link
+                            key={sub._id}
+                            to={`/explore?subCategory=${sub._id}&subCategoryName=${encodeURIComponent(sub.name)}`}
+                            onMouseEnter={() => setHoveredSubCategory(sub)}
+                            onMouseLeave={() => setHoveredSubCategory(null)}
+                            className={`font-display text-lg md:text-xl transition-all duration-300 inline-block w-fit ${
+                              hoveredSubCategory?._id === sub._id 
+                              ? 'text-primary translate-x-2 font-semibold' 
+                              : 'text-muted-foreground/60 hover:text-foreground/90 font-medium'
+                            }`}
+                          >
+                            {sub.name}
+                          </Link>
+                        ))}
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+                </div>
               ))}
             </div>
             
@@ -300,9 +359,21 @@ export default function Home() {
             <div className="md:col-span-7 relative h-[300px] md:h-[500px] rounded-[2rem] overflow-hidden bg-zinc-100 shadow-xl group block">
                 {(() => {
                   const activeCat = categoriesData[activeCategoryIndex] || categoriesData[0];
+                  const displayItem = hoveredSubCategory || activeCat;
+                  const linkUrl = hoveredSubCategory 
+                    ? `/explore?subCategory=${hoveredSubCategory._id}&subCategoryName=${encodeURIComponent(hoveredSubCategory.name)}`
+                    : `/explore?category=${activeCat._id}&categoryName=${encodeURIComponent(activeCat.name)}`;
+                  
                   return (
-                    <Link to={`/explore?category=${activeCat._id}&categoryName=${encodeURIComponent(activeCat.name)}`} className="block w-full h-full relative">
-                      {activeCat.image ? (
+                    <Link to={linkUrl} className="block w-full h-full relative">
+                      {displayItem.image ? (
+                        <img 
+                          key={displayItem._id}
+                          src={displayItem.image} 
+                          alt={displayItem.name} 
+                          className="absolute inset-0 w-full h-full object-cover transition-transform duration-1000 hover:scale-105 animate-in fade-in duration-500" 
+                        />
+                      ) : activeCat.image ? (
                         <img 
                           key={activeCat._id}
                           src={activeCat.image} 
@@ -318,16 +389,18 @@ export default function Home() {
                       {/* Gradient overlay */}
                       <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
                       
-                      <div className="absolute bottom-0 left-0 p-6 md:p-10 text-white w-full">
-                        <h3 className="font-display text-3xl md:text-5xl font-bold mb-2 md:mb-3">{activeCat.name}</h3>
-                        {(categoryDescriptions[activeCat.name] || activeCat.description) && (
+                      <div className="absolute bottom-0 left-0 p-6 md:p-10 text-white w-full z-10">
+                        <h3 className="font-display text-3xl md:text-5xl font-bold mb-2 md:mb-3">{displayItem.name}</h3>
+                        {(categoryDescriptions[displayItem.name] || displayItem.description || categoryDescriptions[activeCat.name] || activeCat.description) && (
                           <p className="text-white/90 text-sm md:text-lg line-clamp-3 max-w-xl font-medium">
-                            {categoryDescriptions[activeCat.name] || activeCat.description}
+                            {categoryDescriptions[displayItem.name] || displayItem.description || categoryDescriptions[activeCat.name] || activeCat.description}
                           </p>
                         )}
-                        <span className="mt-4 md:mt-6 inline-flex items-center gap-2 rounded-xl bg-white px-5 py-2.5 text-sm font-bold text-black shadow-lg transition-transform hover:-translate-y-1">
-                          Explore {activeCat.name} <ArrowRight className="h-4 w-4" />
-                        </span>
+                        {!hoveredSubCategory && (
+                          <span className="mt-4 md:mt-6 inline-flex items-center gap-2 rounded-xl bg-white px-5 py-2.5 text-sm font-bold text-black shadow-lg transition-transform hover:-translate-y-1">
+                            Explore {displayItem.name} <ArrowRight className="h-4 w-4" />
+                          </span>
+                        )}
                       </div>
                     </Link>
                   )
