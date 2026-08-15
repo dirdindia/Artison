@@ -19,6 +19,8 @@ import About from "./pages/About";
 import Shipping from "./pages/Shipping";
 import Returns from "./pages/Returns";
 import ContactUs from "./pages/ContactUs";
+import PrivacyPolicy from "./pages/PrivacyPolicy";
+import TermsOfService from "./pages/TermsOfService";
 
 // Simple route guard for protected routes
 function ProtectedRoute({ children }) {
@@ -50,6 +52,8 @@ function App() {
             <Route path="/shipping" element={<Shipping />} />
             <Route path="/returns" element={<Returns />} />
             <Route path="/contact" element={<ContactUs />} />
+            <Route path="/privacy-policy" element={<PrivacyPolicy />} />
+            <Route path="/terms-of-service" element={<TermsOfService />} />
             
             {/* Protected Routes */}
             <Route 

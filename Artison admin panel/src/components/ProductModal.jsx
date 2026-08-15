@@ -464,8 +464,8 @@ export default function ProductModal({ isOpen, onClose, product, onSuccess, isVi
               <div className="space-y-6 animate-in fade-in slide-in-from-bottom-2 duration-300">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                   <div className="space-y-1.5">
-                    <label htmlFor="weight" className="block text-sm font-medium text-[#5a4d4d]">Weight (kg)</label>
-                    <input type="number" step="0.01" name="weight" value={formData.weight} onChange={handleChange} id="weight" placeholder="e.g., 2.5" disabled={isViewMode} className="w-full bg-[#fdfbf7] border border-[#eae0d5] rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#c39a5c]/20 focus:border-[#c39a5c] transition-colors disabled:bg-gray-50 disabled:text-gray-500" />
+                    <label htmlFor="weight" className="block text-sm font-medium text-[#5a4d4d]">Weight (grams)</label>
+                    <input type="number" step="0.01" name="weight" value={formData.weight} onChange={handleChange} id="weight" placeholder="e.g., 250" disabled={isViewMode} className="w-full bg-[#fdfbf7] border border-[#eae0d5] rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#c39a5c]/20 focus:border-[#c39a5c] transition-colors disabled:bg-gray-50 disabled:text-gray-500" />
                   </div>
                   
                   <div className="space-y-1.5">

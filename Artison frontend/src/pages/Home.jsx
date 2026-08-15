@@ -792,7 +792,7 @@ export default function Home() {
       {/* Floating Share Feedback Button */}
       <button
         onClick={() => setShowFeedbackModal(true)}
-        className="fixed bottom-24 right-4 md:bottom-8 md:right-8 z-40 flex items-center gap-2 rounded-full bg-primary px-4 py-3 text-sm font-semibold text-primary-foreground shadow-xl transition-transform hover:scale-105 hover:shadow-2xl"
+        className="fixed bottom-24 right-4 md:bottom-14 md:right-8 z-40 flex items-center gap-2 rounded-full bg-primary px-4 py-3 text-sm font-semibold text-primary-foreground shadow-xl transition-transform hover:scale-105 hover:shadow-2xl"
       >
         <MessageSquare className="h-5 w-5" />
         <span className="hidden sm:inline">Share Feedback</span>

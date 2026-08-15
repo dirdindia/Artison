@@ -383,8 +383,8 @@ export function AppShell({ children, title, transparentHeader = false }) {
             
             </div>
             <div className="flex gap-6">
-              <a href="#" className="hover:text-foreground transition-colors">Privacy Policy</a>
-              <a href="#" className="hover:text-foreground transition-colors">Terms of Service</a>
+              <Link to="/privacy-policy" className="hover:text-foreground transition-colors">Privacy Policy</Link>
+              <Link to="/terms-of-service" className="hover:text-foreground transition-colors">Terms of Service</Link>
             
             </div>
           </div>
