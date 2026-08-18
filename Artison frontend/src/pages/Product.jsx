@@ -195,7 +195,7 @@ export default function ProductPage() {
               <Spec label="SKU" value={product.sku || "N/A"} />
               <Spec label="Stock" value={product.stock > 0 ? "In Stock" : "Out of Stock"} />
               {product.dimensions && <Spec label="Dimensions" value={product.dimensions} />}
-              {product.weight && <Spec label="Weight" value={`${product.weight} kg`} />}
+              {product.weight && <Spec label="Weight" value={`${product.weight} gms.`} />}
             </div>
 
             <div className="mt-8 md:max-w-lg">

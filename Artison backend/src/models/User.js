@@ -32,8 +32,28 @@ const userSchema = new mongoose.Schema(
     },
     role: {
       type: String,
-      enum: ['user', 'admin', 'subadmin'],
+      enum: ['user', 'admin', 'subadmin', 'artist'],
       default: 'user',
+    },
+    bio: {
+      type: String,
+      default: '',
+    },
+    artCategory: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Category',
+    },
+    artSubcategory: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'SubCategory',
+    },
+    portfolioUrl: {
+      type: String,
+      default: '',
+    },
+    instagramHandle: {
+      type: String,
+      default: '',
     },
     otp: {
       type: String,

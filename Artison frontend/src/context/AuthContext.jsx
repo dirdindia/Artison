@@ -40,9 +40,9 @@ export function AuthProvider({ children }) {
     }
   };
 
-  const signup = async (name, email, password, phone, role) => {
+  const signup = async (name, email, password, phone, role, extraFields = {}) => {
     try {
-      const { data } = await api.post('/auth/signup', { name, email, password, phone, role });
+      const { data } = await api.post('/auth/signup', { name, email, password, phone, role, ...extraFields });
       if (data.success) {
         localStorage.setItem('token', data.data.token);
         setUser(data.data.user);

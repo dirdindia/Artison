@@ -132,6 +132,13 @@ export default function Signup() {
               Sign in
             </Link>
           </p>
+
+          <p className="text-center text-sm text-muted-foreground mt-2">
+            Are you an artist?{" "}
+            <Link to="/artist/signup" className="font-semibold text-primary hover:underline">
+              Join as an Artist
+            </Link>
+          </p>
         </div>
       </div>
     </div>

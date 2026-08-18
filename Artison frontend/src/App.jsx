@@ -6,13 +6,14 @@ import Home from "./pages/Home";
 import Explore from "./pages/Explore";
 import Cart from "./pages/Cart";
 import Product from "./pages/Product";
-import Profile from "./pages/Profile";
-import Login from "./pages/Login";
-import Signup from "./pages/Signup";
+import Profile from "./pages/user/Profile";
+import Login from "./pages/user/Login";
+import Signup from "./pages/user/Signup";
 import Categories from "./pages/Categories";
 import SubCategories from "./pages/SubCategories";
 import Checkout from "./pages/Checkout";
-import ForgotPassword from "./pages/ForgotPassword";
+import ArtistSignup from "./pages/artist/ArtistSignup";
+import ForgotPassword from "./pages/user/ForgotPassword";
 import Featured from "./pages/Featured";
 import Trending from "./pages/Trending";
 import About from "./pages/About";
@@ -47,6 +48,7 @@ function App() {
             <Route path="/product/:id" element={<Product />} />
             <Route path="/login" element={<Login />} />
             <Route path="/signup" element={<Signup />} />
+            <Route path="/artist/signup" element={<ArtistSignup />} />
             <Route path="/forgot-password" element={<ForgotPassword />} />
             <Route path="/about" element={<About />} />
             <Route path="/shipping" element={<Shipping />} />

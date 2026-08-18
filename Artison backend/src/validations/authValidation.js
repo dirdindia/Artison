@@ -19,7 +19,13 @@ const signupValidation = Joi.object({
     'string.empty': 'Password is required',
     'any.required': 'Password is required',
   }),
-  role: Joi.string().valid('user', 'admin').optional(),
+  role: Joi.string().valid('user', 'admin', 'artist').optional(),
+  bio: Joi.string().allow('').optional(),
+  artCategory: Joi.string().allow('').optional(),
+  artSubcategory: Joi.string().allow('').optional(),
+  portfolioUrl: Joi.string().uri().allow('').optional(),
+  instagramHandle: Joi.string().allow('').optional(),
+  avatar: Joi.string().allow('').optional(),
 });
 
 module.exports = {

@@ -32,7 +32,7 @@ const signupUser = async (req, res) => {
       return res.status(400).json({ success: false, message: error.details[0].message });
     }
 
-    const { name, email, password, phone, role } = req.body;
+    const { name, email, password, phone, role, bio, artCategory, artSubcategory, portfolioUrl, instagramHandle, avatar } = req.body;
 
     const userExists = await User.findOne({ email });
     if (userExists) {
@@ -48,6 +48,12 @@ const signupUser = async (req, res) => {
       password: hashedPassword,
       phone,
       role: role || 'user',
+      bio,
+      artCategory: artCategory || undefined,
+      artSubcategory: artSubcategory || undefined,
+      portfolioUrl,
+      instagramHandle,
+      avatar,
     });
 
     if (user) {
@@ -71,6 +77,13 @@ const signupUser = async (req, res) => {
             avatar: user.avatar,
             address: user.address,
             hasSetPassword: user.hasSetPassword,
+            ...(user.role === 'artist' && {
+              bio: user.bio,
+              artCategory: user.artCategory,
+              artSubcategory: user.artSubcategory,
+              portfolioUrl: user.portfolioUrl,
+              instagramHandle: user.instagramHandle,
+            }),
           },
         },
       });
