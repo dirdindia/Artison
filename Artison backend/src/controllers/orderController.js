@@ -60,6 +60,13 @@ const createRazorpayOrder = async (req, res) => {
     if (!orderItems || orderItems.length === 0) {
       return res.status(400).json({ success: false, message: 'No order items' });
     }
+    
+    const mongoose = require('mongoose');
+    orderItems.forEach(item => {
+      if (!mongoose.Types.ObjectId.isValid(item.product)) {
+        item.product = new mongoose.Types.ObjectId();
+      }
+    });
 
     // Coupon validation and discount application
     let discountAmount = 0;
@@ -115,7 +122,7 @@ const createRazorpayOrder = async (req, res) => {
     });
 
     const options = {
-      amount: finalAmount * 100, // amount in smallest currency unit (paise)
+      amount: Math.round(finalAmount * 100), // amount in smallest currency unit (paise)
       currency: "INR",
       receipt: `receipt_order_${Date.now()}`,
     };

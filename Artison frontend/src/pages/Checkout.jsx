@@ -62,7 +62,7 @@ export default function Checkout() {
   }, [user, step]);
 
   const subtotal = cart.reduce((s, c) => s + c.product.price * c.qty, 0);
-  const shipping = cart.length ? 499 : 0;
+  const shipping = cart.length ? 0 : 0;
   const taxAmount = (subtotal * taxRate) / 100;
   const initialTotal = subtotal + shipping + taxAmount;
   const discountAmount = appliedCoupon ? appliedCoupon.discountAmount : 0;
@@ -108,7 +108,7 @@ export default function Checkout() {
   };
 
   const getFormattedCartItems = () => cart.map(item => ({
-    name: item.product.name,
+    name: item.product.name || item.product.title,
     qty: item.qty,
     image: item.product.image || (item.product.images && item.product.images[0]) || "",
     price: item.product.price,

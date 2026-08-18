@@ -26,7 +26,7 @@ export default function CartPage() {
   }, []);
 
   const subtotal = cart.reduce((s, c) => s + c.product.price * c.qty, 0);
-  const shipping = cart.length ? 499 : 0;
+  const shipping = cart.length ? 0 : 0;
   const taxAmount = (subtotal * taxRate) / 100;
   const total = subtotal + shipping + taxAmount;
 
