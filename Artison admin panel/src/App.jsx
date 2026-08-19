@@ -19,6 +19,7 @@ import Reviews from './pages/Reviews';
 import Feedbacks from './pages/Feedbacks';
 import ContactMessages from './pages/ContactMessages';
 import SubAdmins from './pages/SubAdmins';
+import Artists from './pages/Artists';
 
 // Placeholder component for other routes
 const Placeholder = ({ title }) => (
@@ -45,6 +46,7 @@ function App() {
             <Route path="coupons" element={<Coupons />} />
             <Route path="orders" element={<Orders />} />
             <Route path="customers" element={<Customers />} />
+            <Route path="artists" element={<Artists />} />
             <Route path="tickets" element={<Tickets />} />
             <Route path="marketing" element={<Marketing />} />
             <Route path="review" element={<Reviews />} />

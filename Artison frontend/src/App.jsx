@@ -13,6 +13,12 @@ import Categories from "./pages/Categories";
 import SubCategories from "./pages/SubCategories";
 import Checkout from "./pages/Checkout";
 import ArtistSignup from "./pages/artist/ArtistSignup";
+import ArtistLayout from "./pages/artist/ArtistLayout";
+import ArtistDashboard from "./pages/artist/Dashboard";
+import ArtistArtworks from "./pages/artist/Artworks";
+import ArtistOrders from "./pages/artist/Orders";
+import ArtistEarnings from "./pages/artist/Earnings";
+import ArtistSettings from "./pages/artist/Settings";
 import ForgotPassword from "./pages/user/ForgotPassword";
 import Featured from "./pages/Featured";
 import Trending from "./pages/Trending";
@@ -28,6 +34,18 @@ function ProtectedRoute({ children }) {
   const { isAuthenticated } = useAuth();
   if (!isAuthenticated) {
     return <Navigate to="/login" replace />;
+  }
+  return children;
+}
+
+// Route guard for artists
+function ArtistRoute({ children }) {
+  const { isAuthenticated, user } = useAuth();
+  if (!isAuthenticated) {
+    return <Navigate to="/login" replace />;
+  }
+  if (user?.role !== 'artist') {
+    return <Navigate to="/" replace />;
   }
   return children;
 }
@@ -67,6 +85,22 @@ function App() {
               } 
             />
             <Route path="/checkout" element={<Checkout />} />
+
+            {/* Artist Routes */}
+            <Route 
+              path="/artist" 
+              element={
+                <ArtistRoute>
+                  <ArtistLayout />
+                </ArtistRoute>
+              }
+            >
+              <Route path="dashboard" element={<ArtistDashboard />} />
+              <Route path="artworks" element={<ArtistArtworks />} />
+              <Route path="orders" element={<ArtistOrders />} />
+              <Route path="earnings" element={<ArtistEarnings />} />
+              <Route path="settings" element={<ArtistSettings />} />
+            </Route>
           </Routes>
           <Toaster richColors position="top-right" />
         </CartProvider>

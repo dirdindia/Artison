@@ -14,6 +14,7 @@ import {
   LogOut,
   Award,
   LifeBuoy,
+  Palette,
   Star,
   Mail,
   UserCog
@@ -29,6 +30,7 @@ const MENU_ITEMS = [
   { name: 'Coupons', path: '/coupons', icon: Tag },
   { name: 'Orders', path: '/orders', icon: ShoppingCart },
   { name: 'Customers', path: '/customers', icon: Users },
+  { name: 'Artists', path: '/artists', icon: Palette },
   { name: 'Tickets', path: '/tickets', icon: LifeBuoy },
   { name: 'Marketing', path: '/marketing', icon: Megaphone },
   { name: 'Reviews', path: '/review', icon: Star },

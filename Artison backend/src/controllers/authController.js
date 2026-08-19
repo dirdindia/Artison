@@ -48,6 +48,7 @@ const signupUser = async (req, res) => {
       password: hashedPassword,
       phone,
       role: role || 'user',
+      isApproved: role === 'artist' ? false : true,
       bio,
       artCategory: artCategory || undefined,
       artSubcategory: artSubcategory || undefined,
@@ -57,36 +58,46 @@ const signupUser = async (req, res) => {
     });
 
     if (user) {
-      const token = jwt.sign(
-        { id: user._id, email: user.email, role: user.role },
-        process.env.JWT_SECRET,
-        { expiresIn: '1d' }
-      );
-
-      res.status(201).json({
-        success: true,
-        message: 'User registered successfully',
-        data: {
-          token,
-          user: {
-            _id: user._id,
-            name: user.name,
-            email: user.email,
-            phone: user.phone,
-            role: user.role,
-            avatar: user.avatar,
-            address: user.address,
-            hasSetPassword: user.hasSetPassword,
-            ...(user.role === 'artist' && {
-              bio: user.bio,
-              artCategory: user.artCategory,
-              artSubcategory: user.artSubcategory,
-              portfolioUrl: user.portfolioUrl,
-              instagramHandle: user.instagramHandle,
-            }),
+      if (user.role === 'artist') {
+        // Do not issue a token for artists as they need approval
+        res.status(201).json({
+          success: true,
+          message: 'Artist registered successfully. Pending admin approval.',
+          data: {
+            user: {
+              _id: user._id,
+              name: user.name,
+              email: user.email,
+              role: user.role,
+              isApproved: user.isApproved,
+            },
           },
-        },
-      });
+        });
+      } else {
+        const token = jwt.sign(
+          { id: user._id, email: user.email, role: user.role },
+          process.env.JWT_SECRET,
+          { expiresIn: '1d' }
+        );
+
+        res.status(201).json({
+          success: true,
+          message: 'User registered successfully',
+          data: {
+            token,
+            user: {
+              _id: user._id,
+              name: user.name,
+              email: user.email,
+              phone: user.phone,
+              role: user.role,
+              avatar: user.avatar,
+              address: user.address,
+              hasSetPassword: user.hasSetPassword,
+            },
+          },
+        });
+      }
     } else {
       res.status(400).json({ success: false, message: 'Invalid user data' });
     }
@@ -142,6 +153,10 @@ const loginUser = async (req, res) => {
     const user = await User.findOne({ email });
 
     if (user && (await bcrypt.compare(password, user.password))) {
+      if (user.role === 'artist' && !user.isApproved) {
+        return res.status(403).json({ success: false, message: 'Your account is pending approval by an admin.' });
+      }
+
       const token = jwt.sign(
         { id: user._id, email: user.email, role: user.role }, 
         process.env.JWT_SECRET, 

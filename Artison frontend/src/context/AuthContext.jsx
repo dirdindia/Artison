@@ -29,8 +29,12 @@ export function AuthProvider({ children }) {
         localStorage.setItem('token', data.data.token);
         setUser(data.data.user);
         toast.success(data.message || "Welcome back!");
-        const from = location.state?.from?.pathname || "/";
-        navigate(from, { replace: true });
+        if (data.data.user.role === 'artist') {
+          navigate("/artist/dashboard", { replace: true });
+        } else {
+          const from = location.state?.from?.pathname || "/";
+          navigate(from, { replace: true });
+        }
         return data.data.user;
       }
     } catch (error) {
@@ -44,11 +48,17 @@ export function AuthProvider({ children }) {
     try {
       const { data } = await api.post('/auth/signup', { name, email, password, phone, role, ...extraFields });
       if (data.success) {
-        localStorage.setItem('token', data.data.token);
-        setUser(data.data.user);
-        toast.success(data.message || "Account created successfully!");
-        navigate("/");
-        return data.data.user;
+        if (data.data.token) {
+          localStorage.setItem('token', data.data.token);
+          setUser(data.data.user);
+          toast.success(data.message || "Account created successfully!");
+          navigate("/");
+          return data.data.user;
+        } else {
+          toast.success(data.message || "Account created successfully! Pending approval.");
+          navigate("/login");
+          return null;
+        }
       }
     } catch (error) {
       const msg = error.response?.data?.message || "Signup failed";
