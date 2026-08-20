@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { PlusCircle, Edit2, Trash2, Image as ImageIcon, ChevronLeft, ChevronRight, Search, Eye } from 'lucide-react';
+import { PlusCircle, Edit2, Trash2, Image as ImageIcon, ChevronLeft, ChevronRight, Search, Eye, CheckCircle, XCircle } from 'lucide-react';
 import api from '../utils/api';
 import Alert from '../utils/Alert';
 import { useConfirm } from '../context/ConfirmContext';
@@ -33,6 +33,8 @@ const Products = () => {
     try {
       let url = `/products?page=${currentPage}&limit=10&search=${search}`;
       if (tab === 'lowStock') url += `&lowStock=true`;
+      if (tab === 'pending') url += `&approvalStatus=pending`;
+      else if (tab === 'all') url += `&approvalStatus=all`; // Request all including pending
       if (cat) url += `&category=${cat}`;
 
       const response = await api.get(url);
@@ -101,6 +103,26 @@ const Products = () => {
     }
   };
 
+  const handleVerify = async (id, status) => {
+    const action = status === 'approved' ? 'approve' : 'reject';
+    const isConfirmed = await confirm({
+      title: `${action.charAt(0).toUpperCase() + action.slice(1)} Artwork`,
+      message: `Are you sure you want to ${action} this artwork?`,
+      confirmText: 'Yes',
+      type: status === 'approved' ? 'success' : 'danger'
+    });
+
+    if (isConfirmed) {
+      try {
+        await api.patch(`/products/${id}/verify`, { status });
+        Alert.success('Success', `Artwork ${status} successfully`);
+        fetchProducts(page);
+      } catch (error) {
+        Alert.error('Error', `Failed to ${action} artwork`);
+      }
+    }
+  };
+
   const openAddModal = () => {
     setEditingProduct(null);
     setIsViewMode(false);
@@ -146,6 +168,12 @@ const Products = () => {
             All Products
           </button>
           <button 
+            onClick={() => { setActiveTab('pending'); setPage(1); }}
+            className={`px-4 py-2 border-b-2 font-medium text-sm transition-colors ${activeTab === 'pending' ? 'border-[#c39a5c] text-[#c39a5c]' : 'border-transparent text-gray-500 hover:text-gray-700'}`}
+          >
+            Pending Approvals
+          </button>
+          <button 
             onClick={() => { setActiveTab('lowStock'); setPage(1); }}
             className={`px-4 py-2 border-b-2 font-medium text-sm transition-colors ${activeTab === 'lowStock' ? 'border-[#c39a5c] text-[#c39a5c]' : 'border-transparent text-gray-500 hover:text-gray-700'}`}
           >
@@ -187,7 +215,7 @@ const Products = () => {
                 <th className="px-6 py-4">SubCategory</th>
                 <th className="px-6 py-4">Price</th>
                 <th className="px-6 py-4">Stock</th>
-                <th className="px-6 py-4">Status</th>
+                <th className="px-6 py-4">Status & Approval</th>
                 <th className="px-6 py-4 text-right">Actions</th>
               </tr>
             </thead>
@@ -232,13 +260,29 @@ const Products = () => {
                         )}
                       </div>
                     </td>
-                    <td className="px-6 py-4">
-                      <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${product.isActive ? 'bg-emerald-100 text-emerald-800' : 'bg-red-100 text-red-800'}`}>
+                    <td className="px-6 py-4 flex flex-col gap-1">
+                      <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium w-fit ${product.isActive ? 'bg-emerald-100 text-emerald-800' : 'bg-red-100 text-red-800'}`}>
                         {product.isActive ? 'Active' : 'Inactive'}
+                      </span>
+                      <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium w-fit ${
+                        product.approvalStatus === 'approved' ? 'bg-green-100 text-green-800' : 
+                        product.approvalStatus === 'pending' ? 'bg-yellow-100 text-yellow-800' : 'bg-red-100 text-red-800'
+                      }`}>
+                        {product.approvalStatus ? product.approvalStatus.charAt(0).toUpperCase() + product.approvalStatus.slice(1) : 'Approved'}
                       </span>
                     </td>
                     <td className="px-6 py-4 text-right">
                       <div className="flex justify-end gap-2">
+                        {product.approvalStatus === 'pending' && (
+                          <>
+                            <button onClick={() => handleVerify(product._id, 'approved')} title="Approve" className="p-2 text-green-600 hover:bg-green-50 rounded-lg transition-colors cursor-pointer">
+                              <CheckCircle className="w-4 h-4" />
+                            </button>
+                            <button onClick={() => handleVerify(product._id, 'rejected')} title="Reject" className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors cursor-pointer">
+                              <XCircle className="w-4 h-4" />
+                            </button>
+                          </>
+                        )}
                         <button onClick={() => openViewModal(product)} className="p-2 text-gray-600 hover:bg-gray-100 rounded-lg transition-colors cursor-pointer">
                           <Eye className="w-4 h-4" />
                         </button>

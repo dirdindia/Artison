@@ -2,6 +2,7 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-d
 import { Toaster } from "sonner";
 import { AuthProvider, useAuth } from "./context/AuthContext";
 import { CartProvider } from "./context/CartContext";
+import { ConfirmProvider } from "./context/ConfirmContext";
 import Home from "./pages/Home";
 import Explore from "./pages/Explore";
 import Cart from "./pages/Cart";
@@ -55,54 +56,56 @@ function App() {
     <Router>
       <AuthProvider>
         <CartProvider>
-          <Routes>
-            <Route path="/" element={<Home />} />
-            <Route path="/explore" element={<Explore />} />
-            <Route path="/categories" element={<Categories />} />
-            <Route path="/subcategories" element={<SubCategories />} />
-            <Route path="/cart" element={<Cart />} />
-            <Route path="/featured" element={<Featured />} />
-            <Route path="/trending" element={<Trending />} />
-            <Route path="/product/:id" element={<Product />} />
-            <Route path="/login" element={<Login />} />
-            <Route path="/signup" element={<Signup />} />
-            <Route path="/artist/signup" element={<ArtistSignup />} />
-            <Route path="/forgot-password" element={<ForgotPassword />} />
-            <Route path="/about" element={<About />} />
-            <Route path="/shipping" element={<Shipping />} />
-            <Route path="/returns" element={<Returns />} />
-            <Route path="/contact" element={<ContactUs />} />
-            <Route path="/privacy-policy" element={<PrivacyPolicy />} />
-            <Route path="/terms-of-service" element={<TermsOfService />} />
-            
-            {/* Protected Routes */}
-            <Route 
-              path="/profile" 
-              element={
-                <ProtectedRoute>
-                  <Profile />
-                </ProtectedRoute>
-              } 
-            />
-            <Route path="/checkout" element={<Checkout />} />
+          <ConfirmProvider>
+            <Routes>
+              <Route path="/" element={<Home />} />
+              <Route path="/explore" element={<Explore />} />
+              <Route path="/categories" element={<Categories />} />
+              <Route path="/subcategories" element={<SubCategories />} />
+              <Route path="/cart" element={<Cart />} />
+              <Route path="/featured" element={<Featured />} />
+              <Route path="/trending" element={<Trending />} />
+              <Route path="/product/:id" element={<Product />} />
+              <Route path="/login" element={<Login />} />
+              <Route path="/signup" element={<Signup />} />
+              <Route path="/artist/signup" element={<ArtistSignup />} />
+              <Route path="/forgot-password" element={<ForgotPassword />} />
+              <Route path="/about" element={<About />} />
+              <Route path="/shipping" element={<Shipping />} />
+              <Route path="/returns" element={<Returns />} />
+              <Route path="/contact" element={<ContactUs />} />
+              <Route path="/privacy-policy" element={<PrivacyPolicy />} />
+              <Route path="/terms-of-service" element={<TermsOfService />} />
+              
+              {/* Protected Routes */}
+              <Route 
+                path="/profile" 
+                element={
+                  <ProtectedRoute>
+                    <Profile />
+                  </ProtectedRoute>
+                } 
+              />
+              <Route path="/checkout" element={<Checkout />} />
 
-            {/* Artist Routes */}
-            <Route 
-              path="/artist" 
-              element={
-                <ArtistRoute>
-                  <ArtistLayout />
-                </ArtistRoute>
-              }
-            >
-              <Route path="dashboard" element={<ArtistDashboard />} />
-              <Route path="artworks" element={<ArtistArtworks />} />
-              <Route path="orders" element={<ArtistOrders />} />
-              <Route path="earnings" element={<ArtistEarnings />} />
-              <Route path="settings" element={<ArtistSettings />} />
-            </Route>
-          </Routes>
-          <Toaster richColors position="top-right" />
+              {/* Artist Routes */}
+              <Route 
+                path="/artist" 
+                element={
+                  <ArtistRoute>
+                    <ArtistLayout />
+                  </ArtistRoute>
+                }
+              >
+                <Route path="dashboard" element={<ArtistDashboard />} />
+                <Route path="artworks" element={<ArtistArtworks />} />
+                <Route path="orders" element={<ArtistOrders />} />
+                <Route path="earnings" element={<ArtistEarnings />} />
+                <Route path="settings" element={<ArtistSettings />} />
+              </Route>
+            </Routes>
+            <Toaster richColors position="top-right" />
+          </ConfirmProvider>
         </CartProvider>
       </AuthProvider>
     </Router>

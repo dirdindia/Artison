@@ -16,6 +16,17 @@ const getProducts = async (req, res) => {
     const { skip, limit, page } = req.pagination || { skip: 0, limit: 10, page: 1 };
 
     const query = {};
+    
+    // By default, only show approved products
+    // Admin/Subadmin can see pending if they pass approvalStatus
+    if (req.query.approvalStatus) {
+      if (req.query.approvalStatus !== 'all') {
+        query.approvalStatus = req.query.approvalStatus;
+      }
+    } else {
+      query.approvalStatus = 'approved';
+    }
+
     if (req.query.search) {
       query.$or = [
         { name: { $regex: req.query.search, $options: 'i' } },
@@ -243,6 +254,123 @@ const deleteReview = async (req, res) => {
   }
 };
 
+// Create a new product (Artist)
+const createArtistArtwork = async (req, res) => {
+  try {
+    const productData = {
+      ...req.body,
+      artist: req.user.id,
+      approvalStatus: 'pending',
+      isActive: false // Keep inactive until verified
+    };
+    const product = await Product.create(productData);
+    res.status(201).json({ success: true, data: product, message: 'Artwork submitted for verification' });
+  } catch (error) {
+    res.status(500).json({ success: false, message: 'Server Error', error: error.message });
+  }
+};
+
+// Get artworks for an artist
+const getArtistArtworks = async (req, res) => {
+  try {
+    const { skip, limit, page } = req.pagination || { skip: 0, limit: 10, page: 1 };
+    
+    const query = { artist: req.user.id };
+    
+    const products = await Product.find(query)
+      .populate('category', 'name')
+      .populate('subCategory', 'name')
+      .sort({ createdAt: -1 })
+      .skip(skip)
+      .limit(limit);
+
+    const total = await Product.countDocuments(query);
+
+    res.status(200).json({
+      success: true,
+      data: products,
+      pagination: {
+        total,
+        page,
+        limit,
+        totalPages: Math.ceil(total / limit)
+      }
+    });
+  } catch (error) {
+    res.status(500).json({ success: false, message: 'Server Error', error: error.message });
+  }
+};
+
+// Verify artwork (Admin)
+const verifyArtwork = async (req, res) => {
+  try {
+    const { status } = req.body; // 'approved' or 'rejected'
+    if (!['approved', 'rejected'].includes(status)) {
+      return res.status(400).json({ success: false, message: 'Invalid status' });
+    }
+
+    const product = await Product.findByIdAndUpdate(
+      req.params.id,
+      { 
+        approvalStatus: status,
+        isActive: status === 'approved' 
+      },
+      { new: true }
+    );
+
+    if (!product) {
+      return res.status(404).json({ success: false, message: 'Artwork not found' });
+    }
+
+    res.status(200).json({ success: true, data: product, message: `Artwork ${status} successfully` });
+  } catch (error) {
+    res.status(500).json({ success: false, message: 'Server Error', error: error.message });
+  }
+};
+
+// Update artist artwork
+const updateArtistArtwork = async (req, res) => {
+  try {
+    const product = await Product.findOne({ _id: req.params.id, artist: req.user.id });
+
+    if (!product) {
+      return res.status(404).json({ success: false, message: 'Artwork not found or unauthorized' });
+    }
+
+    // Reset approval status to pending when edited
+    const updateData = {
+      ...req.body,
+      approvalStatus: 'pending',
+      isActive: false
+    };
+
+    const updatedProduct = await Product.findByIdAndUpdate(
+      req.params.id,
+      updateData,
+      { new: true, runValidators: true }
+    );
+
+    res.status(200).json({ success: true, data: updatedProduct, message: 'Artwork updated and submitted for re-verification' });
+  } catch (error) {
+    res.status(500).json({ success: false, message: 'Server Error', error: error.message });
+  }
+};
+
+// Delete artist artwork
+const deleteArtistArtwork = async (req, res) => {
+  try {
+    const product = await Product.findOneAndDelete({ _id: req.params.id, artist: req.user.id });
+
+    if (!product) {
+      return res.status(404).json({ success: false, message: 'Artwork not found or unauthorized' });
+    }
+
+    res.status(200).json({ success: true, message: 'Artwork deleted successfully' });
+  } catch (error) {
+    res.status(500).json({ success: false, message: 'Server Error', error: error.message });
+  }
+};
+
 module.exports = {
   createProduct,
   getProducts,
@@ -252,5 +380,10 @@ module.exports = {
   createProductReview,
   getAdminReviews,
   verifyReview,
-  deleteReview
+  deleteReview,
+  createArtistArtwork,
+  getArtistArtworks,
+  verifyArtwork,
+  updateArtistArtwork,
+  deleteArtistArtwork
 };
