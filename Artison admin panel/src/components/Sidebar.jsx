@@ -17,7 +17,8 @@ import {
   Palette,
   Star,
   Mail,
-  UserCog
+  UserCog,
+  CreditCard
 } from 'lucide-react';
 import { useConfirm } from '../context/ConfirmContext';
 import Alert from '../utils/Alert';
@@ -31,6 +32,7 @@ const MENU_ITEMS = [
   { name: 'Orders', path: '/orders', icon: ShoppingCart },
   { name: 'Customers', path: '/customers', icon: Users },
   { name: 'Artists', path: '/artists', icon: Palette },
+  { name: 'Payouts', path: '/payouts', icon: CreditCard },
   { name: 'Tickets', path: '/tickets', icon: LifeBuoy },
   { name: 'Marketing', path: '/marketing', icon: Megaphone },
   { name: 'Reviews', path: '/review', icon: Star },

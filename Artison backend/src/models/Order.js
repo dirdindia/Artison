@@ -21,6 +21,10 @@ const orderSchema = new mongoose.Schema(
           required: true,
           ref: 'Product',
         },
+        artist: {
+          type: mongoose.Schema.Types.ObjectId,
+          ref: 'User',
+        },
       },
     ],
     shippingAddress: {

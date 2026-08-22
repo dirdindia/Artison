@@ -62,9 +62,17 @@ const createRazorpayOrder = async (req, res) => {
     }
     
     const mongoose = require('mongoose');
+    const productIds = orderItems.map(item => item.product).filter(id => mongoose.Types.ObjectId.isValid(id));
+    const productsList = await Product.find({ _id: { $in: productIds } });
+
     orderItems.forEach(item => {
       if (!mongoose.Types.ObjectId.isValid(item.product)) {
         item.product = new mongoose.Types.ObjectId();
+      } else {
+        const prod = productsList.find(p => p._id.toString() === item.product.toString());
+        if (prod && prod.artist) {
+          item.artist = prod.artist;
+        }
       }
     });
 
@@ -213,11 +221,29 @@ const verifyOrderPayment = async (req, res) => {
     const newOrdersAlert = settings ? settings.newOrdersAlert : true;
     const lowStockAlert = settings ? settings.lowStockAlert : true;
 
-    // Decrement product stock
+    const Transaction = require('../models/Transaction');
+
+    // Decrement product stock and handle artist earnings
     for (const item of order.orderItems) {
       const product = await Product.findByIdAndUpdate(item.product, {
         $inc: { stock: -item.qty }
       }, { new: true });
+
+      if (item.artist) {
+        const earnings = item.price * item.qty * 0.8;
+        
+        await Transaction.create({
+          artist: item.artist,
+          type: 'Credit',
+          amount: earnings,
+          order: order._id,
+          description: `Earnings from order #${order._id.toString().substring(18)} for product ${item.name}`
+        });
+
+        await User.findByIdAndUpdate(item.artist, {
+          $inc: { walletBalance: earnings }
+        });
+      }
 
       if (product && product.stock <= 5 && lowStockAlert) {
         await Notification.create({
@@ -282,11 +308,29 @@ const razorpayWebhook = async (req, res) => {
         const newOrdersAlert = settings ? settings.newOrdersAlert : true;
         const lowStockAlert = settings ? settings.lowStockAlert : true;
 
-        // Decrement product stock
+        const Transaction = require('../models/Transaction');
+
+        // Decrement product stock and handle artist earnings
         for (const item of order.orderItems) {
           const product = await Product.findByIdAndUpdate(item.product, {
             $inc: { stock: -item.qty }
           }, { new: true });
+
+          if (item.artist) {
+            const earnings = item.price * item.qty * 0.8;
+            
+            await Transaction.create({
+              artist: item.artist,
+              type: 'Credit',
+              amount: earnings,
+              order: order._id,
+              description: `Earnings from order #${order._id.toString().substring(18)} for product ${item.name}`
+            });
+
+            await User.findByIdAndUpdate(item.artist, {
+              $inc: { walletBalance: earnings }
+            });
+          }
 
           if (product && product.stock <= 5 && lowStockAlert) {
             await Notification.create({
@@ -460,6 +504,48 @@ const getOrdersByUser = async (req, res) => {
   }
 };
 
+// @desc    Get orders for logged in artist
+// @route   GET /api/orders/artist
+// @access  Private/Artist
+const getArtistOrders = async (req, res) => {
+  try {
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 10;
+    const skip = (page - 1) * limit;
+
+    const total = await Order.countDocuments({ 'orderItems.artist': req.user.id });
+    const orders = await Order.find({ 'orderItems.artist': req.user.id })
+      .populate('user', 'name email')
+      .populate('orderItems.product')
+      .sort({ createdAt: -1 })
+      .skip(skip)
+      .limit(limit);
+
+    // Filter orderItems to only include this artist's products
+    const filteredOrders = orders.map(order => {
+      const orderObj = order.toObject();
+      orderObj.orderItems = orderObj.orderItems.filter(item => 
+        item.artist && item.artist.toString() === req.user.id
+      );
+      orderObj.artistTotal = orderObj.orderItems.reduce((acc, item) => acc + (item.price * item.qty), 0);
+      orderObj.artistEarnings = orderObj.artistTotal * 0.8;
+      return orderObj;
+    });
+
+    res.json({
+      success: true,
+      data: filteredOrders,
+      pagination: {
+        total,
+        page,
+        pages: Math.ceil(total / limit),
+      }
+    });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
 module.exports = {
   getMyOrders,
   createRazorpayOrder,
@@ -469,4 +555,5 @@ module.exports = {
   updateOrderStatus,
   markOrderAsViewed,
   getOrdersByUser,
+  getArtistOrders,
 };

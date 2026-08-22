@@ -30,6 +30,16 @@ const userSchema = new mongoose.Schema(
       type: String,
       default: '',
     },
+    walletBalance: {
+      type: Number,
+      default: 0,
+    },
+    bankDetails: {
+      accountHolderName: { type: String, default: '' },
+      accountNumber: { type: String, default: '' },
+      ifscCode: { type: String, default: '' },
+      upiId: { type: String, default: '' },
+    },
     role: {
       type: String,
       enum: ['user', 'admin', 'subadmin', 'artist'],

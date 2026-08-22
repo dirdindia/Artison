@@ -23,6 +23,7 @@ const feedbackRoutes = require('./src/routes/feedbackRoutes');
 const settingsRoutes = require('./src/routes/settingsRoutes');
 const contactRoutes = require('./src/routes/contactRoutes');
 const subAdminRoutes = require('./src/routes/subAdminRoutes');
+const walletRoutes = require('./src/routes/walletRoutes');
 
 // Connect to database
 connectDB().then(() => {
@@ -60,6 +61,7 @@ app.use('/api/feedbacks', feedbackRoutes);
 app.use('/api/settings', settingsRoutes);
 app.use('/api/contacts', contactRoutes);
 app.use('/api/subadmins', subAdminRoutes);
+app.use('/api/wallet', walletRoutes);
 
 app.get('/', (req, res) => {
   res.send('API is running...');

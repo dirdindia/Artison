@@ -20,6 +20,7 @@ import Feedbacks from './pages/Feedbacks';
 import ContactMessages from './pages/ContactMessages';
 import SubAdmins from './pages/SubAdmins';
 import Artists from './pages/Artists';
+import Payouts from './pages/Payouts';
 
 // Placeholder component for other routes
 const Placeholder = ({ title }) => (
@@ -55,6 +56,7 @@ function App() {
             <Route path="analysis" element={<Placeholder title="Analysis" />} />
             <Route path="settings" element={<Settings />} />
             <Route path="subadmins" element={<SubAdmins />} />
+            <Route path="payouts" element={<Payouts />} />
           </Route>
           {/* Fallback route */}
           <Route path="*" element={<Navigate to="/" replace />} />
