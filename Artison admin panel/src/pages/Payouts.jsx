@@ -80,6 +80,7 @@ export default function Payouts() {
                     </td>
                     <td className="px-6 py-4">
                       <div className="text-xs space-y-1">
+                        <p><span className="font-medium">Bank:</span> {payout.artist?.bankDetails?.bankName || 'N/A'}</p>
                         <p><span className="font-medium">UPI:</span> {payout.artist?.bankDetails?.upiId || 'N/A'}</p>
                         <p><span className="font-medium">A/C Name:</span> {payout.artist?.bankDetails?.accountHolderName || 'N/A'}</p>
                         <p><span className="font-medium">A/C No:</span> {payout.artist?.bankDetails?.accountNumber || 'N/A'}</p>

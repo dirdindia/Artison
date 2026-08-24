@@ -41,8 +41,26 @@ const updateUserProfile = async (req, res) => {
         };
       }
 
+      if (req.body.bankDetails) {
+        user.bankDetails = {
+          bankName: req.body.bankDetails.bankName || user.bankDetails?.bankName,
+          accountHolderName: req.body.bankDetails.accountHolderName || user.bankDetails?.accountHolderName,
+          accountNumber: req.body.bankDetails.accountNumber || user.bankDetails?.accountNumber,
+          ifscCode: req.body.bankDetails.ifscCode || user.bankDetails?.ifscCode,
+          upiId: req.body.bankDetails.upiId || user.bankDetails?.upiId,
+        };
+        user.markModified('bankDetails');
+      }
+
       if (req.body.avatar) {
         user.avatar = req.body.avatar;
+      }
+
+      if (req.body.bio !== undefined) {
+        user.bio = req.body.bio;
+      }
+      if (req.body.portfolioUrl !== undefined) {
+        user.portfolioUrl = req.body.portfolioUrl;
       }
 
       const updatedUser = await user.save();
@@ -59,6 +77,9 @@ const updateUserProfile = async (req, res) => {
           avatar: updatedUser.avatar,
           role: updatedUser.role,
           hasSetPassword: updatedUser.hasSetPassword,
+          bankDetails: updatedUser.bankDetails,
+          bio: updatedUser.bio,
+          portfolioUrl: updatedUser.portfolioUrl,
         },
       });
     } else {
