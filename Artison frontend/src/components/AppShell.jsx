@@ -236,6 +236,9 @@ export function AppShell({ children, title, transparentHeader = false }) {
                 <Link to="/signup" className={`hidden lg:inline-flex items-center gap-1.5 rounded-full px-4 py-2 text-sm font-semibold transition hover:scale-[1.02] ${transparentHeader ? 'border border-amber-950 text-amber-950 hover:bg-amber-900 hover:text-black' : 'bg-foreground text-background shadow-soft hover:shadow-md'}`}>
                   Join कलाkosh
                 </Link>
+                <Link to="/artist/signup" className={`hidden lg:inline-flex items-center gap-1.5 rounded-full px-4 py-2 text-sm font-semibold transition hover:scale-[1.02] ${transparentHeader ? 'border border-amber-950 text-amber-950 hover:bg-amber-900 hover:text-black' : 'bg-foreground text-background shadow-soft hover:shadow-md'}`}>
+                  Join as an artist
+                </Link>
               </div>
             )}
           </div>

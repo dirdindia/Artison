@@ -38,6 +38,31 @@ export default function About() {
               Because art is not merely something we admire—it is something we inherit, preserve, and pass forward. And through Kalakosh, every creation finds not only a home, but a story that continues to be told.
             </p>
           </div>
+
+          <div className="mt-16 pt-10 border-t border-amber-900/20">
+            <h2 className="text-3xl md:text-4xl font-display font-bold text-center mb-8 text-amber-950" style={{ fontFamily: "'Dancing Script', cursive" }}>
+              Your Art. Your Story. Your KalaKosh.
+            </h2>
+            <div className="space-y-6 text-lg text-muted-foreground leading-relaxed">
+              <p>
+                Every artist has a story, and every creation carries a little piece of the person who made it. At KalaKosh, we believe these stories deserve to be seen, cherished, and celebrated.
+              </p>
+              <p>
+                If you're an artist, come be a part of the KalaKosh family. Showcase your artwork on our website, connect with people who appreciate the beauty of handmade art, and give your creations a space where they can be discovered and loved.
+              </p>
+              <p>
+                Whether you paint, sculpt, craft, or create in your own unique way, there's a place for your art here.
+              </p>
+              <p className="font-semibold text-center italic text-amber-900 mt-6">
+                Create with heart. Share your story. Let KalaKosh help your art find its way home.
+              </p>
+              <div className="text-center pt-6">
+                <a href="/artist/signup" className="inline-block bg-amber-950 text-amber-50 px-8 py-3 rounded-full font-semibold hover:bg-amber-900 transition shadow-sm hover:shadow">
+                  Join as an Artist
+                </a>
+              </div>
+            </div>
+          </div>
         </motion.div>
       </div>
     </AppShell>
