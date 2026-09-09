@@ -6,16 +6,16 @@ import api from "@/api";
 import { toast } from "sonner";
 
 export default function Login() {
+  const navigate = useNavigate();
+  const location = useLocation();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [method, setMethod] = useState("password"); // "password" or "otp"
+  const [loginRole, setLoginRole] = useState(location.state?.role || "user"); // "user" or "artist"
   const [otpSent, setOtpSent] = useState(false);
   const [otp, setOtp] = useState("");
   const { login, setUser } = useAuth();
-  
-  const navigate = useNavigate();
-  const location = useLocation();
 
   const handlePasswordSubmit = async (e) => {
     e.preventDefault();
@@ -97,7 +97,7 @@ export default function Login() {
         <div className="w-full max-w-sm space-y-8 relative">
           {/* Back button */}
           <Link to="/" className="absolute -top-12 -left-2 sm:-left-6 inline-flex items-center gap-2 text-sm font-medium text-muted-foreground transition-colors hover:text-foreground">
-            <ArrowLeft className="h-4 w-4" /> Back to gallery
+            <ArrowLeft className="h-4 w-4" /> Back to Home
           </Link>
 
           <div className="space-y-2 text-center lg:text-left">
@@ -105,6 +105,23 @@ export default function Login() {
             <p className="text-sm text-muted-foreground">
               {method === "password" ? "Enter your credentials to access your account" : "Enter your email to login with OTP"}
             </p>
+          </div>
+
+          <div className="flex w-full rounded-xl bg-muted p-1">
+            <button 
+              type="button"
+              onClick={() => setLoginRole("user")}
+              className={`flex-1 rounded-lg py-2 text-sm font-medium transition-all ${loginRole === "user" ? "bg-background text-foreground shadow-sm" : "text-muted-foreground hover:text-foreground"}`}
+            >
+              User
+            </button>
+            <button 
+              type="button"
+              onClick={() => setLoginRole("artist")}
+              className={`flex-1 rounded-lg py-2 text-sm font-medium transition-all ${loginRole === "artist" ? "bg-background text-foreground shadow-sm" : "text-muted-foreground hover:text-foreground"}`}
+            >
+              Artist
+            </button>
           </div>
 
           <form onSubmit={method === "password" ? handlePasswordSubmit : handleOtpSubmit} className="space-y-5">
@@ -207,8 +224,8 @@ export default function Login() {
 
           <p className="text-center text-sm text-muted-foreground">
             Don't have an account?{" "}
-            <Link to="/signup" className="font-semibold text-primary hover:underline">
-              Sign up
+            <Link to={loginRole === "artist" ? "/artist/signup" : "/signup"} className="font-semibold text-primary hover:underline">
+              Sign up {loginRole === "artist" && "as Artist"}
             </Link>
           </p>
         </div>

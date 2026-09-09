@@ -226,7 +226,10 @@ export function AppShell({ children, title, transparentHeader = false }) {
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align="end" className="w-40 mt-2">
                     <DropdownMenuItem asChild>
-                      <Link to="/login" className="cursor-pointer w-full">User Sign In</Link>
+                      <Link to="/login" state={{ role: 'user' }} className="cursor-pointer w-full">User Sign In</Link>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem asChild>
+                      <Link to="/login" state={{ role: 'artist' }} className="cursor-pointer w-full">Artist Sign In</Link>
                     </DropdownMenuItem>
                     <DropdownMenuItem asChild>
                       <a href={import.meta.env.DEV ? "http://localhost:5173" : "https://admin.kala-kosh.co.in"} className="cursor-pointer w-full text-primary font-medium">Admin Sign In</a>
@@ -269,7 +272,10 @@ export function AppShell({ children, title, transparentHeader = false }) {
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align="center" side="top" sideOffset={10} className="w-40">
                     <DropdownMenuItem asChild>
-                      <Link to="/login" className="cursor-pointer w-full">User Sign In</Link>
+                      <Link to="/login" state={{ role: 'user' }} className="cursor-pointer w-full">User Sign In</Link>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem asChild>
+                      <Link to="/login" state={{ role: 'artist' }} className="cursor-pointer w-full">Artist Sign In</Link>
                     </DropdownMenuItem>
                     <DropdownMenuItem asChild>
                       <a href={import.meta.env.DEV ? "http://localhost:5173" : "https://admin.kala-kosh.co.in"} className="cursor-pointer w-full text-primary font-medium">Admin Sign In</a>
