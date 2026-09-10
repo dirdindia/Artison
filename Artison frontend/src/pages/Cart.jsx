@@ -25,8 +25,8 @@ export default function CartPage() {
     fetchSettings();
   }, []);
 
-  const subtotal = cart.reduce((s, c) => s + c.product.price * c.qty, 0);
-  const shipping = cart.length ? 0 : 0;
+  const subtotal = cart.reduce((s, c) => s + (c.product.salePrice || c.product.price) * c.qty, 0);
+  const shipping = cart.reduce((s, c) => s + ((c.product.shippingCharge || 0) * c.qty), 0);
   const taxAmount = (subtotal * taxRate) / 100;
   const total = subtotal + shipping + taxAmount;
 
@@ -56,7 +56,7 @@ export default function CartPage() {
               <img src={product.image} alt={product.title} className="h-20 w-20 shrink-0 rounded-xl object-cover" />
               <div className="flex min-w-0 flex-1 flex-col">
                 <div className="truncate text-sm font-semibold">{product.name || product.title}</div>                <div className="truncate text-xs text-muted-foreground">{product.artist}</div>
-                <div className="mt-1 font-display text-sm font-bold text-primary">{formatPrice(product.price * qty)}</div>
+                <div className="mt-1 font-display text-sm font-bold text-primary">{formatPrice((product.salePrice || product.price) * qty)}</div>
                 <div className="mt-auto flex items-center justify-between pt-2">
                   <div className="flex items-center gap-2 rounded-full bg-secondary px-1 py-1">
                     <button onClick={() => updateQuantity(product.id || product._id, -1)} className="grid h-6 w-6 place-items-center rounded-full bg-background"><Minus className="h-3 w-3" /></button>
@@ -75,7 +75,7 @@ export default function CartPage() {
         <div className="mt-6 space-y-2 rounded-2xl bg-card p-4 shadow-soft">
           <Row label="Subtotal" value={formatPrice(subtotal)} />
           <Row label="Shipping" value={formatPrice(shipping)} />
-          <Row label={`Tax (${taxRate}%)`} value={formatPrice(taxAmount)} />
+          <Row label={`GST (${taxRate}%)`} value={formatPrice(taxAmount)} />
           <div className="my-1 border-t border-border" />
           <Row label="Total" value={formatPrice(total)} bold />
           <Link to="/checkout" className="mt-3 hidden w-full rounded-2xl bg-gradient-warm py-3.5 text-sm font-semibold text-primary-foreground shadow-soft md:block text-center">

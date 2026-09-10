@@ -6,8 +6,6 @@ import { toast } from 'sonner';
 export default function Earnings() {
   const [wallet, setWallet] = useState({ walletBalance: 0, transactions: [] });
   const [loading, setLoading] = useState(true);
-  const [payoutAmount, setPayoutAmount] = useState('');
-  const [isRequesting, setIsRequesting] = useState(false);
 
   useEffect(() => {
     fetchWallet();
@@ -26,35 +24,11 @@ export default function Earnings() {
     }
   };
 
-  const handleWithdraw = async () => {
-    const amount = Number(payoutAmount);
-    if (!amount || amount <= 0 || amount > wallet.walletBalance) {
-      toast.error('Enter a valid amount to withdraw');
-      return;
-    }
-    
-    setIsRequesting(true);
-    try {
-      const { data } = await api.post('/wallet/payout', { amount });
-      if (data.success) {
-        toast.success('Payout request submitted successfully');
-        setPayoutAmount('');
-        fetchWallet();
-      }
-    } catch (error) {
-      toast.error(error.response?.data?.message || 'Failed to request payout');
-    } finally {
-      setIsRequesting(false);
-    }
-  };
-
-  const totalRevenue = wallet.transactions
-    .filter(t => t.type === 'Credit' && t.status === 'Completed')
-    .reduce((sum, t) => sum + t.amount, 0);
-
-  const pendingClearance = wallet.transactions
-    .filter(t => t.type === 'Debit' && t.status === 'Pending')
-    .reduce((sum, t) => sum + t.amount, 0);
+  const completedPayouts = wallet.transactions.filter(t => t.type === 'Credit' && t.status === 'Completed');
+  
+  const totalRevenue = completedPayouts.reduce((sum, t) => sum + t.amount, 0);
+  const recentPayoutAmount = completedPayouts.length > 0 ? completedPayouts[0].amount : 0;
+  const payoutsCount = completedPayouts.length;
 
   if (loading) {
     return (
@@ -75,44 +49,27 @@ export default function Earnings() {
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         <div className="bg-primary text-primary-foreground rounded-2xl p-6 shadow-sm hover:shadow-md transition-shadow">
-          <p className="text-sm font-medium opacity-80 mb-1">Available Balance</p>
-          <h3 className="text-3xl font-bold font-display">₹{wallet.walletBalance.toFixed(2)}</h3>
-          
-          <div className="mt-4 flex flex-col gap-2">
-            <input 
-              type="number" 
-              placeholder="Amount to withdraw"
-              value={payoutAmount}
-              onChange={(e) => setPayoutAmount(e.target.value)}
-              className="px-3 py-2 rounded-xl text-black bg-white text-sm focus:outline-none"
-              max={wallet.walletBalance}
-            />
-            <button 
-              onClick={handleWithdraw}
-              disabled={isRequesting || wallet.walletBalance <= 0}
-              className="px-4 py-2 bg-background text-foreground rounded-xl text-sm font-semibold hover:bg-secondary transition-colors cursor-pointer w-full disabled:opacity-50"
-            >
-              {isRequesting ? 'Requesting...' : 'Withdraw Funds'}
-            </button>
-          </div>
+          <p className="text-sm font-medium opacity-80 mb-1">Total Earnings</p>
+          <h3 className="text-3xl font-bold font-display">₹{totalRevenue.toFixed(2)}</h3>
+          <p className="text-xs mt-2 opacity-90">Total amount transferred to you</p>
         </div>
         
         <div className="bg-background rounded-2xl p-6 border border-border shadow-sm hover:shadow-md transition-shadow">
           <div className="flex items-center gap-2 mb-1">
             <TrendingUp className="w-4 h-4 text-green-500" />
-            <p className="text-sm font-medium text-muted-foreground">Total Revenue</p>
+            <p className="text-sm font-medium text-muted-foreground">Recent Payout</p>
           </div>
-          <h3 className="text-3xl font-bold font-display text-foreground">₹{totalRevenue.toFixed(2)}</h3>
-          <p className="text-xs text-muted-foreground mt-2">Lifetime earnings</p>
+          <h3 className="text-3xl font-bold font-display text-foreground">₹{recentPayoutAmount.toFixed(2)}</h3>
+          <p className="text-xs text-muted-foreground mt-2">Latest received amount</p>
         </div>
         
         <div className="bg-background rounded-2xl p-6 border border-border shadow-sm hover:shadow-md transition-shadow">
           <div className="flex items-center gap-2 mb-1">
             <Calendar className="w-4 h-4 text-blue-500" />
-            <p className="text-sm font-medium text-muted-foreground">Pending Withdrawals</p>
+            <p className="text-sm font-medium text-muted-foreground">Total Payouts</p>
           </div>
-          <h3 className="text-3xl font-bold font-display text-foreground">₹{pendingClearance.toFixed(2)}</h3>
-          <p className="text-xs text-muted-foreground mt-2">Currently being processed</p>
+          <h3 className="text-3xl font-bold font-display text-foreground">{payoutsCount}</h3>
+          <p className="text-xs text-muted-foreground mt-2">Number of successful transfers</p>
         </div>
       </div>
 

@@ -29,6 +29,7 @@ export default function ProductModal({ isOpen, onClose, product, onSuccess, isVi
     creationYear: '',
     weight: '',
     shippingClass: 'standard',
+    shippingCharge: '',
     packaging: '',
     isActive: true,
   });
@@ -65,6 +66,7 @@ export default function ProductModal({ isOpen, onClose, product, onSuccess, isVi
         creationYear: product.creationYear || '',
         weight: product.weight || '',
         shippingClass: product.shippingClass || 'standard',
+        shippingCharge: product.shippingCharge || '',
         packaging: product.packaging || '',
         isActive: product.isActive !== false,
       });
@@ -72,7 +74,7 @@ export default function ProductModal({ isOpen, onClose, product, onSuccess, isVi
       setFormData({
         name: '', description: '', price: '', salePrice: '', stock: '', sku: '',
         category: '', subCategory: '', image: '', gallery: [], tags: [], dimensions: '', creationYear: '',
-        weight: '', shippingClass: 'standard', packaging: '', isActive: true
+        weight: '', shippingClass: 'standard', shippingCharge: '', packaging: '', isActive: true
       });
     }
   }, [product, isOpen]);
@@ -222,6 +224,7 @@ export default function ProductModal({ isOpen, onClose, product, onSuccess, isVi
         salePrice: formData.salePrice ? Number(formData.salePrice) : undefined,
         stock: formData.stock ? Number(formData.stock) : 0,
         weight: formData.weight ? Number(formData.weight) : undefined,
+        shippingCharge: formData.shippingCharge ? Number(formData.shippingCharge) : 0,
       };
       
       if (!payload.subCategory) {
@@ -441,7 +444,7 @@ export default function ProductModal({ isOpen, onClose, product, onSuccess, isVi
                   </div>
                   
                   <div className="space-y-1.5">
-                    <label htmlFor="salePrice" className="block text-sm font-medium text-[#5a4d4d]">Sale Price (₹) (Optional)</label>
+                    <label htmlFor="salePrice" className="block text-sm font-medium text-[#5a4d4d]">Sale Price (₹)</label>
                     <input type="number" name="salePrice" value={formData.salePrice} onChange={handleChange} id="salePrice" placeholder="0.00" disabled={isViewMode} className="w-full bg-[#fdfbf7] border border-[#eae0d5] rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#c39a5c]/20 focus:border-[#c39a5c] transition-colors disabled:bg-gray-50 disabled:text-gray-500" />
                   </div>
 
@@ -475,6 +478,11 @@ export default function ProductModal({ isOpen, onClose, product, onSuccess, isVi
                       <option value="fragile">Fragile / Special Handling</option>
                       <option value="large">Oversized Cargo</option>
                     </select>
+                  </div>
+
+                  <div className="space-y-1.5">
+                    <label htmlFor="shippingCharge" className="block text-sm font-medium text-[#5a4d4d]">Shipping Charge (₹)</label>
+                    <input type="number" name="shippingCharge" value={formData.shippingCharge} onChange={handleChange} id="shippingCharge" placeholder="0.00" disabled={isViewMode} className="w-full bg-[#fdfbf7] border border-[#eae0d5] rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#c39a5c]/20 focus:border-[#c39a5c] transition-colors disabled:bg-gray-50 disabled:text-gray-500" />
                   </div>
 
                   <div className="space-y-1.5 md:col-span-2">

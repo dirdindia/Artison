@@ -46,9 +46,10 @@ export default function ProductPage() {
                   id: p._id,
                   title: p.name,
                   artist: p.subCategory ? p.subCategory.name : "Unknown Artist",
-                  price: p.price,
+                  price: p.salePrice || p.price,
                   image: p.image || "https://placehold.co/400x500",
-                  category: p.category ? p.category.name : "Art"
+                  category: p.category ? p.category.name : "Art",
+                  shippingCharge: p.shippingCharge || 0
                 }));
               setRelated(formattedRelated);
             }
@@ -169,7 +170,7 @@ export default function ProductPage() {
                 </span>
               </div>
               <h1 className="mt-4 font-display text-3xl font-bold leading-tight md:text-5xl">{product.name}</h1>
-              <div className="mt-3 font-display text-3xl font-bold text-primary md:text-4xl">₹{product.price?.toLocaleString()}</div>
+              <div className="mt-3 font-display text-3xl font-bold text-primary md:text-4xl">₹{(product.salePrice || product.price)?.toLocaleString()}</div>
               
               <button
                 onClick={() => addToCart(product)}
@@ -317,7 +318,7 @@ export default function ProductPage() {
         <button
           onClick={() => addToCart(product)}
           className="w-full rounded-2xl bg-gradient-warm py-4 text-base font-bold text-primary-foreground shadow-card transition active:scale-[0.98]">
-          Add to cart · ₹{product.price?.toLocaleString()}
+          Add to cart · ₹{(product.salePrice || product.price)?.toLocaleString()}
         </button>
       </div>
     </AppShell>

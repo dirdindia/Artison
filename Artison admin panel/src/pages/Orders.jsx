@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { ShoppingCart, Eye, CheckCircle, Clock, Search, X, FileText, Download } from 'lucide-react';
+import { ShoppingCart, Eye, CheckCircle, Clock, Search, X, FileText, Download, Loader2 } from 'lucide-react';
 import api from '../utils/api';
 import Alert from '../utils/Alert';
 import { useConfirm } from '../context/ConfirmContext';
@@ -33,6 +33,7 @@ export default function Orders() {
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const { confirm } = useConfirm();
+  const [payoutModal, setPayoutModal] = useState({ isOpen: false, orderId: null, artistId: null, type: null, file: null, uploading: false });
 
   useEffect(() => {
     fetchOrders();
@@ -71,18 +72,45 @@ export default function Orders() {
         if (data.success) {
           Alert.success('Success', `Order marked as ${newStatus}`);
           fetchOrders();
-          if (selectedOrder && selectedOrder._id === id) {
-            setSelectedOrder({ 
-              ...selectedOrder, 
-              orderStatus: newStatus,
-              isDelivered: newStatus === 'Delivered' ? true : selectedOrder.isDelivered,
-              deliveredAt: newStatus === 'Delivered' ? data.data.deliveredAt : selectedOrder.deliveredAt 
-            });
-          }
+          setSelectedOrder(data.data);
         }
       } catch (error) {
         Alert.error('Error', error.response?.data?.message || 'Failed to update order');
       }
+    }
+  };
+
+  const handlePayoutModalOpen = (id, artistId, type) => {
+    setPayoutModal({ isOpen: true, orderId: id, artistId, type, file: null, uploading: false });
+  };
+
+  const handlePayoutModalClose = () => {
+    setPayoutModal({ isOpen: false, orderId: null, artistId: null, type: null, file: null, uploading: false });
+  };
+
+  const handlePayoutModalSubmit = async () => {
+    const { orderId, artistId, type, file } = payoutModal;
+    setPayoutModal(prev => ({ ...prev, uploading: true }));
+    try {
+      let slipUrl = '';
+      if (file) {
+        const formData = new FormData();
+        formData.append('file', file);
+        const uploadRes = await api.post('/upload/single', formData, {
+          headers: { 'Content-Type': 'multipart/form-data' }
+        });
+        slipUrl = uploadRes.data.data.url;
+      }
+      const { data } = await api.put(`/orders/${orderId}/payout/${artistId}`, { type, slipUrl });
+      if (data.success) {
+        Alert.success('Success', `Payout marked as released`);
+        fetchOrders();
+        setSelectedOrder(data.data);
+        handlePayoutModalClose();
+      }
+    } catch (error) {
+      Alert.error('Error', error.response?.data?.message || 'Failed to release payout');
+      setPayoutModal(prev => ({ ...prev, uploading: false }));
     }
   };
 
@@ -285,6 +313,91 @@ export default function Orders() {
                 </div>
               </div>
 
+              {/* Artist Payout Management */}
+              {selectedOrder.artistPayouts && selectedOrder.artistPayouts.length > 0 && (
+                <div>
+                  <h3 className="font-semibold text-[#3b2f2f] mb-3 border-b border-[#eae0d5] pb-2">Artist Payout Management</h3>
+                  <div className="space-y-4">
+                    {selectedOrder.artistPayouts.map((payout, idx) => {
+                      // orderItems.artist could be populated or just ObjectId string. Safe check.
+                      const artistIdStr = payout.artist?._id?.toString() || payout.artist?.toString();
+                      const artistItems = selectedOrder.orderItems.filter(item => {
+                        const itemArtistStr = item.artist?._id?.toString() || item.artist?.toString();
+                        return itemArtistStr === artistIdStr;
+                      });
+                      
+                      const artistSubtotal = artistItems.reduce((acc, item) => acc + (item.price * item.qty), 0);
+                      const artistShipping = artistItems.reduce((acc, item) => acc + ((item.product?.shippingCharge || 0) * item.qty), 0);
+                      const upfrontAmount = (artistSubtotal * 0.5) + artistShipping;
+                      const finalAmount = artistSubtotal * 0.3; // Total 80%, so 50% upfront, 30% final
+                      
+                      return (
+                        <div key={idx} className="bg-orange-50/50 p-4 rounded-xl border border-orange-100">
+                          <div className="flex justify-between items-start mb-3">
+                            <div>
+                              <p className="font-semibold text-[#3b2f2f]">{payout.artist?.name || 'Artist'}</p>
+                              <p className="text-sm text-gray-500">{payout.artist?.email}</p>
+                            </div>
+                            <div className="text-right">
+                              <p className="text-xs text-gray-500 font-semibold mb-1">Bank Details</p>
+                              {payout.artist?.bankDetails && (payout.artist.bankDetails.accountNumber || payout.artist.bankDetails.upiId) ? (
+                                <div className="text-xs text-[#3b2f2f] text-left inline-block bg-white p-2 rounded border border-orange-100">
+                                  {payout.artist.bankDetails.accountHolderName && <p><span className="text-gray-400">Name:</span> {payout.artist.bankDetails.accountHolderName}</p>}
+                                  {payout.artist.bankDetails.accountNumber && <p><span className="text-gray-400">A/C:</span> {payout.artist.bankDetails.accountNumber}</p>}
+                                  {payout.artist.bankDetails.ifscCode && <p><span className="text-gray-400">IFSC:</span> {payout.artist.bankDetails.ifscCode}</p>}
+                                  {payout.artist.bankDetails.upiId && <p><span className="text-gray-400">UPI:</span> {payout.artist.bankDetails.upiId}</p>}
+                                </div>
+                              ) : (
+                                <p className="text-xs text-red-500 bg-red-50 px-2 py-1 rounded">Not provided</p>
+                              )}
+                            </div>
+                          </div>
+                          <div className="flex flex-col sm:flex-row gap-4 mt-4">
+                            <div className="flex-1 bg-white p-3 rounded-lg border border-gray-200">
+                              <p className="text-xs text-gray-500 mb-1">Upfront (50% + Shipping)</p>
+                              <div className="flex flex-col xl:flex-row xl:justify-between xl:items-center gap-2">
+                                <span className="font-bold text-[#3b2f2f]">{formatPrice(upfrontAmount)}</span>
+                                {payout.isUpfrontPaid ? (
+                                  <span className="text-xs bg-green-100 text-green-800 px-2 py-1 rounded-full font-semibold">
+                                    Paid on {new Date(payout.upfrontPaidAt).toLocaleDateString()}
+                                    {payout.upfrontSlipUrl && <a href={payout.upfrontSlipUrl} target="_blank" rel="noopener noreferrer" className="ml-1 text-blue-600 hover:underline">Slip</a>}
+                                  </span>
+                                ) : (
+                                  <button onClick={() => handlePayoutModalOpen(selectedOrder._id, artistIdStr, 'upfront')} className="text-xs bg-[#c39a5c] hover:bg-[#b08b53] text-white px-4 py-2 rounded-lg transition-all font-bold whitespace-nowrap shadow-md hover:shadow-lg cursor-pointer flex items-center gap-2">
+                                    <CheckCircle className="w-4 h-4" />
+                                    Mark Upfront Paid
+                                  </button>
+                                )}
+                              </div>
+                            </div>
+                            <div className="flex-1 bg-white p-3 rounded-lg border border-gray-200">
+                              <p className="text-xs text-gray-500 mb-1">Final (30%)</p>
+                              <div className="flex flex-col xl:flex-row xl:justify-between xl:items-center gap-2">
+                                <span className="font-bold text-[#3b2f2f]">{formatPrice(finalAmount)}</span>
+                                {payout.isFinalPaid ? (
+                                  <span className="text-xs bg-green-100 text-green-800 px-2 py-1 rounded-full font-semibold">
+                                    Paid on {new Date(payout.finalPaidAt).toLocaleDateString()}
+                                    {payout.finalSlipUrl && <a href={payout.finalSlipUrl} target="_blank" rel="noopener noreferrer" className="ml-1 text-blue-600 hover:underline">Slip</a>}
+                                  </span>
+                                ) : (
+                                  <button 
+                                    onClick={() => handlePayoutModalOpen(selectedOrder._id, artistIdStr, 'final')} 
+                                    disabled={selectedOrder.orderStatus !== 'Delivered'}
+                                    className={`text-xs px-4 py-2 rounded-lg transition-all font-bold whitespace-nowrap flex items-center gap-2 ${selectedOrder.orderStatus === 'Delivered' ? 'bg-[#c39a5c] hover:bg-[#b08b53] text-white shadow-md hover:shadow-lg cursor-pointer' : 'bg-gray-100 text-gray-400 cursor-not-allowed border border-gray-200'}`}
+                                  >
+                                    {selectedOrder.orderStatus === 'Delivered' ? 'Mark Final Paid' : 'Awaiting Delivery'}
+                                  </button>
+                                )}
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
+
               {/* Order Items */}
               <div>
                 <h3 className="font-semibold text-[#3b2f2f] mb-3 border-b pb-2">Order Items</h3>
@@ -328,6 +441,26 @@ export default function Orders() {
                  )}
                </div>
                <div className="text-right flex flex-col items-end">
+                 <div className="w-full max-w-xs space-y-1 text-sm text-[#5a4d4d] mb-3 border-b border-[#eae0d5] pb-2">
+                   <div className="flex justify-between">
+                     <span>Subtotal:</span>
+                     <span>{formatPrice(selectedOrder.orderItems.reduce((acc, item) => acc + (item.price * item.qty), 0))}</span>
+                   </div>
+                   <div className="flex justify-between">
+                     <span>GST (18%):</span>
+                     <span>{formatPrice(selectedOrder.orderItems.reduce((acc, item) => acc + (item.price * item.qty), 0) * 0.18)}</span>
+                   </div>
+                   <div className="flex justify-between">
+                     <span>Shipping:</span>
+                     <span>{formatPrice(selectedOrder.orderItems.reduce((acc, item) => acc + ((item.product?.shippingCharge || 0) * item.qty), 0))}</span>
+                   </div>
+                   {selectedOrder.discountAmount > 0 && (
+                     <div className="flex justify-between text-green-600">
+                       <span>Discount:</span>
+                       <span>-{formatPrice(selectedOrder.discountAmount)}</span>
+                     </div>
+                   )}
+                 </div>
                  <p className="text-sm text-gray-500">Total Amount</p>
                  <p className="text-2xl font-bold text-[#3b2f2f]">{formatPrice(selectedOrder.totalPrice)}</p>
                  <div className="flex gap-2 mt-3">
@@ -351,6 +484,59 @@ export default function Orders() {
           </div>
         </div>
       )}
+
+      {/* Payout Upload Modal */}
+      {payoutModal.isOpen && (
+        <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm animate-in fade-in">
+          <div className="bg-white rounded-2xl shadow-xl w-full max-w-md overflow-hidden flex flex-col">
+            <div className="p-6 border-b border-gray-100 flex justify-between items-center">
+              <h3 className="text-lg font-bold text-[#3b2f2f]">Confirm Payout</h3>
+              <button onClick={handlePayoutModalClose} className="p-2 text-gray-400 hover:text-gray-600 rounded-full hover:bg-gray-100 transition-colors">
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+            <div className="p-6 space-y-4">
+              <p className="text-sm text-gray-600">
+                Are you sure you want to mark this <strong>{payoutModal.type}</strong> payout as paid? Ensure you have transferred the amount externally.
+              </p>
+              <div>
+                <label className="block text-sm font-medium text-[#3b2f2f] mb-2">Payment Slip (Optional)</label>
+                <input 
+                  type="file" 
+                  accept="image/*"
+                  onChange={(e) => setPayoutModal(prev => ({ ...prev, file: e.target.files[0] }))}
+                  className="block w-full text-sm text-gray-500
+                    file:mr-4 file:py-2 file:px-4
+                    file:rounded-full file:border-0
+                    file:text-sm file:font-semibold
+                    file:bg-[#fdfbf7] file:text-[#c39a5c]
+                    hover:file:bg-orange-50 cursor-pointer"
+                />
+              </div>
+            </div>
+            <div className="p-6 bg-gray-50 flex justify-end gap-3">
+              <button 
+                onClick={handlePayoutModalClose}
+                disabled={payoutModal.uploading}
+                className="px-4 py-2 rounded-xl text-sm font-semibold text-gray-600 hover:bg-gray-200 transition-colors disabled:opacity-50"
+              >
+                Cancel
+              </button>
+              <button 
+                onClick={handlePayoutModalSubmit}
+                disabled={payoutModal.uploading}
+                className="px-4 py-2 rounded-xl text-sm font-semibold bg-[#c39a5c] hover:bg-[#b08b53] text-white transition-colors flex items-center gap-2 disabled:opacity-50"
+              >
+                {payoutModal.uploading ? <Loader2 className="w-4 h-4 animate-spin" /> : null}
+                {payoutModal.uploading ? 'Uploading...' : 'Confirm & Mark Paid'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
     </div>
   );
-}
+};
+
+

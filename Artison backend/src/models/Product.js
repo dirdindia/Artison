@@ -63,6 +63,10 @@ const productSchema = new mongoose.Schema({
   weight: {
     type: Number,
   },
+  shippingCharge: {
+    type: Number,
+    default: 0
+  },
   shippingClass: {
     type: String,
     trim: true,

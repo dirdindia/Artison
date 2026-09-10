@@ -34,6 +34,20 @@ const orderSchema = new mongoose.Schema(
       country: { type: String, required: true },
       postalCode: { type: String, required: true },
     },
+    artistPayouts: [
+      {
+        artist: {
+          type: mongoose.Schema.Types.ObjectId,
+          ref: 'User',
+        },
+        isUpfrontPaid: { type: Boolean, default: false },
+        upfrontPaidAt: { type: Date },
+        upfrontSlipUrl: { type: String },
+        isFinalPaid: { type: Boolean, default: false },
+        finalPaidAt: { type: Date },
+        finalSlipUrl: { type: String }
+      }
+    ],
     paymentMethod: {
       type: String,
       required: true,

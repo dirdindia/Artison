@@ -61,8 +61,8 @@ export default function Checkout() {
     }
   }, [user, step]);
 
-  const subtotal = cart.reduce((s, c) => s + c.product.price * c.qty, 0);
-  const shipping = cart.length ? 0 : 0;
+  const subtotal = cart.reduce((s, c) => s + (c.product.salePrice || c.product.price) * c.qty, 0);
+  const shipping = cart.reduce((s, c) => s + ((c.product.shippingCharge || 0) * c.qty), 0);
   const taxAmount = (subtotal * taxRate) / 100;
   const initialTotal = subtotal + shipping + taxAmount;
   const discountAmount = appliedCoupon ? appliedCoupon.discountAmount : 0;
@@ -111,7 +111,7 @@ export default function Checkout() {
     name: item.product.name || item.product.title,
     qty: item.qty,
     image: item.product.image || (item.product.images && item.product.images[0]) || "",
-    price: item.product.price,
+    price: item.product.salePrice || item.product.price,
     product: item.product._id || item.product.id,
   }));
 
@@ -407,7 +407,7 @@ export default function Checkout() {
                   <div className="space-y-2 text-sm">
                     <div className="flex justify-between text-muted-foreground"><span>Subtotal</span><span>{formatPrice(subtotal)}</span></div>
                     <div className="flex justify-between text-muted-foreground"><span>Shipping</span><span>{formatPrice(shipping)}</span></div>
-                    <div className="flex justify-between text-muted-foreground"><span>Tax ({taxRate}%)</span><span>{formatPrice(taxAmount)}</span></div>
+                    <div className="flex justify-between text-muted-foreground"><span>GST ({taxRate}%)</span><span>{formatPrice(taxAmount)}</span></div>
                     {appliedCoupon && (
                       <div className="flex justify-between text-green-600 font-medium"><span>Discount ({appliedCoupon.code})</span><span>-{formatPrice(appliedCoupon.discountAmount)}</span></div>
                     )}

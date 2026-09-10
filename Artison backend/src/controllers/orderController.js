@@ -141,9 +141,18 @@ const createRazorpayOrder = async (req, res) => {
       return res.status(500).json({ success: false, message: 'Some error occurred' });
     }
 
+    // Extract unique artists for payouts
+    const uniqueArtists = [...new Set(orderItems.filter(item => item.artist).map(item => item.artist.toString()))];
+    const artistPayouts = uniqueArtists.map(artist => ({
+      artist,
+      isUpfrontPaid: false,
+      isFinalPaid: false
+    }));
+
     // Immediately create order in our database as Pending
     const orderData = {
       orderItems,
+      artistPayouts,
       shippingAddress,
       paymentMethod,
       totalPrice: finalAmount, // Updated total price
@@ -230,19 +239,7 @@ const verifyOrderPayment = async (req, res) => {
       }, { new: true });
 
       if (item.artist) {
-        const earnings = item.price * item.qty * 0.8;
-        
-        await Transaction.create({
-          artist: item.artist,
-          type: 'Credit',
-          amount: earnings,
-          order: order._id,
-          description: `Earnings from order #${order._id.toString().substring(18)} for product ${item.name}`
-        });
-
-        await User.findByIdAndUpdate(item.artist, {
-          $inc: { walletBalance: earnings }
-        });
+        // Payouts are now handled manually by Admin per order. Wallet balance is no longer auto-credited.
       }
 
       if (product && product.stock <= 5 && lowStockAlert) {
@@ -317,19 +314,7 @@ const razorpayWebhook = async (req, res) => {
           }, { new: true });
 
           if (item.artist) {
-            const earnings = item.price * item.qty * 0.8;
-            
-            await Transaction.create({
-              artist: item.artist,
-              type: 'Credit',
-              amount: earnings,
-              order: order._id,
-              description: `Earnings from order #${order._id.toString().substring(18)} for product ${item.name}`
-            });
-
-            await User.findByIdAndUpdate(item.artist, {
-              $inc: { walletBalance: earnings }
-            });
+            // Payouts are now handled manually by Admin per order. Wallet balance is no longer auto-credited.
           }
 
           if (product && product.stock <= 5 && lowStockAlert) {
@@ -408,6 +393,8 @@ const getAllOrders = async (req, res) => {
     const total = await Order.countDocuments({});
     const orders = await Order.find({})
       .populate('user', 'id name email')
+      .populate('orderItems.product')
+      .populate('artistPayouts.artist', 'name email bankDetails')
       .sort({ createdAt: -1 })
       .skip(skip)
       .limit(limit);
@@ -529,6 +516,7 @@ const getArtistOrders = async (req, res) => {
       );
       orderObj.artistTotal = orderObj.orderItems.reduce((acc, item) => acc + (item.price * item.qty), 0);
       orderObj.artistEarnings = orderObj.artistTotal * 0.8;
+      orderObj.myPayout = orderObj.artistPayouts?.find(p => (p.artist?._id || p.artist).toString() === req.user.id) || null;
       return orderObj;
     });
 
@@ -546,6 +534,99 @@ const getArtistOrders = async (req, res) => {
   }
 };
 
+const updateArtistOrderStatus = async (req, res) => {
+  try {
+    const order = await Order.findById(req.params.id);
+    if (!order) {
+      return res.status(404).json({ success: false, message: 'Order not found' });
+    }
+
+    // Verify if this artist has items in this order
+    const hasItems = order.orderItems.some(item => 
+      item.artist && item.artist.toString() === req.user.id
+    );
+
+    if (!hasItems) {
+      return res.status(403).json({ success: false, message: 'Not authorized to update this order' });
+    }
+
+    order.orderStatus = req.body.status;
+    if (req.body.status === 'Delivered') {
+      order.isDelivered = true;
+      order.deliveredAt = Date.now();
+    }
+    
+    await order.save();
+    res.json({ success: true, data: order });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+const releaseArtistPayout = async (req, res) => {
+  try {
+    const { id, artistId } = req.params;
+    const { type, slipUrl } = req.body; // 'upfront' or 'final'
+
+    const order = await Order.findById(id).populate('orderItems.product');
+    if (!order) return res.status(404).json({ success: false, message: 'Order not found' });
+
+    const artistItems = order.orderItems.filter(item => item.artist?.toString() === artistId);
+    const productTotal = artistItems.reduce((acc, item) => acc + (item.price * item.qty), 0);
+    const shippingTotal = artistItems.reduce((acc, item) => acc + ((item.product?.shippingCharge || 0) * item.qty), 0);
+
+    const payoutIndex = order.artistPayouts.findIndex(p => p.artist.toString() === artistId);
+    if (payoutIndex === -1) {
+      return res.status(404).json({ success: false, message: 'Artist not found in this order payouts' });
+    }
+
+    const payout = order.artistPayouts[payoutIndex];
+    const Transaction = require('../models/Transaction');
+
+    if (type === 'upfront') {
+      if (payout.isUpfrontPaid) return res.status(400).json({ success: false, message: 'Upfront already paid' });
+      payout.isUpfrontPaid = true;
+      payout.upfrontPaidAt = Date.now();
+      if (slipUrl) payout.upfrontSlipUrl = slipUrl;
+
+      const upfrontAmount = (productTotal * 0.5) + shippingTotal;
+
+      await Transaction.create({
+        artist: artistId,
+        type: 'Credit',
+        amount: upfrontAmount,
+        order: order._id,
+        description: `Upfront Payout (50% + Shipping) for order #${order._id.toString().substring(18)}`
+      });
+
+    } else if (type === 'final') {
+      if (order.orderStatus !== 'Delivered') return res.status(400).json({ success: false, message: 'Order not delivered yet' });
+      if (payout.isFinalPaid) return res.status(400).json({ success: false, message: 'Final already paid' });
+      
+      payout.isFinalPaid = true;
+      payout.finalPaidAt = Date.now();
+      if (slipUrl) payout.finalSlipUrl = slipUrl;
+
+      const finalAmount = productTotal * 0.3;
+
+      await Transaction.create({
+        artist: artistId,
+        type: 'Credit',
+        amount: finalAmount,
+        order: order._id,
+        description: `Final Payout (30%) for order #${order._id.toString().substring(18)}`
+      });
+    } else {
+      return res.status(400).json({ success: false, message: 'Invalid payout type' });
+    }
+
+    await order.save();
+    res.json({ success: true, data: order });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
 module.exports = {
   getMyOrders,
   createRazorpayOrder,
@@ -556,4 +637,6 @@ module.exports = {
   markOrderAsViewed,
   getOrdersByUser,
   getArtistOrders,
+  updateArtistOrderStatus,
+  releaseArtistPayout,
 };

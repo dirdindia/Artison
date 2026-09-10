@@ -249,7 +249,16 @@ const Products = () => {
                     </td>
                     <td className="px-6 py-4">{product.category?.name || '-'}</td>
                     <td className="px-6 py-4">{product.subCategory?.name || '-'}</td>
-                    <td className="px-6 py-4 font-medium">₹{product.price}</td>
+                    <td className="px-6 py-4 font-medium">
+                      {product.salePrice ? (
+                        <div className="flex flex-col gap-1">
+                          <span className="text-xs font-normal text-gray-500">Regular: ₹{product.price}</span>
+                          <span className="text-sm font-semibold text-green-600">Sale: ₹{product.salePrice}</span>
+                        </div>
+                      ) : (
+                        <span>₹{product.price}</span>
+                      )}
+                    </td>
                     <td className="px-6 py-4">
                       <div className="flex items-center gap-2">
                         <span>{product.stock}</span>

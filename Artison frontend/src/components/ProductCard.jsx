@@ -38,7 +38,7 @@ export function ProductCard({ product }) {
         <h3 className="truncate font-display text-lg font-semibold leading-tight text-foreground transition-colors group-hover:text-primary">{product.name || product.title}</h3>
         <p className="truncate text-sm font-medium text-muted-foreground">{product.artist || 'Independent Artist'}</p>
         <div className="flex items-center justify-between pt-2">
-          <div className="font-display text-base font-bold text-foreground">{formatPrice(product.price)}</div>
+          <div className="font-display text-base font-bold text-foreground">{formatPrice(product.salePrice || product.price)}</div>
           <button 
             onClick={handleAddToCart}
             className="rounded-full bg-primary/10 p-2 text-primary hover:bg-primary hover:text-primary-foreground transition-colors"
