@@ -1,0 +1,37 @@
+{
+  "expo": {
+    "name": "KalaKosh",
+    "slug": "ecommerce-app",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/logo.png",
+    "userInterfaceStyle": "light",
+    "splash": {
+      "image": "./assets/logo.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#131921"
+    },
+    "assetBundlePatterns": [
+      "**/*"
+    ],
+    "ios": {
+      "supportsTablet": true
+    },
+    "android": {
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/logo.png",
+        "backgroundColor": "#131921"
+      },
+      "package": "com.digvijay108.ecommerceapp"
+    },
+    "web": {},
+    "extra": {
+      "eas": {
+        "projectId": "db22a171-09da-42e2-9587-b37ecbca9b77"
+      }
+    },
+    "plugins": [
+      "expo-font"
+    ]
+  }
+}

@@ -224,7 +224,7 @@ export function AppShell({ children, title, transparentHeader = false }) {
                   <DropdownMenuTrigger className={`px-4 py-2 text-sm font-medium transition-colors outline-none cursor-pointer ${transparentHeader ? 'text-amber-950 hover:text-amber-950/80' : 'text-foreground hover:text-foreground/80'}`}>
                     Sign In
                   </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end" className="w-40 mt-2">
+                  <DropdownMenuContent align="end" className="w-32 mt-2">
                     <DropdownMenuItem asChild>
                       <Link to="/login" state={{ role: 'user' }} className="cursor-pointer w-full">User</Link>
                     </DropdownMenuItem>
@@ -270,15 +270,15 @@ export function AppShell({ children, title, transparentHeader = false }) {
                     </div>
                     <span>{t.label}</span>
                   </DropdownMenuTrigger>
-                  <DropdownMenuContent align="center" side="top" sideOffset={10} className="w-40">
+                  <DropdownMenuContent align="center" side="top" sideOffset={10} className="w-32">
                     <DropdownMenuItem asChild>
-                      <Link to="/login" state={{ role: 'user' }} className="cursor-pointer w-full">User Sign In</Link>
+                      <Link to="/login" state={{ role: 'user' }} className="cursor-pointer w-full">User</Link>
                     </DropdownMenuItem>
                     <DropdownMenuItem asChild>
-                      <Link to="/login" state={{ role: 'artist' }} className="cursor-pointer w-full">Artist Sign In</Link>
+                      <Link to="/login" state={{ role: 'artist' }} className="cursor-pointer w-full">Artist</Link>
                     </DropdownMenuItem>
                     <DropdownMenuItem asChild>
-                      <a href={import.meta.env.DEV ? "http://localhost:5173" : "https://admin.kala-kosh.co.in"} className="cursor-pointer w-full text-primary font-medium">Admin Sign In</a>
+                      <a href={import.meta.env.DEV ? "http://localhost:5173" : "https://admin.kala-kosh.co.in"} className="cursor-pointer w-full text-primary font-medium">Admin</a>
                     </DropdownMenuItem>
                   </DropdownMenuContent>
                 </DropdownMenu>
