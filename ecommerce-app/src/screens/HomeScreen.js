@@ -159,7 +159,7 @@ const HomeScreen = ({ navigation }) => {
 
             {/* Featured Works */}
             <View style={styles.sectionNoTopPad}>
-              <View style={styles.sectionHeader}>
+              <View style={[styles.sectionHeader, { paddingHorizontal: 16 }]}>
                 <View>
                   <Text style={styles.sectionTitle}>Featured works</Text>
                   <Text style={styles.sectionSubtitle}>Hand picked this week</Text>
@@ -214,7 +214,7 @@ const HomeScreen = ({ navigation }) => {
 
             {/* Trending Now */}
             <View style={styles.sectionNoTopPad}>
-              <View style={styles.sectionHeader}>
+              <View style={[styles.sectionHeader, { paddingHorizontal: 16 }]}>
                 <Text style={styles.sectionTitle}>Trending now</Text>
                 <TouchableOpacity style={styles.viewAllRow}>
                   <Text style={styles.viewAllText}>View all trending</Text>

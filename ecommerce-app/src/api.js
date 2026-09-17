@@ -1,8 +1,8 @@
 import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-const baseURL = 'http://localhost:5000/api'; // Local URL for Web Testing
-// const baseURL = 'https://api.kala-kosh.co.in/api'; // Live URL
+// const baseURL = 'http://localhost:5000/api'; // Local URL for Web Testing
+const baseURL = 'https://api.kala-kosh.co.in/api'; // Live URL
 
 const api = axios.create({
   baseURL,
