@@ -14,6 +14,22 @@ export function CartProvider({ children }) {
   }, [cart]);
 
   const addToCart = (product) => {
+    const newArtistId = typeof product.artist === 'object' ? product.artist?._id : product.artist;
+    
+    if (cart.length > 0) {
+      const firstItemArtist = typeof cart[0].product.artist === 'object' 
+        ? cart[0].product.artist?._id 
+        : cart[0].product.artist;
+        
+      const firstArtistStr = firstItemArtist ? String(firstItemArtist) : 'independent';
+      const newArtistStr = newArtistId ? String(newArtistId) : 'independent';
+        
+      if (firstArtistStr !== newArtistStr) {
+        toast.error('You cannot mix products from different artists or independent products. Please clear your cart first.');
+        return;
+      }
+    }
+
     setCart((prev) => {
       const productId = product.id || product._id;
       const existing = prev.find((c) => (c.product.id || c.product._id) === productId);

@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState, useEffect } from "react";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import Toast from "react-native-toast-message";
 
 // This file holds ALL the app's shared data (user, cart, orders)
 // using simple React State. No Redux, no external library.
@@ -43,17 +44,36 @@ export const AppProvider = ({ children }) => {
   const [cart, setCart] = useState([]);
 
   const addToCart = (product, qty = 1) => {
+    const newArtistId = typeof product.artist === 'object' ? product.artist?._id : product.artist;
+    
+    if (cart.length > 0) {
+      const firstItemArtist = typeof cart[0].product.artist === 'object' 
+        ? cart[0].product.artist?._id 
+        : cart[0].product.artist;
+        
+      const firstArtistStr = firstItemArtist ? String(firstItemArtist) : 'independent';
+      const newArtistStr = newArtistId ? String(newArtistId) : 'independent';
+        
+      if (firstArtistStr !== newArtistStr) {
+        Toast.show({ 
+          type: 'error', 
+          text1: 'Different Artist', 
+          text2: 'You cannot mix products from different artists or independent products. Please clear your cart first.' 
+        });
+        return;
+      }
+    }
+
     setCart((prevCart) => {
       const existing = prevCart.find((item) => item.product._id === product._id);
       if (existing) {
-        // already in cart -> just increase quantity
         return prevCart.map((item) =>
           item.product._id === product._id ? { ...item, qty: item.qty + qty } : item
         );
       }
-      // not in cart yet -> add as new item
       return [...prevCart, { product, qty }];
     });
+    Toast.show({ type: 'success', text1: "Added to Cart", text2: `${product.name || product.title} added to your cart.` });
   };
 
   const removeFromCart = (productId) => {

@@ -12,7 +12,7 @@ export default function App() {
     <AppProvider>
       <StatusBar style="dark" />
       <AppNavigator />
-      <Toast />
+      <Toast visibilityTime={2000} />
     </AppProvider>
   );
 }

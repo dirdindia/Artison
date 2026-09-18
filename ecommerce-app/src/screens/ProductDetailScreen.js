@@ -22,7 +22,6 @@ const ProductDetailScreen = ({ route, navigation }) => {
 
   const handleAddToCart = () => {
     addToCart(product, qty);
-    Toast.show({ type: 'success', text1: "Added to Cart", text2: `${product.title} added to your cart.` });
   };
 
   const handleBuyNow = () => {
@@ -37,7 +36,7 @@ const ProductDetailScreen = ({ route, navigation }) => {
 
         <View style={styles.details}>
           <Text style={styles.category}>{product.category?.name || product.category}</Text>
-          <Text style={styles.title}>{product.title}</Text>
+          <Text style={styles.title}>{product.name || product.title}</Text>
           <Text style={styles.rating}>⭐ {product.rating} rating</Text>
 
           <View style={styles.priceRow}>

@@ -7,6 +7,7 @@ const {
   getAllCustomers,
   getAllArtists,
   toggleArtistApproval,
+  getPublicArtists,
 } = require('../controllers/userController');
 
 const router = express.Router();
@@ -16,6 +17,9 @@ router.route('/profile')
   .put(protect, updateUserProfile);
 
 router.put('/password', protect, changePassword);
+
+// Public route for fetching artists
+router.get('/public/artists', getPublicArtists);
 
 // Admin routes
 router.get('/', protect, protectAdmin, getAllCustomers);

@@ -218,6 +218,23 @@ const toggleArtistApproval = async (req, res) => {
   }
 };
 
+// @desc    Get public approved artists
+// @route   GET /api/users/public/artists
+// @access  Public
+const getPublicArtists = async (req, res) => {
+  try {
+    const users = await User.find({ role: 'artist', isApproved: true })
+      .select('name avatar bio portfolioUrl');
+
+    res.json({
+      success: true,
+      data: users,
+    });
+  } catch (error) {
+    res.status(500).json({ success: false, message: 'Server error' });
+  }
+};
+
 module.exports = {
   getUserProfile,
   updateUserProfile,
@@ -225,4 +242,5 @@ module.exports = {
   getAllCustomers,
   getAllArtists,
   toggleArtistApproval,
+  getPublicArtists,
 };

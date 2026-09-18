@@ -43,6 +43,11 @@ const getProducts = async (req, res) => {
       query.category = { $in: categories };
     }
     
+    if (req.query.artist) {
+      const artists = req.query.artist.split(',');
+      query.artist = { $in: artists };
+    }
+    
     if (req.query.subCategory) {
       const subCategories = req.query.subCategory.split(',');
       query.subCategory = { $in: subCategories };

@@ -199,7 +199,7 @@ const MainTabs = () => (
           Home: "home-outline",
           Explore: "compass-outline",
           Cart: "cart-outline",
-          Orders: "receipt-outline",
+          // Orders: "receipt-outline",
           Account: "person-outline",
         };
         if (route.name === "Cart") {
