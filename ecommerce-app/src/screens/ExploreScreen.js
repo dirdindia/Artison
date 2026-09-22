@@ -6,7 +6,7 @@ import { COLORS, SIZES } from "../theme";
 import api from "../api";
 import ProductCard from "../components/ProductCard";
 
-const ExploreScreen = ({ navigation }) => {
+const ExploreScreen = ({ route, navigation }) => {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(false);
   const [loadingMore, setLoadingMore] = useState(false);
@@ -20,7 +20,8 @@ const ExploreScreen = ({ navigation }) => {
   const [subCategories, setSubCategories] = useState([]);
   const [artists, setArtists] = useState([]);
   
-  const [selectedCategory, setSelectedCategory] = useState("");
+  const [selectedCategory, setSelectedCategory] = useState(route?.params?.category || "");
+  const [selectedTag, setSelectedTag] = useState(route?.params?.tag || "");
   const [selectedSubCategory, setSelectedSubCategory] = useState("");
   const [selectedArtist, setSelectedArtist] = useState("");
   const [maxPrice, setMaxPrice] = useState(50000); // Default max price for slider
@@ -37,7 +38,7 @@ const ExploreScreen = ({ navigation }) => {
     setProducts([]);
     setHasMore(true);
     fetchProducts(1, true);
-  }, [selectedCategory, searchQuery]);
+  }, [selectedCategory, selectedTag, searchQuery]);
 
   const fetchCategories = async () => {
     try {
@@ -84,6 +85,7 @@ const ExploreScreen = ({ navigation }) => {
       if (selectedCategory) query += `&category=${selectedCategory}`;
       if (selectedSubCategory) query += `&subCategory=${selectedSubCategory}`;
       if (selectedArtist) query += `&artist=${selectedArtist}`;
+      if (selectedTag) query += `&tags=${selectedTag}`;
       if (maxPrice && maxPrice < 50000) query += `&maxPrice=${maxPrice}`;
 
       const res = await api.get(query);
@@ -164,20 +166,45 @@ const ExploreScreen = ({ navigation }) => {
       <View style={styles.categoriesWrapper}>
         <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.catScroll}>
           <TouchableOpacity 
-            style={[styles.catPill, !selectedCategory && styles.catPillActive]} 
-            onPress={() => setSelectedCategory("")}
+            style={[styles.catPill, !selectedCategory && !selectedTag && styles.catPillActive]} 
+            onPress={() => {
+              setSelectedCategory("");
+              setSelectedTag("");
+            }}
           >
-            <Text style={[styles.catPillText, !selectedCategory && styles.catPillTextActive]}>All</Text>
+            <Text style={[styles.catPillText, !selectedCategory && !selectedTag && styles.catPillTextActive]}>All</Text>
           </TouchableOpacity>
           {categories.map(cat => (
             <TouchableOpacity 
               key={cat._id}
               style={[styles.catPill, selectedCategory === cat._id && styles.catPillActive]} 
-              onPress={() => setSelectedCategory(cat._id)}
+              onPress={() => {
+                setSelectedTag("");
+                setSelectedCategory(cat._id);
+              }}
             >
               <Text style={[styles.catPillText, selectedCategory === cat._id && styles.catPillTextActive]}>{cat.name}</Text>
             </TouchableOpacity>
           ))}
+          {/* Add Featured and Trending pills for easy switching */}
+          <TouchableOpacity 
+            style={[styles.catPill, selectedTag === "Featured" && styles.catPillActive]} 
+            onPress={() => {
+              setSelectedCategory("");
+              setSelectedTag("Featured");
+            }}
+          >
+            <Text style={[styles.catPillText, selectedTag === "Featured" && styles.catPillTextActive]}>Featured</Text>
+          </TouchableOpacity>
+          <TouchableOpacity 
+            style={[styles.catPill, selectedTag === "Trending" && styles.catPillActive]} 
+            onPress={() => {
+              setSelectedCategory("");
+              setSelectedTag("Trending");
+            }}
+          >
+            <Text style={[styles.catPillText, selectedTag === "Trending" && styles.catPillTextActive]}>Trending</Text>
+          </TouchableOpacity>
         </ScrollView>
       </View>
 

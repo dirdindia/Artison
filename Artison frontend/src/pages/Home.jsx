@@ -81,19 +81,15 @@ export default function Home() {
   const [approvedFeedbacks, setApprovedFeedbacks] = useState([]);
   const [activeFeedbackIndex, setActiveFeedbackIndex] = useState(0);
 
-  const [activeCoupons, setActiveCoupons] = useState([
-    { _id: '1', code: 'WELCOME20', discountType: 'percentage', discountValue: 20, applicability: 'all', description: 'Get 20% off on all products site-wide!', minSpend: 1000 },
-    { _id: '2', code: 'SOHRAI500', discountType: 'fixed', discountValue: 500, applicability: 'categories', selectedCategories: [{name: 'Sohrai Art'}], description: 'Flat ₹500 off on any Sohrai Art piece.' },
-    { _id: '3', code: 'SPECIAL10', discountType: 'percentage', discountValue: 10, applicability: 'products', selectedProducts: [{name: 'Terracotta Horse'}], description: '10% off exclusively on selected product.' }
-  ]);
+  const [activeCoupons, setActiveCoupons] = useState([]);
   const [currentCouponIndex, setCurrentCouponIndex] = useState(0);
 
   useEffect(() => {
     const fetchCoupons = async () => {
       try {
         const res = await api.get('/coupons/active');
-        if (res.data?.success && res.data.data.length > 0) {
-          setActiveCoupons(res.data.data);
+        if (res.data?.success) {
+          setActiveCoupons(res.data.data || []);
         }
       } catch (error) {
         console.error("Error fetching coupons:", error);

@@ -10,6 +10,7 @@ const HomeScreen = ({ navigation }) => {
   const [categories, setCategories] = useState([]);
   const [featuredWorks, setFeaturedWorks] = useState([]);
   const [trendingWorks, setTrendingWorks] = useState([]);
+  const [activeCoupons, setActiveCoupons] = useState([]);
   const [loading, setLoading] = useState(true);
   const [subscribeEmail, setSubscribeEmail] = useState("");
   const [isSubscribing, setIsSubscribing] = useState(false);
@@ -21,6 +22,11 @@ const HomeScreen = ({ navigation }) => {
         const catRes = await api.get('/categories');
         if (catRes.data && catRes.data.success) {
           setCategories(catRes.data.data);
+        }
+
+        const couponRes = await api.get('/coupons/active');
+        if (couponRes.data && couponRes.data.success) {
+          setActiveCoupons(couponRes.data.data || []);
         }
 
         const prodRes = await api.get('/products?page=1&limit=30');
@@ -137,14 +143,18 @@ const HomeScreen = ({ navigation }) => {
                   <Text style={styles.sectionSubtitle}>SHOP BY</Text>
                   <Text style={styles.sectionTitle}>Categories</Text>
                 </View>
-                <TouchableOpacity style={styles.viewAllRow}>
+                <TouchableOpacity style={styles.viewAllRow} onPress={() => navigation.navigate("Explore")}>
                   <Text style={styles.viewAllText}>View All</Text>
                   <MaterialIcons name="arrow-forward" size={12} color="#a0683a" />
                 </TouchableOpacity>
               </View>
               <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.categoriesList}>
                 {categories.map((cat, idx) => (
-                  <TouchableOpacity key={cat._id || idx} style={styles.categoryItem}>
+                  <TouchableOpacity 
+                    key={cat._id || idx} 
+                    style={styles.categoryItem}
+                    onPress={() => navigation.navigate("Explore", { category: cat._id })}
+                  >
                     <View style={styles.categoryIconCircle}>
                       <Image 
                         source={{ uri: cat.image || "https://images.unsplash.com/photo-1606760227091-3dd870d97f1d?q=80&w=200&auto=format&fit=crop" }} 
@@ -164,7 +174,7 @@ const HomeScreen = ({ navigation }) => {
                   <Text style={styles.sectionTitle}>Featured works</Text>
                   <Text style={styles.sectionSubtitle}>Hand picked this week</Text>
                 </View>
-                <TouchableOpacity style={styles.viewAllRow}>
+                <TouchableOpacity style={styles.viewAllRow} onPress={() => navigation.navigate("Explore", { tag: 'Featured' })}>
                   <Text style={styles.viewAllText}>View all featured</Text>
                   <MaterialIcons name="arrow-forward" size={12} color="#a0683a" />
                 </TouchableOpacity>
@@ -175,48 +185,52 @@ const HomeScreen = ({ navigation }) => {
             </View>
 
             {/* Active Offers */}
-            <View style={styles.section}>
-              <View style={styles.sectionHeader}>
-                <View>
-                  <Text style={styles.sectionTitle}>Active Offers</Text>
-                  <Text style={styles.sectionSubtitle}>Exclusive discounts just for you</Text>
-                </View>
-              </View>
-              <TouchableOpacity style={styles.offerCard}>
-                <Image 
-                  source={{ uri: "https://images.unsplash.com/photo-1549465220-1a8b9238cd48?q=80&w=800&auto=format&fit=crop" }} 
-                  style={styles.offerImage} 
-                  resizeMode="cover" 
-                />
-                <View style={styles.offerContent}>
-                  <View style={styles.offerDiscountCircle}>
-                    <Text style={styles.offerDiscountNumber}>20%</Text>
-                    <Text style={styles.offerDiscountText}>Off</Text>
+            {activeCoupons.length > 0 && (
+              <View style={styles.section}>
+                <View style={styles.sectionHeader}>
+                  <View>
+                    <Text style={styles.sectionTitle}>Active Offers</Text>
+                    <Text style={styles.sectionSubtitle}>Exclusive discounts just for you</Text>
                   </View>
-                  <View style={styles.offerTextContent}>
-                    <View style={styles.offerTag}>
-                      <MaterialIcons name="local-offer" size={10} color="#c29b38" />
-                      <Text style={styles.offerTagText}>Festival Offer</Text>
-                    </View>
-                    <Text style={styles.offerMainText}>Get 20% off on all products site-wide!</Text>
-                    <View style={styles.offerCodeRow}>
-                      <View style={styles.offerCodeBox}>
-                        <Text style={styles.offerCodeText}>WELCOME20</Text>
+                </View>
+                {activeCoupons.map((coupon, idx) => (
+                  <TouchableOpacity key={coupon._id || idx} style={[styles.offerCard, idx > 0 && { marginTop: 16 }]}>
+                    <Image 
+                      source={{ uri: "https://images.unsplash.com/photo-1549465220-1a8b9238cd48?q=80&w=800&auto=format&fit=crop" }} 
+                      style={styles.offerImage} 
+                      resizeMode="cover" 
+                    />
+                    <View style={styles.offerContent}>
+                      <View style={styles.offerDiscountCircle}>
+                        <Text style={styles.offerDiscountNumber}>{coupon.discountType === 'percentage' ? `${coupon.discountValue}%` : `₹${coupon.discountValue}`}</Text>
+                        <Text style={styles.offerDiscountText}>Off</Text>
                       </View>
-                      <TouchableOpacity style={styles.offerCopyBtn}>
-                        <Text style={styles.offerCopyText}>Copy code</Text>
-                      </TouchableOpacity>
+                      <View style={styles.offerTextContent}>
+                        <View style={styles.offerTag}>
+                          <MaterialIcons name="local-offer" size={10} color="#c29b38" />
+                          <Text style={styles.offerTagText}>Special Offer</Text>
+                        </View>
+                        <Text style={styles.offerMainText}>{coupon.description || `Get ${coupon.discountType === 'percentage' ? `${coupon.discountValue}%` : `₹${coupon.discountValue}`} off on your order!`}</Text>
+                        <View style={styles.offerCodeRow}>
+                          <View style={styles.offerCodeBox}>
+                            <Text style={styles.offerCodeText}>{coupon.code}</Text>
+                          </View>
+                          <TouchableOpacity style={styles.offerCopyBtn}>
+                            <Text style={styles.offerCopyText}>Copy code</Text>
+                          </TouchableOpacity>
+                        </View>
+                      </View>
                     </View>
-                  </View>
-                </View>
-              </TouchableOpacity>
-            </View>
+                  </TouchableOpacity>
+                ))}
+              </View>
+            )}
 
             {/* Trending Now */}
             <View style={styles.sectionNoTopPad}>
               <View style={[styles.sectionHeader, { paddingHorizontal: 16 }]}>
                 <Text style={styles.sectionTitle}>Trending now</Text>
-                <TouchableOpacity style={styles.viewAllRow}>
+                <TouchableOpacity style={styles.viewAllRow} onPress={() => navigation.navigate("Explore", { tag: 'Trending' })}>
                   <Text style={styles.viewAllText}>View all trending</Text>
                   <MaterialIcons name="arrow-forward" size={12} color="#a0683a" />
                 </TouchableOpacity>
