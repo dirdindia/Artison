@@ -38,10 +38,24 @@ export function ProductCard({ product }) {
         <h3 className="truncate font-display text-lg font-semibold leading-tight text-foreground transition-colors group-hover:text-primary">{product.name || product.title}</h3>
         <p className="truncate text-sm font-medium text-muted-foreground">{product.artist || 'Independent Artist'}</p>
         <div className="flex items-center justify-between pt-2">
-          <div className="font-display text-base font-bold text-foreground">{formatPrice(product.salePrice || product.price)}</div>
+          <div className="flex flex-col">
+            <div className="font-display text-base font-bold text-foreground">
+              {formatPrice(product.salePrice || product.price)}
+            </div>
+            {product.salePrice && product.price > product.salePrice && (
+              <div className="flex items-center gap-2 text-xs mt-0.5">
+                <span className="text-muted-foreground line-through">
+                  {formatPrice(product.price)}
+                </span>
+                <span className="font-medium text-green-600 dark:text-green-500">
+                  {Math.round(((product.price - product.salePrice) / product.price) * 100)}% OFF
+                </span>
+              </div>
+            )}
+          </div>
           <button 
             onClick={handleAddToCart}
-            className="rounded-full bg-primary/10 p-2 text-primary hover:bg-primary hover:text-primary-foreground transition-colors"
+            className="rounded-full bg-primary/10 p-2 text-primary hover:bg-primary hover:text-primary-foreground transition-colors mt-auto"
             title="Add to Cart"
           >
             <ShoppingCart className="h-4 w-4" />

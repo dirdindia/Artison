@@ -7,6 +7,7 @@ const bcrypt = require('bcryptjs');
 const Notification = require('../models/Notification');
 const Settings = require('../models/Settings');
 const nodemailer = require('nodemailer');
+const axios = require('axios');
 
 const transporter = nodemailer.createTransport({
   host: 'smtp.gmail.com',
@@ -627,6 +628,211 @@ const releaseArtistPayout = async (req, res) => {
   }
 };
 
+// --- NimbusPost Integration ---
+
+const createShipment = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { weight, length, width, height } = req.body;
+    
+    const order = await Order.findById(id).populate('user', 'name email phone');
+    if (!order) {
+      return res.status(404).json({ success: false, message: 'Order not found' });
+    }
+
+    if (order.awbNumber) {
+      return res.status(400).json({ success: false, message: 'Shipment already created for this order' });
+    }
+
+    const payload = {
+      order_number: `ORD-${order._id}-${Date.now()}`,
+      shipping_charges: 0,
+      discount: order.discountAmount || 0,
+      cod_charges: 0,
+      payment_type: order.isPaid ? 'prepaid' : 'cod',
+      order_amount: order.totalPrice,
+      package_weight: weight,
+      package_length: length,
+      package_width: width,
+      package_height: height,
+      request_auto_pickup: "yes",
+      consignee: {
+        name: order.user?.name || order.guestName || 'Customer',
+        address: order.shippingAddress.street,
+        city: order.shippingAddress.city,
+        state: order.shippingAddress.state,
+        pincode: order.shippingAddress.postalCode,
+        phone: order.user?.phone || order.guestPhone || '9999999999'
+      },
+      pickup: {
+        warehouse_name: process.env.NIMBUSPOST_WAREHOUSE_NAME || 'Primary'
+      },
+      order_items: order.orderItems.map(item => ({
+        name: item.name,
+        qty: item.qty,
+        price: item.price,
+        sku: item.product.toString()
+      }))
+    };
+
+    const apiKey = process.env.NIMBUSPOST_API_KEY;
+    
+    let response;
+    
+    // If a real API key is configured, make the actual request
+    if (apiKey && apiKey !== 'dummy-api-key') {
+      response = await axios.post('https://api.nimbuspost.com/v1/shipments', payload, {
+        headers: { 'Authorization': `Bearer ${apiKey}` }
+      });
+    } else {
+      // MOCKING the response since we don't have real credentials yet
+      console.log('Mocking NimbusPost Request with payload:', payload);
+      response = {
+        data: {
+          status: true,
+          data: {
+            awb_number: `AWB${Math.floor(Math.random() * 100000000)}`,
+            courier_id: 1,
+            courier_name: "Delhivery Surface",
+            shipment_id: `SHIP${Math.floor(Math.random() * 100000000)}`,
+            label: "https://nimbuspost.com/dummy-label.pdf"
+          }
+        }
+      };
+    }
+
+    if (response.data && response.data.status) {
+      order.awbNumber = response.data.data.awb_number;
+      order.courierName = response.data.data.courier_name;
+      order.nimbusPostOrderId = response.data.data.shipment_id;
+      order.shippingLabelUrl = response.data.data.label;
+      order.orderStatus = 'Shipped';
+      order.shippingStatus = 'Manifested';
+      await order.save();
+
+      // Send Email Notification
+      const customerEmail = order.user?.email || order.guestEmail;
+      if (customerEmail) {
+        const mailOptions = {
+          from: process.env.EMAIL_USER,
+          to: customerEmail,
+          subject: `Your Artisna Order has been Shipped!`,
+          html: `
+            <div style="font-family: Arial, sans-serif; max-w: 600px; margin: 0 auto;">
+              <h2>Good news! Your order is on the way.</h2>
+              <p>Your order <strong>#${order._id}</strong> has been shipped via <strong>${order.courierName}</strong>.</p>
+              <p>Tracking Number (AWB): <strong>${order.awbNumber}</strong></p>
+              <a href="https://nimbuspost.com/track/${order.awbNumber}" style="display: inline-block; background: #3b2f2f; color: #fff; padding: 10px 20px; text-decoration: none; border-radius: 5px; margin-top: 15px;">Track Shipment</a>
+            </div>
+          `
+        };
+        transporter.sendMail(mailOptions).catch(err => console.log('Tracking Email Error:', err));
+      }
+
+      res.json({ success: true, data: order });
+    } else {
+      res.status(400).json({ success: false, message: 'Failed to create shipment on NimbusPost' });
+    }
+
+  } catch (error) {
+    console.error('Shipment error:', error.response?.data || error.message);
+    res.status(500).json({ success: false, message: error.response?.data?.message || 'Failed to generate shipment' });
+  }
+};
+
+const trackShipment = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const order = await Order.findById(id);
+    
+    if (!order || !order.awbNumber) {
+      return res.status(404).json({ success: false, message: 'Order or AWB not found' });
+    }
+
+    const apiKey = process.env.NIMBUSPOST_API_KEY;
+    
+    let trackingData;
+    
+    if (apiKey && apiKey !== 'dummy-api-key') {
+      const response = await axios.get(`https://api.nimbuspost.com/v1/shipments/track/${order.awbNumber}`, {
+        headers: { 'Authorization': `Bearer ${apiKey}` }
+      });
+      trackingData = response.data.data;
+    } else {
+      // MOCKING the response
+      trackingData = {
+        status: order.shippingStatus,
+        history: [
+          { date: new Date().toISOString(), message: "Shipment manifested", location: "Warehouse" }
+        ]
+      };
+    }
+
+    res.json({ success: true, data: trackingData });
+  } catch (error) {
+    res.status(500).json({ success: false, message: 'Failed to fetch tracking details' });
+  }
+};
+
+const nimbuspostWebhook = async (req, res) => {
+  try {
+    // NimbusPost typically sends awb_number and current_status in the payload
+    // Example: { "awb_number": "AWB123", "status": "Delivered", ... }
+    const payload = req.body;
+    const awb = payload.awb || payload.awb_number;
+    const status = payload.status || payload.current_status;
+
+    if (!awb || !status) {
+      return res.status(400).json({ success: false, message: 'Invalid payload' });
+    }
+
+    const order = await Order.findOne({ awbNumber: awb }).populate('user', 'name email');
+    if (!order) {
+      // If we don't know this AWB, just return 200 so they stop retrying
+      return res.status(200).json({ success: true, message: 'AWB not found in our system' });
+    }
+
+    // Update tracking status
+    order.shippingStatus = status;
+
+    // Check if it's delivered
+    // Different couriers might use slightly different strings, but usually it contains 'Delivered'
+    const statusLower = status.toLowerCase();
+    if (statusLower.includes('delivered') || statusLower === 'dlvd') {
+      order.orderStatus = 'Delivered';
+      order.isDelivered = true;
+      order.deliveredAt = Date.now();
+
+      // Optionally send a delivery confirmation email
+      const customerEmail = order.user?.email || order.guestEmail;
+      if (customerEmail) {
+        const mailOptions = {
+          from: process.env.EMAIL_USER,
+          to: customerEmail,
+          subject: `Your Artisna Order has been Delivered!`,
+          html: `
+            <div style="font-family: Arial, sans-serif; max-w: 600px; margin: 0 auto;">
+              <h2>It's here!</h2>
+              <p>Your order <strong>#${order._id}</strong> has been successfully delivered.</p>
+              <p>We hope you love it! If you have any issues, feel free to contact us.</p>
+            </div>
+          `
+        };
+        transporter.sendMail(mailOptions).catch(err => console.log('Delivery Email Error:', err));
+      }
+    } else if (statusLower.includes('return') || statusLower.includes('rto')) {
+      order.orderStatus = 'Returned';
+    }
+
+    await order.save();
+    res.status(200).json({ success: true, message: 'Webhook processed' });
+
+  } catch (error) {
+    console.error('NimbusPost Webhook Error:', error);
+    res.status(500).json({ success: false, message: 'Server Error' });
+  }
+};
+
 module.exports = {
   getMyOrders,
   createRazorpayOrder,
@@ -639,4 +845,7 @@ module.exports = {
   getArtistOrders,
   updateArtistOrderStatus,
   releaseArtistPayout,
+  createShipment,
+  trackShipment,
+  nimbuspostWebhook
 };

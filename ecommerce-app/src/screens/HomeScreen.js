@@ -49,33 +49,47 @@ const HomeScreen = ({ navigation }) => {
     fetchData();
   }, []);
 
-  const renderProductCard = (item) => (
-    <TouchableOpacity
-      key={item._id}
-      style={styles.productCard}
-      onPress={() => navigation.navigate("ProductDetail", { product: item })}
-    >
-      <View style={styles.productImageContainer}>
-        <Image source={{ uri: item.image }} style={styles.productImage} resizeMode="cover" />
-        <View style={styles.productCategoryBadge}>
-          <Text style={styles.productCategoryText}>{item.category?.name || "ART"}</Text>
-        </View>
-        <TouchableOpacity style={styles.productFavButton}>
-          <MaterialIcons name="favorite-border" size={14} color="#451a03" />
-        </TouchableOpacity>
-      </View>
-      <View style={styles.productInfo}>
-        <Text style={styles.productTitle} numberOfLines={1}>{item.name}</Text>
-        <Text style={styles.productSubtitle}>Independent Artist</Text>
-        <View style={styles.productPriceRow}>
-          <Text style={styles.productPrice}>₹{item.price}</Text>
-          <TouchableOpacity style={styles.cartBtn} onPress={() => addToCart(item)}>
-            <MaterialIcons name="shopping-cart" size={14} color="#8b5a2b" />
+  const renderProductCard = (item) => {
+    const currentPrice = item.salePrice ? item.salePrice : item.price;
+    const originalPrice = item.salePrice ? item.price : null;
+    const discountPercent = originalPrice 
+      ? Math.round(((originalPrice - currentPrice) / originalPrice) * 100)
+      : 0;
+
+    return (
+      <TouchableOpacity
+        key={item._id}
+        style={styles.productCard}
+        onPress={() => navigation.navigate("ProductDetail", { product: item })}
+      >
+        <View style={styles.productImageContainer}>
+          <Image source={{ uri: item.image }} style={styles.productImage} resizeMode="cover" />
+          <View style={styles.productCategoryBadge}>
+            <Text style={styles.productCategoryText}>{item.category?.name || "ART"}</Text>
+          </View>
+          <TouchableOpacity style={styles.productFavButton}>
+            <MaterialIcons name="favorite-border" size={14} color="#451a03" />
           </TouchableOpacity>
         </View>
-      </View>
-    </TouchableOpacity>
-  );
+        <View style={styles.productInfo}>
+          <Text style={styles.productTitle} numberOfLines={1}>{item.name}</Text>
+          <Text style={styles.productSubtitle}>Independent Artist</Text>
+          <View style={styles.productPriceRow}>
+            <View>
+              <View style={{ flexDirection: "row", alignItems: "center" }}>
+                <Text style={styles.productPrice}>₹{currentPrice}</Text>
+                {originalPrice && <Text style={{ fontSize: 10, color: "#8c7468", textDecorationLine: "line-through", marginLeft: 4 }}>₹{originalPrice}</Text>}
+              </View>
+              {discountPercent > 0 && <Text style={{ fontSize: 10, color: "#c29b38", marginTop: 2, fontWeight: "bold" }}>{discountPercent}% off</Text>}
+            </View>
+            <TouchableOpacity style={styles.cartBtn} onPress={() => addToCart(item)}>
+              <MaterialIcons name="shopping-cart" size={14} color="#8b5a2b" />
+            </TouchableOpacity>
+          </View>
+        </View>
+      </TouchableOpacity>
+    );
+  };
 
   const handleSubscribe = async () => {
     if (!subscribeEmail.trim()) {

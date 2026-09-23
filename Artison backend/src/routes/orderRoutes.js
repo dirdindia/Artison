@@ -11,7 +11,10 @@ const {
   getOrdersByUser,
   getArtistOrders,
   updateArtistOrderStatus,
-  releaseArtistPayout
+  releaseArtistPayout,
+  createShipment,
+  trackShipment,
+  nimbuspostWebhook
 } = require('../controllers/orderController');
 
 const router = express.Router();
@@ -22,10 +25,13 @@ router.route('/artist/myorders').get(protect, getArtistOrders);
 router.route('/razorpay').post(optionalProtect, createRazorpayOrder);
 router.route('/verify').post(optionalProtect, verifyOrderPayment);
 router.route('/:id/status').put(protect, protectAdmin, updateOrderStatus);
+router.route('/:id/ship').post(protect, protectAdmin, createShipment);
+router.route('/:id/track').get(protect, protectAdmin, trackShipment);
 router.route('/:id/payout/:artistId').put(protect, protectAdmin, releaseArtistPayout);
 router.route('/:id/artist-status').put(protect, updateArtistOrderStatus);
 router.route('/:id/mark-viewed').put(protect, protectAdmin, markOrderAsViewed);
 router.route('/user/:userId').get(protect, protectAdmin, getOrdersByUser);
 router.route('/webhook').post(razorpayWebhook); // no protect, razorpay hits this directly
+router.route('/nimbuspost/webhook').post(nimbuspostWebhook); // no protect, NimbusPost hits this directly
 
 module.exports = router;

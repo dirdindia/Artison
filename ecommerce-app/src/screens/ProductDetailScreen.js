@@ -71,9 +71,11 @@ const ProductDetailScreen = ({ route, navigation }) => {
     }
   };
 
-  const discountPercent = Math.round(
-    ((product.originalPrice - product.price) / product.originalPrice) * 100
-  );
+  const currentPrice = product.salePrice ? product.salePrice : product.price;
+  const originalPrice = product.salePrice ? product.price : null;
+  const discountPercent = originalPrice 
+    ? Math.round(((originalPrice - currentPrice) / originalPrice) * 100)
+    : 0;
 
   const handleAddToCart = () => {
     addToCart(product, qty);
@@ -108,9 +110,9 @@ const ProductDetailScreen = ({ route, navigation }) => {
           <Text style={styles.rating}>⭐ {product.rating} rating</Text>
 
           <View style={styles.priceRow}>
-            <Text style={styles.price}>₹{product.price}</Text>
-            <Text style={styles.originalPrice}>₹{product.originalPrice}</Text>
-            <Text style={styles.discount}>{discountPercent}% off</Text>
+            <Text style={styles.price}>₹{currentPrice}</Text>
+            {originalPrice && <Text style={styles.originalPrice}>₹{originalPrice}</Text>}
+            {discountPercent > 0 && <Text style={styles.discount}>{discountPercent}% off</Text>}
           </View>
 
           <Text style={styles.sectionTitle}>Description</Text>

@@ -72,7 +72,7 @@ export default function Explore() {
             id: p._id,
             title: p.name,
             artist: p.subCategory ? p.subCategory.name : "Unknown Artist",
-            price: p.salePrice || p.price,
+            price: p.price,
             salePrice: p.salePrice,
             image: p.image || "https://placehold.co/400x500",
             category: p.category ? p.category.name : "Art",

@@ -92,6 +92,26 @@ const orderSchema = new mongoose.Schema(
       type: Boolean,
       default: false,
     },
+    awbNumber: {
+      type: String,
+      default: null,
+    },
+    courierName: {
+      type: String,
+      default: null,
+    },
+    shippingLabelUrl: {
+      type: String,
+      default: null,
+    },
+    nimbusPostOrderId: {
+      type: String,
+      default: null,
+    },
+    shippingStatus: {
+      type: String,
+      default: null,
+    },
     orderStatus: {
       type: String,
       required: true,

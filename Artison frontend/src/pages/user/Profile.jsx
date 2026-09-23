@@ -398,6 +398,22 @@ export default function Profile() {
                       ))}
                     </div>
 
+                    {order.awbNumber && (
+                      <div className="bg-blue-50/50 p-3 rounded-lg border border-blue-100/50 mt-3 text-xs text-muted-foreground">
+                        <div className="font-semibold text-foreground mb-1">Fulfillment & Tracking:</div>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                          <div><span className="font-semibold text-foreground">AWB Number:</span> {order.awbNumber}</div>
+                          <div><span className="font-semibold text-foreground">Courier:</span> {order.courierName}</div>
+                          <div><span className="font-semibold text-foreground">Status:</span> {order.shippingStatus || order.orderStatus}</div>
+                          <div>
+                            <a href={`https://nimbuspost.com/track/${order.awbNumber}`} target="_blank" rel="noopener noreferrer" className="inline-block mt-1 px-3 py-1 bg-blue-600 text-white rounded-md text-[10px] font-bold uppercase tracking-wider hover:bg-blue-700 transition-colors">
+                              Track Shipment
+                            </a>
+                          </div>
+                        </div>
+                      </div>
+                    )}
+
                     {(() => {
                       const subtotal = order.orderItems.reduce((sum, item) => sum + (item.price * item.qty), 0);
                       const additionalCharges = order.totalPrice - subtotal;

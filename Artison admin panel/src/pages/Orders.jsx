@@ -34,6 +34,7 @@ export default function Orders() {
   const [totalPages, setTotalPages] = useState(1);
   const { confirm } = useConfirm();
   const [payoutModal, setPayoutModal] = useState({ isOpen: false, orderId: null, artistId: null, type: null, file: null, uploading: false });
+  const [shipmentModal, setShipmentModal] = useState({ isOpen: false, orderId: null, weight: '', length: '', width: '', height: '', submitting: false });
 
   useEffect(() => {
     fetchOrders();
@@ -111,6 +112,41 @@ export default function Orders() {
     } catch (error) {
       Alert.error('Error', error.response?.data?.message || 'Failed to release payout');
       setPayoutModal(prev => ({ ...prev, uploading: false }));
+    }
+  };
+
+  const handleShipmentModalOpen = (id) => {
+    setShipmentModal({ isOpen: true, orderId: id, weight: '', length: '', width: '', height: '', submitting: false });
+  };
+
+  const handleShipmentModalClose = () => {
+    setShipmentModal({ isOpen: false, orderId: null, weight: '', length: '', width: '', height: '', submitting: false });
+  };
+
+  const handleShipmentSubmit = async () => {
+    const { orderId, weight, length, width, height } = shipmentModal;
+    if (!weight || !length || !width || !height) {
+      Alert.error('Validation Error', 'Please fill in all package details.');
+      return;
+    }
+
+    setShipmentModal(prev => ({ ...prev, submitting: true }));
+    try {
+      const { data } = await api.post(`/orders/${orderId}/ship`, { 
+        weight: Number(weight), 
+        length: Number(length), 
+        width: Number(width), 
+        height: Number(height) 
+      });
+      if (data.success) {
+        Alert.success('Success', 'Shipment created successfully via NimbusPost');
+        fetchOrders();
+        setSelectedOrder(data.data);
+        handleShipmentModalClose();
+      }
+    } catch (error) {
+      Alert.error('Error', error.response?.data?.message || 'Failed to create shipment');
+      setShipmentModal(prev => ({ ...prev, submitting: false }));
     }
   };
 
@@ -417,6 +453,48 @@ export default function Orders() {
                 </div>
               </div>
 
+              {/* Fulfillment & Tracking */}
+              <div className="bg-blue-50 p-4 rounded-xl border border-blue-100">
+                <h3 className="font-semibold text-[#3b2f2f] mb-3">Fulfillment & Tracking</h3>
+                {selectedOrder.awbNumber ? (
+                  <div className="space-y-2 text-sm">
+                    <p><span className="text-gray-500">AWB Number:</span> <span className="font-bold">{selectedOrder.awbNumber}</span></p>
+                    <p><span className="text-gray-500">Courier:</span> {selectedOrder.courierName}</p>
+                    {selectedOrder.shippingStatus && <p><span className="text-gray-500">Status:</span> {selectedOrder.shippingStatus}</p>}
+                    <div className="flex gap-2 mt-3">
+                      <button 
+                        onClick={() => window.open(`https://nimbuspost.com/track/${selectedOrder.awbNumber}`, '_blank')}
+                        className="px-3 py-1.5 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors"
+                      >
+                        Track Shipment
+                      </button>
+                      {selectedOrder.shippingLabelUrl && (
+                        <a 
+                          href={selectedOrder.shippingLabelUrl} 
+                          target="_blank" 
+                          rel="noopener noreferrer"
+                          className="px-3 py-1.5 bg-white border border-blue-200 text-blue-600 rounded-lg text-sm font-medium hover:bg-blue-50 transition-colors"
+                        >
+                          Print Label
+                        </a>
+                      )}
+                    </div>
+                  </div>
+                ) : (
+                  <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+                    <p className="text-sm text-gray-500">Order is pending fulfillment.</p>
+                    {selectedOrder.orderStatus !== 'Cancelled' && selectedOrder.orderStatus !== 'Refunded' && (
+                      <button 
+                        onClick={() => handleShipmentModalOpen(selectedOrder._id)}
+                        className="px-4 py-2 bg-[#3b2f2f] hover:bg-[#5a4d4d] text-white rounded-xl text-sm font-medium transition-colors shadow-sm whitespace-nowrap"
+                      >
+                        Ship via NimbusPost
+                      </button>
+                    )}
+                  </div>
+                )}
+              </div>
+
             </div>
             
             <div className="p-6 border-t border-[#eae0d5] bg-gray-50 flex flex-col sm:flex-row justify-between items-center gap-4">
@@ -529,6 +607,89 @@ export default function Orders() {
               >
                 {payoutModal.uploading ? <Loader2 className="w-4 h-4 animate-spin" /> : null}
                 {payoutModal.uploading ? 'Uploading...' : 'Confirm & Mark Paid'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+      {/* Shipment Modal */}
+      {shipmentModal.isOpen && (
+        <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm animate-in fade-in">
+          <div className="bg-white rounded-2xl shadow-xl w-full max-w-md overflow-hidden flex flex-col">
+            <div className="p-6 border-b border-gray-100 flex justify-between items-center">
+              <h3 className="text-lg font-bold text-[#3b2f2f]">Ship via NimbusPost</h3>
+              <button onClick={handleShipmentModalClose} className="p-2 text-gray-400 hover:text-gray-600 rounded-full hover:bg-gray-100 transition-colors">
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+            <div className="p-6 space-y-4">
+              <p className="text-sm text-gray-600 mb-2">
+                Enter the final package details. The system will automatically select the best courier based on these dimensions.
+              </p>
+              
+              <div className="space-y-3">
+                <div>
+                  <label className="block text-sm font-medium text-[#3b2f2f] mb-1">Weight (kg)</label>
+                  <input 
+                    type="number" 
+                    step="0.1"
+                    placeholder="e.g. 1.5"
+                    value={shipmentModal.weight}
+                    onChange={(e) => setShipmentModal(prev => ({ ...prev, weight: e.target.value }))}
+                    className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#3b2f2f]/20"
+                  />
+                </div>
+                
+                <div className="grid grid-cols-3 gap-3">
+                  <div>
+                    <label className="block text-sm font-medium text-[#3b2f2f] mb-1">Length (cm)</label>
+                    <input 
+                      type="number" 
+                      placeholder="L"
+                      value={shipmentModal.length}
+                      onChange={(e) => setShipmentModal(prev => ({ ...prev, length: e.target.value }))}
+                      className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#3b2f2f]/20"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-[#3b2f2f] mb-1">Width (cm)</label>
+                    <input 
+                      type="number" 
+                      placeholder="W"
+                      value={shipmentModal.width}
+                      onChange={(e) => setShipmentModal(prev => ({ ...prev, width: e.target.value }))}
+                      className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#3b2f2f]/20"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-[#3b2f2f] mb-1">Height (cm)</label>
+                    <input 
+                      type="number" 
+                      placeholder="H"
+                      value={shipmentModal.height}
+                      onChange={(e) => setShipmentModal(prev => ({ ...prev, height: e.target.value }))}
+                      className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#3b2f2f]/20"
+                    />
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+            <div className="p-6 bg-gray-50 flex justify-end gap-3">
+              <button 
+                onClick={handleShipmentModalClose}
+                disabled={shipmentModal.submitting}
+                className="px-4 py-2 rounded-xl text-sm font-semibold text-gray-600 hover:bg-gray-200 transition-colors disabled:opacity-50"
+              >
+                Cancel
+              </button>
+              <button 
+                onClick={handleShipmentSubmit}
+                disabled={shipmentModal.submitting}
+                className="px-4 py-2 rounded-xl text-sm font-semibold bg-[#3b2f2f] hover:bg-[#5a4d4d] text-white transition-colors flex items-center gap-2 disabled:opacity-50"
+              >
+                {shipmentModal.submitting ? <Loader2 className="w-4 h-4 animate-spin" /> : null}
+                {shipmentModal.submitting ? 'Creating...' : 'Create Shipment'}
               </button>
             </div>
           </div>

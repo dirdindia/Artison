@@ -46,7 +46,8 @@ export default function ProductPage() {
                   id: p._id,
                   title: p.name,
                   artist: p.subCategory ? p.subCategory.name : "Unknown Artist",
-                  price: p.salePrice || p.price,
+                  price: p.price,
+                  salePrice: p.salePrice,
                   image: p.image || "https://placehold.co/400x500",
                   category: p.category ? p.category.name : "Art",
                   shippingCharge: p.shippingCharge || 0
@@ -170,7 +171,19 @@ export default function ProductPage() {
                 </span>
               </div>
               <h1 className="mt-4 font-display text-3xl font-bold leading-tight md:text-5xl">{product.name}</h1>
-              <div className="mt-3 font-display text-3xl font-bold text-primary md:text-4xl">₹{(product.salePrice || product.price)?.toLocaleString()}</div>
+              <div className="mt-3 flex flex-wrap items-center gap-3">
+                <div className="font-display text-3xl font-bold text-primary md:text-4xl">₹{(product.salePrice || product.price)?.toLocaleString()}</div>
+                {product.salePrice && product.price > product.salePrice && (
+                  <div className="flex items-center gap-2">
+                    <span className="text-xl text-muted-foreground line-through">
+                      ₹{product.price?.toLocaleString()}
+                    </span>
+                    <span className="rounded bg-green-100 px-2 py-1 text-sm font-bold text-green-700 dark:bg-green-900/30 dark:text-green-400">
+                      {Math.round(((product.price - product.salePrice) / product.price) * 100)}% OFF
+                    </span>
+                  </div>
+                )}
+              </div>
               
               <button
                 onClick={() => addToCart(product)}

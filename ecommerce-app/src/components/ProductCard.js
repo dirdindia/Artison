@@ -1,5 +1,6 @@
 import React from "react";
 import { View, Text, Image, StyleSheet, TouchableOpacity } from "react-native";
+import { MaterialIcons } from "@expo/vector-icons";
 import { COLORS, SIZES } from "../theme";
 import { useApp } from "../context/AppContext";
 
@@ -21,17 +22,22 @@ const ProductCard = ({ product, onPress }) => {
           {product.name || product.title}
         </Text>
         {/* <Text style={styles.rating}>⭐ {product.rating || "4.5"}</Text> */}
-        <View style={styles.priceRow}>
-          <Text style={styles.price}>₹{currentPrice}</Text>
-          {originalPrice && <Text style={styles.originalPrice}>₹{originalPrice}</Text>}
+        <View style={{ flexDirection: "row", justifyContent: "space-between", alignItems: "flex-end", marginTop: 4 }}>
+          <View>
+            <View style={styles.priceRow}>
+              <Text style={styles.price}>₹{currentPrice}</Text>
+              {originalPrice && <Text style={styles.originalPrice}>₹{originalPrice}</Text>}
+            </View>
+            {discountPercent > 0 && <Text style={styles.discount}>{discountPercent}% off</Text>}
+          </View>
+          
+          <TouchableOpacity 
+            style={styles.iconCartBtn}
+            onPress={() => addToCart(product)}
+          >
+            <MaterialIcons name="shopping-cart" size={16} color={COLORS.white} />
+          </TouchableOpacity>
         </View>
-        {discountPercent > 0 && <Text style={styles.discount}>{discountPercent}% off</Text>}
-        <TouchableOpacity 
-          style={styles.cartButton}
-          onPress={() => addToCart(product)}
-        >
-          <Text style={styles.cartButtonText}>Add to Cart</Text>
-        </TouchableOpacity>
       </View>
     </TouchableOpacity>
   );
@@ -85,17 +91,14 @@ const styles = StyleSheet.create({
     color: COLORS.secondary,
     marginTop: 2,
   },
-  cartButton: {
+  iconCartBtn: {
+    width: 32,
+    height: 32,
     backgroundColor: COLORS.primary,
-    paddingVertical: 6,
-    borderRadius: 4,
-    marginTop: 8,
+    borderRadius: 16,
     alignItems: 'center',
-  },
-  cartButtonText: {
-    color: COLORS.white,
-    fontSize: 12,
-    fontWeight: 'bold',
+    justifyContent: 'center',
+    marginBottom: 2, // Slight adjustment to align with text visually
   }
 });
 

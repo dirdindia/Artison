@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { View, Text, FlatList, StyleSheet, SafeAreaView, ActivityIndicator, TouchableOpacity, Image, RefreshControl } from "react-native";
+import { View, Text, FlatList, StyleSheet, SafeAreaView, ActivityIndicator, TouchableOpacity, Image, RefreshControl, Linking } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { COLORS, SIZES } from "../theme";
 import api from "../api";
@@ -109,6 +109,22 @@ const OrdersScreen = () => {
             </View>
           ))}
         </View>
+
+        {/* Fulfillment & Tracking */}
+        {item.awbNumber && (
+          <View style={styles.trackingContainer}>
+            <Text style={styles.trackingTitle}>Fulfillment & Tracking:</Text>
+            <Text style={styles.infoText}>AWB Number: <Text style={{fontWeight: 'bold'}}>{item.awbNumber}</Text></Text>
+            <Text style={styles.infoText}>Courier: {item.courierName}</Text>
+            <Text style={styles.infoText}>Status: {item.shippingStatus || item.orderStatus}</Text>
+            <TouchableOpacity 
+              style={styles.trackBtn}
+              onPress={() => Linking.openURL(`https://nimbuspost.com/track/${item.awbNumber}`)}
+            >
+              <Text style={styles.trackBtnText}>Track Shipment</Text>
+            </TouchableOpacity>
+          </View>
+        )}
 
         {/* Totals */}
         <View style={styles.totalsContainer}>
@@ -370,6 +386,35 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: COLORS.textLight,
   },
+  trackingContainer: {
+    backgroundColor: '#eff6ff',
+    padding: 12,
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: '#bfdbfe',
+    marginBottom: 16,
+  },
+  trackingTitle: {
+    fontSize: 14,
+    fontWeight: 'bold',
+    color: '#1e3a8a',
+    marginBottom: 6,
+  },
+  trackBtn: {
+    backgroundColor: COLORS.primary,
+    paddingVertical: 10,
+    paddingHorizontal: 16,
+    borderRadius: 8,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginTop: 12,
+  },
+  trackBtnText: {
+    color: COLORS.white,
+    fontSize: 13,
+    fontWeight: 'bold',
+    textTransform: 'uppercase',
+  }
 });
 
 export default OrdersScreen;
