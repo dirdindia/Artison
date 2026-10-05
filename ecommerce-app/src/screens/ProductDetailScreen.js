@@ -107,6 +107,9 @@ const ProductDetailScreen = ({ route, navigation }) => {
         <View style={styles.details}>
           <Text style={styles.category}>{product.category?.name || product.category}</Text>
           <Text style={styles.title}>{product.name || product.title}</Text>
+          <Text style={styles.artist}>
+            By {product.artist?.name || (typeof product.artist === 'string' ? product.artist : 'Unknown Artist')}
+          </Text>
           <Text style={styles.rating}>⭐ {product.rating} rating</Text>
 
           <View style={styles.priceRow}>
@@ -220,6 +223,11 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     color: COLORS.text,
     marginBottom: 6,
+  },
+  artist: {
+    fontSize: 14,
+    color: COLORS.textLight,
+    marginBottom: 10,
   },
   rating: {
     fontSize: 14,

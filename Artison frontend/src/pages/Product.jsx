@@ -45,7 +45,7 @@ export default function ProductPage() {
                 .map(p => ({
                   id: p._id,
                   title: p.name,
-                  artist: p.subCategory ? p.subCategory.name : "Unknown Artist",
+                  artist: p.artist || "Independent Artist",
                   price: p.price,
                   salePrice: p.salePrice,
                   image: p.image || "https://placehold.co/400x500",
@@ -102,7 +102,9 @@ export default function ProductPage() {
     </AppShell>
   );
 
-  const artistName = product.subCategory ? product.subCategory.name : "Unknown Artist";
+  const artistName = typeof product.artist === 'object' && product.artist !== null 
+    ? product.artist.name 
+    : (product.artist || "Independent Artist");
   const categoryName = product.category ? product.category.name : "Art";
 
   return (

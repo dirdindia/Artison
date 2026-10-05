@@ -36,7 +36,11 @@ export function ProductCard({ product }) {
       </div>
       <div className="space-y-1.5 p-4">
         <h3 className="truncate font-display text-lg font-semibold leading-tight text-foreground transition-colors group-hover:text-primary">{product.name || product.title}</h3>
-        <p className="truncate text-sm font-medium text-muted-foreground">{product.artist || 'Independent Artist'}</p>
+        <p className="truncate text-sm font-medium text-muted-foreground">
+          {typeof product.artist === 'object' && product.artist !== null 
+            ? product.artist.name 
+            : (product.artist || 'Independent Artist')}
+        </p>
         <div className="flex items-center justify-between pt-2">
           <div className="flex flex-col">
             <div className="font-display text-base font-bold text-foreground">

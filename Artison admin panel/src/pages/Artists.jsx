@@ -289,6 +289,63 @@ export default function Artists() {
                     <p className="text-gray-600 whitespace-pre-wrap">{selectedArtist.bio}</p>
                   </div>
                 )}
+
+                {/* Bank Details */}
+                {selectedArtist.bankDetails && (
+                  <div className="mt-6 pt-6 border-t border-[#eae0d5]">
+                    <h4 className="text-sm font-semibold text-gray-900 uppercase tracking-wider mb-3">Bank Details</h4>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                      {selectedArtist.bankDetails.bankName && (
+                        <div className="bg-white p-3 rounded-lg border border-[#eae0d5]">
+                          <div className="text-xs text-gray-500 uppercase font-semibold mb-1">Bank Name</div>
+                          <div className="font-medium text-[#3b2f2f]">{selectedArtist.bankDetails.bankName}</div>
+                        </div>
+                      )}
+                      {selectedArtist.bankDetails.accountHolderName && (
+                        <div className="bg-white p-3 rounded-lg border border-[#eae0d5]">
+                          <div className="text-xs text-gray-500 uppercase font-semibold mb-1">Account Holder Name</div>
+                          <div className="font-medium text-[#3b2f2f]">{selectedArtist.bankDetails.accountHolderName}</div>
+                        </div>
+                      )}
+                      {selectedArtist.bankDetails.accountNumber && (
+                        <div className="bg-white p-3 rounded-lg border border-[#eae0d5]">
+                          <div className="text-xs text-gray-500 uppercase font-semibold mb-1">Account Number</div>
+                          <div className="font-medium text-[#3b2f2f]">{selectedArtist.bankDetails.accountNumber}</div>
+                        </div>
+                      )}
+                      {selectedArtist.bankDetails.ifscCode && (
+                        <div className="bg-white p-3 rounded-lg border border-[#eae0d5]">
+                          <div className="text-xs text-gray-500 uppercase font-semibold mb-1">IFSC Code</div>
+                          <div className="font-medium text-[#3b2f2f]">{selectedArtist.bankDetails.ifscCode}</div>
+                        </div>
+                      )}
+                      {selectedArtist.bankDetails.upiId && (
+                        <div className="bg-white p-3 rounded-lg border border-[#eae0d5]">
+                          <div className="text-xs text-gray-500 uppercase font-semibold mb-1">UPI ID</div>
+                          <div className="font-medium text-[#3b2f2f]">{selectedArtist.bankDetails.upiId}</div>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                )}
+                
+                {/* Additional Details like Address if present */}
+                {selectedArtist.address && (
+                  <div className="mt-6 pt-6 border-t border-[#eae0d5]">
+                    <h4 className="text-sm font-semibold text-gray-900 uppercase tracking-wider mb-3">Address Details</h4>
+                    <div className="bg-white p-3 rounded-lg border border-[#eae0d5]">
+                       <div className="font-medium text-[#3b2f2f]">
+                         {[
+                           selectedArtist.address.street,
+                           selectedArtist.address.city,
+                           selectedArtist.address.state,
+                           selectedArtist.address.country,
+                           selectedArtist.address.postalCode
+                         ].filter(Boolean).join(', ')}
+                       </div>
+                    </div>
+                  </div>
+                )}
               </div>
             </div>
           </div>

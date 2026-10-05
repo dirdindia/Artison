@@ -419,12 +419,18 @@ const getAllOrders = async (req, res) => {
 // @access  Private/Admin
 const updateOrderStatus = async (req, res) => {
   try {
-    const { status } = req.body;
+    const { status, courierName, awbNumber } = req.body;
     const order = await Order.findById(req.params.id);
 
     if (order) {
       order.orderStatus = status;
       
+      if (status === 'Shipped' && courierName && awbNumber) {
+        order.courierName = courierName;
+        order.awbNumber = awbNumber;
+        order.shippingStatus = 'Shipped Manually';
+      }
+
       // Backward compatibility logic
       if (status === 'Delivered') {
         order.isDelivered = true;
@@ -537,6 +543,7 @@ const getArtistOrders = async (req, res) => {
 
 const updateArtistOrderStatus = async (req, res) => {
   try {
+    const { status, courierName, awbNumber } = req.body;
     const order = await Order.findById(req.params.id);
     if (!order) {
       return res.status(404).json({ success: false, message: 'Order not found' });
@@ -551,8 +558,14 @@ const updateArtistOrderStatus = async (req, res) => {
       return res.status(403).json({ success: false, message: 'Not authorized to update this order' });
     }
 
-    order.orderStatus = req.body.status;
-    if (req.body.status === 'Delivered') {
+    order.orderStatus = status;
+    if (status === 'Shipped' && courierName && awbNumber) {
+      order.courierName = courierName;
+      order.awbNumber = awbNumber;
+      order.shippingStatus = 'Shipped Manually';
+    }
+
+    if (status === 'Delivered') {
       order.isDelivered = true;
       order.deliveredAt = Date.now();
     }
@@ -716,7 +729,7 @@ const createShipment = async (req, res) => {
         const mailOptions = {
           from: process.env.EMAIL_USER,
           to: customerEmail,
-          subject: `Your Artisna Order has been Shipped!`,
+          subject: `Your Kalakosh Order has been Shipped!`,
           html: `
             <div style="font-family: Arial, sans-serif; max-w: 600px; margin: 0 auto;">
               <h2>Good news! Your order is on the way.</h2>
@@ -809,7 +822,7 @@ const nimbuspostWebhook = async (req, res) => {
         const mailOptions = {
           from: process.env.EMAIL_USER,
           to: customerEmail,
-          subject: `Your Artisna Order has been Delivered!`,
+          subject: `Your Kalakosh Order has been Delivered!`,
           html: `
             <div style="font-family: Arial, sans-serif; max-w: 600px; margin: 0 auto;">
               <h2>It's here!</h2>

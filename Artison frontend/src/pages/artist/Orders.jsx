@@ -27,6 +27,8 @@ export default function Orders() {
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
   const [selectedOrder, setSelectedOrder] = useState(null);
+  const [manualShipModal, setManualShipModal] = useState({ isOpen: false, orderId: null, courierName: '', awbNumber: '', submitting: false });
+  const [updatingStatus, setUpdatingStatus] = useState(null);
 
   useEffect(() => {
     fetchOrders();
@@ -50,6 +52,7 @@ export default function Orders() {
       return;
     }
 
+    setUpdatingStatus(newStatus);
     try {
       const { data } = await api.put(`/orders/${id}/artist-status`, { status: newStatus });
       if (data.success) {
@@ -66,6 +69,36 @@ export default function Orders() {
       }
     } catch (error) {
       toast.error(error.response?.data?.message || 'Failed to update order');
+    } finally {
+      setUpdatingStatus(null);
+    }
+  };
+
+  const handleManualShipSubmit = async () => {
+    const { orderId, courierName, awbNumber } = manualShipModal;
+    if (!courierName || !awbNumber) {
+      toast.error('Please provide both Courier Name and AWB Number.');
+      return;
+    }
+
+    setManualShipModal(prev => ({ ...prev, submitting: true }));
+    try {
+      const { data } = await api.put(`/orders/${orderId}/artist-status`, { 
+        status: 'Shipped',
+        courierName,
+        awbNumber
+      });
+      if (data.success) {
+        toast.success('Order marked as shipped manually.');
+        fetchOrders();
+        if (selectedOrder && selectedOrder._id === orderId) {
+          setSelectedOrder({ ...selectedOrder, orderStatus: 'Shipped', awbNumber, courierName });
+        }
+        setManualShipModal({ isOpen: false, orderId: null, courierName: '', awbNumber: '', submitting: false });
+      }
+    } catch (error) {
+      toast.error(error.response?.data?.message || 'Failed to update order');
+      setManualShipModal(prev => ({ ...prev, submitting: false }));
     }
   };
 
@@ -284,26 +317,42 @@ export default function Orders() {
 
             </div>
             
-            <div className="p-6 border-t border-border bg-secondary/20 flex flex-col sm:flex-row justify-between items-center gap-4">
-               <div className="flex items-center gap-3">
-                 <div className="flex flex-col">
-                   <label className="text-xs text-muted-foreground mb-1">Update Status</label>
-                   <select 
-                     value={selectedOrder.orderStatus || 'Processing'}
-                     onChange={(e) => handleStatusChange(selectedOrder._id, e.target.value)}
-                     className={`px-3 py-1.5 rounded-lg text-sm font-semibold border-r-[8px] border-transparent outline-none cursor-pointer ${getStatusBadge(selectedOrder.orderStatus || 'Processing')}`}
-                   >
-                     <option value="Processing">Processing</option>
-                     <option value="Shipped">Shipped</option>
-                     <option value="Out for Delivery">Out for Delivery</option>
-                     <option value="Delivered">Delivered</option>
-                     <option value="Cancelled">Cancelled</option>
-                     <option value="Refunded">Refunded</option>
-                   </select>
+            <div className="p-6 border-t border-border bg-secondary/20 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+               <div className="flex flex-col gap-3">
+                 <div className="flex items-center gap-2">
+                   <span className="text-sm font-semibold text-muted-foreground">Current Status:</span>
+                   <span className={`px-3 py-1.5 rounded-lg text-sm font-semibold ${getStatusBadge(selectedOrder.orderStatus || 'Processing')}`}>
+                     {selectedOrder.orderStatus || 'Processing'}
+                   </span>
+                   {selectedOrder.orderStatus === 'Delivered' && selectedOrder.deliveredAt && (
+                     <span className="text-sm text-muted-foreground">on {new Date(selectedOrder.deliveredAt).toLocaleDateString()}</span>
+                   )}
                  </div>
-                 {selectedOrder.orderStatus === 'Delivered' && selectedOrder.deliveredAt && (
-                   <span className="text-sm text-muted-foreground mt-5">on {new Date(selectedOrder.deliveredAt).toLocaleDateString()}</span>
-                 )}
+                 <div className="flex flex-wrap items-center gap-2">
+                   {selectedOrder.orderStatus === 'Processing' && (
+                     <button disabled={!!updatingStatus} onClick={() => setManualShipModal({ isOpen: true, orderId: selectedOrder._id, courierName: '', awbNumber: '', submitting: false })} className="px-3 py-1.5 bg-primary text-primary-foreground hover:bg-primary/90 rounded-lg text-sm font-medium transition-colors shadow-sm">Mark as Shipped</button>
+                   )}
+                   {selectedOrder.orderStatus === 'Shipped' && (
+                     <button disabled={!!updatingStatus} onClick={() => handleStatusChange(selectedOrder._id, 'Out for Delivery')} className={`flex items-center gap-1.5 px-3 py-1.5 bg-purple-100 text-purple-800 hover:bg-purple-200 rounded-lg text-sm font-medium transition-colors shadow-sm ${updatingStatus ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}>
+                       {updatingStatus === 'Out for Delivery' && <Loader2 className="w-4 h-4 animate-spin" />} Mark Out for Delivery
+                     </button>
+                   )}
+                   {(selectedOrder.orderStatus === 'Shipped' || selectedOrder.orderStatus === 'Out for Delivery') && (
+                     <button disabled={!!updatingStatus} onClick={() => handleStatusChange(selectedOrder._id, 'Delivered')} className={`flex items-center gap-1.5 px-3 py-1.5 bg-green-100 text-green-800 hover:bg-green-200 rounded-lg text-sm font-medium transition-colors shadow-sm ${updatingStatus ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}>
+                       {updatingStatus === 'Delivered' && <Loader2 className="w-4 h-4 animate-spin" />} Mark Delivered
+                     </button>
+                   )}
+                   {(selectedOrder.orderStatus !== 'Cancelled' && selectedOrder.orderStatus !== 'Delivered' && selectedOrder.orderStatus !== 'Refunded') && (
+                     <button disabled={!!updatingStatus} onClick={() => handleStatusChange(selectedOrder._id, 'Cancelled')} className={`flex items-center gap-1.5 px-3 py-1.5 bg-red-100 text-red-800 hover:bg-red-200 rounded-lg text-sm font-medium transition-colors shadow-sm ${updatingStatus ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}>
+                       {updatingStatus === 'Cancelled' && <Loader2 className="w-4 h-4 animate-spin" />} Cancel Order
+                     </button>
+                   )}
+                   {selectedOrder.orderStatus === 'Cancelled' && selectedOrder.isPaid && (
+                     <button disabled={!!updatingStatus} onClick={() => handleStatusChange(selectedOrder._id, 'Refunded')} className={`flex items-center gap-1.5 px-3 py-1.5 bg-gray-200 text-gray-800 hover:bg-gray-300 rounded-lg text-sm font-medium transition-colors shadow-sm ${updatingStatus ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}>
+                       {updatingStatus === 'Refunded' && <Loader2 className="w-4 h-4 animate-spin" />} Mark Refunded
+                     </button>
+                   )}
+                 </div>
                </div>
                <div className="text-right flex flex-col items-end">
                  <div className="w-full max-w-xs space-y-1 text-sm text-muted-foreground mb-3 border-b border-border pb-2 text-right">
@@ -330,6 +379,67 @@ export default function Orders() {
                  <p className="text-sm text-muted-foreground">Your Earnings (80% of Subtotal)</p>
                  <p className="text-2xl font-bold text-primary">{formatPrice(selectedOrder.artistEarnings)}</p>
                </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Manual Shipment Modal */}
+      {manualShipModal.isOpen && (
+        <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm animate-in fade-in">
+          <div className="bg-background rounded-2xl shadow-xl w-full max-w-md overflow-hidden flex flex-col border border-border">
+            <div className="p-6 border-b border-border flex justify-between items-center bg-secondary/20">
+              <h3 className="text-lg font-bold text-foreground">Mark Shipped Manually</h3>
+              <button onClick={() => setManualShipModal({ isOpen: false })} className="p-2 text-muted-foreground hover:text-foreground rounded-full hover:bg-secondary transition-colors">
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+            <div className="p-6 space-y-4">
+              <p className="text-sm text-muted-foreground mb-2">
+                Provide the courier details. This will update the order status to "Shipped" and notify the customer.
+              </p>
+              
+              <div className="space-y-3">
+                <div>
+                  <label className="block text-sm font-medium text-foreground mb-1">Courier Name</label>
+                  <input 
+                    type="text" 
+                    placeholder="e.g. DTDC, India Post"
+                    value={manualShipModal.courierName}
+                    onChange={(e) => setManualShipModal(prev => ({ ...prev, courierName: e.target.value }))}
+                    className="w-full px-3 py-2 bg-background border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 text-sm"
+                  />
+                </div>
+                
+                <div>
+                  <label className="block text-sm font-medium text-foreground mb-1">Tracking ID / AWB Number</label>
+                  <input 
+                    type="text" 
+                    placeholder="Enter Tracking ID"
+                    value={manualShipModal.awbNumber}
+                    onChange={(e) => setManualShipModal(prev => ({ ...prev, awbNumber: e.target.value }))}
+                    className="w-full px-3 py-2 bg-background border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 text-sm"
+                  />
+                </div>
+              </div>
+            </div>
+            
+            <div className="p-6 bg-secondary/30 flex justify-end gap-3 border-t border-border">
+              <button 
+                onClick={() => setManualShipModal({ isOpen: false })}
+                disabled={manualShipModal.submitting}
+                className="px-4 py-2 rounded-xl text-sm font-semibold text-muted-foreground hover:bg-secondary transition-colors disabled:opacity-50"
+              >
+                Cancel
+              </button>
+              <button 
+                onClick={handleManualShipSubmit}
+                disabled={manualShipModal.submitting}
+                className="px-4 py-2 rounded-xl text-sm font-semibold bg-primary hover:bg-primary/90 text-primary-foreground transition-colors flex items-center gap-2 disabled:opacity-50"
+              >
+                {manualShipModal.submitting ? <Loader2 className="w-4 h-4 animate-spin" /> : null}
+                {manualShipModal.submitting ? 'Updating...' : 'Mark as Shipped'}
+              </button>
             </div>
           </div>
         </div>

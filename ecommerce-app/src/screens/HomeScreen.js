@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { View, Text, ScrollView, SafeAreaView, TouchableOpacity, Image, TextInput, ActivityIndicator, StyleSheet } from "react-native";
+import { View, Text, ScrollView, SafeAreaView, TouchableOpacity, Image, TextInput, ActivityIndicator, StyleSheet, Platform, StatusBar } from "react-native";
 import { MaterialIcons } from "@expo/vector-icons";
 import api from "../api";
 import { COLORS } from "../theme";
@@ -73,7 +73,9 @@ const HomeScreen = ({ navigation }) => {
         </View>
         <View style={styles.productInfo}>
           <Text style={styles.productTitle} numberOfLines={1}>{item.name}</Text>
-          <Text style={styles.productSubtitle}>Independent Artist</Text>
+          <Text style={styles.productSubtitle} numberOfLines={1}>
+            By {item.artist?.name || (typeof item.artist === 'string' ? item.artist : 'Unknown Artist')}
+          </Text>
           <View style={styles.productPriceRow}>
             <View>
               <View style={{ flexDirection: "row", alignItems: "center" }}>
@@ -118,7 +120,7 @@ const HomeScreen = ({ navigation }) => {
     <SafeAreaView style={styles.safeArea}>
       {/* Header */}
       <View style={styles.header}>
-        <Text style={styles.headerTitle}>KALA KOSH</Text>
+        <Text style={styles.headerTitle}>KALAKOSH</Text>
       </View>
 
       <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scrollContent}>
@@ -318,7 +320,11 @@ const HomeScreen = ({ navigation }) => {
 };
 
 const styles = StyleSheet.create({
-  safeArea: { flex: 1, backgroundColor: "#fcf8f6" },
+  safeArea: { 
+    flex: 1, 
+    backgroundColor: "#fcf8f6",
+    paddingTop: Platform.OS === 'android' ? StatusBar.currentHeight : 0 
+  },
   header: { alignItems: "center", justifyContent: "center", paddingHorizontal: 16, paddingVertical: 16, backgroundColor: "#fff", borderBottomWidth: 1, borderBottomColor: "#ecdcd6" },
   headerTitle: { color: "#3e1b07", fontSize: 20, fontWeight: "bold", letterSpacing: 2 },
   headerIcons: { flexDirection: "row", alignItems: "center" },

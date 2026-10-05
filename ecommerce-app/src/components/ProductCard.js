@@ -21,6 +21,9 @@ const ProductCard = ({ product, onPress }) => {
         <Text style={styles.title} numberOfLines={2}>
           {product.name || product.title}
         </Text>
+        <Text style={styles.artist} numberOfLines={1}>
+          By {product.artist?.name || (typeof product.artist === 'string' ? product.artist : 'Unknown Artist')}
+        </Text>
         {/* <Text style={styles.rating}>⭐ {product.rating || "4.5"}</Text> */}
         <View style={{ flexDirection: "row", justifyContent: "space-between", alignItems: "flex-end", marginTop: 4 }}>
           <View>
@@ -64,6 +67,11 @@ const styles = StyleSheet.create({
     fontSize: 13,
     color: COLORS.text,
     height: 34,
+  },
+  artist: {
+    fontSize: 11,
+    color: COLORS.textLight,
+    marginTop: 2,
   },
   rating: {
     fontSize: 12,

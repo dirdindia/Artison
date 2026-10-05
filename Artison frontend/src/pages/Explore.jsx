@@ -71,7 +71,7 @@ export default function Explore() {
           const formattedProducts = res.data.data.map(p => ({
             id: p._id,
             title: p.name,
-            artist: p.subCategory ? p.subCategory.name : "Unknown Artist",
+            artist: p.artist || "Independent Artist",
             price: p.price,
             salePrice: p.salePrice,
             image: p.image || "https://placehold.co/400x500",

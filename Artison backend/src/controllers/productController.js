@@ -67,6 +67,7 @@ const getProducts = async (req, res) => {
     const products = await Product.find(query)
       .populate('category', 'name')
       .populate('subCategory', 'name')
+      .populate('artist', 'name email')
       .sort({ createdAt: -1 })
       .skip(skip)
       .limit(limit);

@@ -215,15 +215,16 @@ const Products = () => {
                 <th className="px-6 py-4">SubCategory</th>
                 <th className="px-6 py-4">Price</th>
                 <th className="px-6 py-4">Stock</th>
+                <th className="px-6 py-4">Added By</th>
                 <th className="px-6 py-4">Status & Approval</th>
                 <th className="px-6 py-4 text-right">Actions</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-[#eae0d5]">
               {loading ? (
-                <tr><td colSpan="7" className="text-center py-8">Loading...</td></tr>
+                <tr><td colSpan="8" className="text-center py-8">Loading...</td></tr>
               ) : products.length === 0 ? (
-                <tr><td colSpan="7" className="text-center py-8">No products found.</td></tr>
+                <tr><td colSpan="8" className="text-center py-8">No products found.</td></tr>
               ) : (
                 products.map((product) => (
                   <tr key={product._id} className="hover:bg-[#fdfbf7]/50 transition-colors group">
@@ -268,6 +269,19 @@ const Products = () => {
                           </span>
                         )}
                       </div>
+                    </td>
+                    <td className="px-6 py-4">
+                      {product.artist ? (
+                        <div className="flex flex-col">
+                          <span className="font-medium text-[#3b2f2f] truncate max-w-[120px]">{product.artist.name || 'Artist'}</span>
+                          <span className="text-[10px] text-gray-500 uppercase tracking-wider">Artist</span>
+                        </div>
+                      ) : (
+                        <div className="flex flex-col">
+                          <span className="font-medium text-[#c39a5c]">Admin</span>
+                          <span className="text-[10px] text-gray-500 uppercase tracking-wider">System</span>
+                        </div>
+                      )}
                     </td>
                     <td className="px-6 py-4 flex flex-col gap-1">
                       <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium w-fit ${product.isActive ? 'bg-emerald-100 text-emerald-800' : 'bg-red-100 text-red-800'}`}>
